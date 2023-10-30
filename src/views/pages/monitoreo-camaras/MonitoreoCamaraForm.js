@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-// import PropTypes from 'prop-types';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
@@ -25,7 +24,6 @@ import {
   Select
 } from '@mui/material';
 
-
 // assets
 import CloseIcon from '@mui/icons-material/Close';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -41,10 +39,10 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
 
+import { toast } from 'react-toastify';
+
 // Get Data
 import { getCamaras, getPersonas, getTiposIncidencia, getVehiculos, getZonas, postCreate } from 'api/monitoreo-camaras/monitoreoCamarasApi';
-import { openSnackbar } from 'utils/snackbar';
-
 
 const maxWidth = 'md'; // xs, sm, md, lg, xl
 const fullWidth = true;
@@ -67,16 +65,7 @@ const MonitoreoCamaraForm = ({ open, handleClose, refreshTable }) => {
   const create = async (params) => {
     const respCreate = await postCreate(params);
     console.log(respCreate);
-    openSnackbar({
-      open: true,
-      anchorOrigin: { vertical: 'top', horizontal: 'right' },
-      message: respCreate.message,
-      variant: 'alert',
-      alert: {
-        color: 'success'
-      },
-      close: true
-    })
+    toast.success(respCreate.message);
     formik.resetForm();
     refreshTable();
     handleClose();
@@ -131,15 +120,6 @@ const MonitoreoCamaraForm = ({ open, handleClose, refreshTable }) => {
     validationSchema,
     onSubmit: (values) => {
       console.log(`onSubmit`);
-      // if (values.fecha) {
-      //   values.fecha = values.fecha.format('YYYY-MM-DD');
-      // }
-      // if (values.hora_inicio) {
-      //   values.hora_inicio = values.hora_inicio.format('HH:mm:ss');
-      // }
-      // if (values.hora_fin) {
-      //   values.hora_fin = values.hora_fin.format('HH:mm:ss');
-      // }
       console.log(values);
       const objParams = {
         fecha: values.fecha = values.fecha.format('YYYY-MM-DD'),

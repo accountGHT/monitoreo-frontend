@@ -9,6 +9,9 @@ import { DataGrid } from '@mui/x-data-grid';
 import MainCard from 'ui-component/cards/MainCard';
 import SecondaryAction from 'ui-component/cards/CardSecondaryAction';
 
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import MonitoreoCamaraForm from './MonitoreoCamaraForm';
 import { list } from 'api/monitoreo-camaras/monitoreoCamarasApi';
 
@@ -72,6 +75,7 @@ const MonitoreoCamaras = () => {
                     <MonitoreoCamaraForm open={openModalAdd} handleClose={closeModalAdd} refreshTable={refreshTable} />
                 )}
             </Grid>
+            <ToastContainer />
         </MainCard>
     )
 }
