@@ -18,7 +18,7 @@ const UtilsTablerIcons = Loadable(lazy(() => import('views/utilities/TablerIcons
 const SamplePage = Loadable(lazy(() => import('views/sample-page')));
 
 const PagesMonitoreoCamaras = Loadable(lazy(() => import('views/pages/monitoreo-camaras')));
-const PagesCentralComunicaciones = Loadable(lazy(() => import('views/pages/CentralComunicaciones')));
+const PagesCentralComunicaciones = Loadable(lazy(() => import('views/pages/central-comunicaciones')));
 const PagesDistribucionPersonal = Loadable(lazy(() => import('views/pages/DistribucionPersonal')));
 
 // ==============================|| MAIN ROUTING ||============================== //

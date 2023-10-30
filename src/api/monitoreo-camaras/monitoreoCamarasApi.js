@@ -63,10 +63,19 @@ export const getPersonas = async () => {
   }
 };
 
-
 export const getVehiculos = async () => {
   try {
     const response = await apiAxios.get(monitoreoCamarasEndpoints.vehiculos);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+export const getTiposComunicacion = async () => {
+  try {
+    const response = await apiAxios.get(monitoreoCamarasEndpoints.tiposComunicacion);
     return response.data;
   } catch (error) {
     console.log(error);
