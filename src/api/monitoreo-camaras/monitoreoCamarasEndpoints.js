@@ -8,6 +8,7 @@ const monitoreoCamarasEndpoints = {
     vehiculos: '/vehiculos',
     tiposComunicacion: '/multi-table?nombre_lista=TIPO DE COMUNICACIÓN',
     tiposPatrullaje: '/multi-table?nombre_lista=TIPO DE PATRULLAJE',
+    createCentralComunicacion: '/central-comunicaciones',
   };
   
   export default monitoreoCamarasEndpoints;

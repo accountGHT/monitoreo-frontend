@@ -82,3 +82,15 @@ export const getTiposComunicacion = async () => {
     throw error;
   }
 };
+
+
+export const postCreateCentralComunicacion = async (params) => {
+  try {
+    const response = await apiAxios.post(monitoreoCamarasEndpoints.createCentralComunicacion, params);
+    console.log(response);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};

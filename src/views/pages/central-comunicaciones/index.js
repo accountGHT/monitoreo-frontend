@@ -8,8 +8,8 @@ import { Grid, Button } from '@mui/material';
 import MainCard from 'ui-component/cards/MainCard';
 import SecondaryAction from 'ui-component/cards/CardSecondaryAction';
 
-// import { ToastContainer } from 'react-toastify';
-// import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import CentralComunicacionesForm from './CentralComunicacionesForm';
 // import { list } from 'api/monitoreo-camaras/monitoreoCamarasApi';
 
@@ -45,6 +45,7 @@ const CentralComunicaciones = () => {
                     <CentralComunicacionesForm open={openModalAdd} handleClose={closeModalAdd} refreshTable={refreshTable}></CentralComunicacionesForm>
                 )}
             </Grid>
+            <ToastContainer />
         </MainCard>
     )
 }

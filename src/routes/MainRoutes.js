@@ -19,7 +19,7 @@ const SamplePage = Loadable(lazy(() => import('views/sample-page')));
 
 const PagesMonitoreoCamaras = Loadable(lazy(() => import('views/pages/monitoreo-camaras')));
 const PagesCentralComunicaciones = Loadable(lazy(() => import('views/pages/central-comunicaciones')));
-const PagesDistribucionPersonal = Loadable(lazy(() => import('views/pages/DistribucionPersonal')));
+const PagesDistribucionPersonal = Loadable(lazy(() => import('views/pages/distribucion-personal')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 

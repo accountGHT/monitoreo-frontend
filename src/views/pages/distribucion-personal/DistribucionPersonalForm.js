@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 
 // material-ui
@@ -50,7 +49,7 @@ const fullWidth = true;
 const Transition = React.forwardRef((props, ref) => <Slide direction="up" ref={ref} {...props} />);
 const gridSpacing = 3;
 // ==============================|| FixedAssetMovementAdd Component ||============================== //
-const CentralComunicacionesForm = ({ open, handleClose, refreshTable }) => {
+const DistribucionPersonalForm = ({ open, handleClose, refreshTable }) => {
   const theme = useTheme();
   // const dispatch = useDispatch();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
@@ -472,4 +471,4 @@ const CentralComunicacionesForm = ({ open, handleClose, refreshTable }) => {
   );
 };
 
-export default CentralComunicacionesForm;
+export default DistribucionPersonalForm;
