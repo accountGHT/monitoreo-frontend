@@ -31,12 +31,6 @@ const CentralComunicaciones = () => {
         return new Date(fecha).toLocaleDateString(undefined, options);
     }
 
-    const formatearHora = (hora) => {
-        // const options = { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short' };
-        const options = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
-        return new Date(hora).toLocaleTimeString(undefined, options);
-    }
-
     const fetchData = async () => {
         try {
             const response = await axios.get(
@@ -107,7 +101,7 @@ const CentralComunicaciones = () => {
                             {data.map((item) => (
                                 <TableRow key={item.id}>
                                     <TableCell>{formatearFecha(item.fecha)}</TableCell>
-                                    <TableCell>{formatearHora(item.hora_llamada)}</TableCell>
+                                    <TableCell>{item.hora_llamada}</TableCell>
                                     <TableCell>{item.tipo_comunicacion.nombre}</TableCell>
                                     <TableCell>{item.turno}</TableCell>
                                     <TableCell>{item.descripcion_llamada}</TableCell>

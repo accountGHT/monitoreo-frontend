@@ -21,7 +21,10 @@ import {
   InputLabel,
   MenuItem,
   FormControl,
-  Select
+  Select,
+  FormControlLabel,
+  Switch,
+  InputAdornment
 } from '@mui/material';
 
 // assets
@@ -42,7 +45,7 @@ import 'dayjs/locale/es';
 import { toast } from 'react-toastify';
 
 // Get Data
-import { getPersonas, getTiposComunicacion, getTiposIncidencia, getVehiculos, getZonas, postCreateCentralComunicacion } from 'api/monitoreo-camaras/monitoreoCamarasApi';
+import { getPersonas, getTiposPatrullaje, getVehiculos, getZonas, postCreateDistribucionPersonal } from 'api/monitoreo-camaras/monitoreoCamarasApi';
 
 const maxWidth = 'md'; // xs, sm, md, lg, xl
 const fullWidth = true;
@@ -57,13 +60,12 @@ const DistribucionPersonalForm = ({ open, handleClose, refreshTable }) => {
   const locale = dayjs.locale('es');
   // Combos
   const [zonasList, setzonasList] = useState([]);
-  const [tiposComunicacion, setTiposComunicacion] = useState([]);
-  const [tiposIncidencia, setTiposIncidencia] = useState([]);
+  const [tiposPatrullaje, setTiposPatrullaje] = useState([]);
   const [personas, setPersonas] = useState([]);
   const [vehiculos, setVehiculos] = useState([]);
 
   const create = async (params) => {
-    const respCreate = await postCreateCentralComunicacion(params);
+    const respCreate = await postCreateDistribucionPersonal(params);
     console.log(respCreate);
     toast.success(respCreate.message);
     formik.resetForm();
@@ -73,24 +75,21 @@ const DistribucionPersonalForm = ({ open, handleClose, refreshTable }) => {
 
   const listZonas = async () => {
     const resZonas = await getZonas();
-    const resTiposComunicacion = await getTiposComunicacion();
-    const resTiposIncidencia = await getTiposIncidencia();
+    const resTiposPatrullaje = await getTiposPatrullaje();
     const resPersonas = await getPersonas();
     const resVehiculos = await getVehiculos();
     setzonasList(resZonas.data);
-    setTiposComunicacion(resTiposComunicacion.data);
-    setTiposIncidencia(resTiposIncidencia.data);
+    setTiposPatrullaje(resTiposPatrullaje.data);
     setPersonas(resPersonas.data);
     setVehiculos(resVehiculos.data);
   }
 
   const validationSchema = Yup.object({
     fecha: Yup.object().nullable().required('Fecha es requerida'),
-    zona_incidencia_id: Yup.number('Zona no es válido').required('Zona es requerida'),
-    tipo_apoyo_incidencia_id: Yup.number('Tipo Incidencia no es válido').nullable(),
-    operador_id: Yup.number('Operador no es válido').nullable(),
-    personal_serenazgo_id: Yup.number('Activo Fijo no es válido').nullable(),
+    zona_id: Yup.number('Zona no es válido').required('Zona es requerida'),
+    patrullero_id: Yup.number('Activo Fijo no es válido').nullable(),
     vehiculo_id: Yup.number('Área no es válido').nullable(),
+    num_partes_ocurrencia: Yup.number('Num. de partes debe se numérico'),
     supervisor_id: Yup.number('Supervisor no es válido').nullable(),
   });
 
@@ -98,24 +97,23 @@ const DistribucionPersonalForm = ({ open, handleClose, refreshTable }) => {
   const formik = useFormik({
     initialValues: {
       fecha: dayjs(),
-      hora_llamada: null,
-      tipo_comunicacion_id: '',
-      tipo_comunicacion: {},
+      hora: null,
       turno: '',
-      descripcion_llamada: '',
-      zona_incidencia_id: '',
-      zona: {},
-      tipo_apoyo_incidencia_id: '',
-      tipo_apoyo_incidencia: {},
-      operador_id: '',
-      operador: {},
-      personal_serenazgo_id: '',
-      personal_serenazgo: {},
+      patrullero_id: '',
+      patrullero: {},
       vehiculo_id: '',
       vehiculo: {},
+      zona_id: '',
+      zona: {},
+      patrullaje_integrado: 0,
+      ubicacion_persona: '',
+      tipo_patrullaje_id: '',
+      tipo_patrullaje: {},
+      num_partes_ocurrencia: '',
+      entrega_hoja_ruta: 0,
       supervisor_id: '',
       supervisor: {},
-      detalle_atencion: '',
+      codigo_radio: '',
     },
     validationSchema,
     onSubmit: (values) => {
@@ -123,17 +121,18 @@ const DistribucionPersonalForm = ({ open, handleClose, refreshTable }) => {
       console.log(values);
       const objParams = {
         fecha: values.fecha = values.fecha.format('YYYY-MM-DD'),
-        hora_llamada: values.hora_llamada.format('HH:mm:ss'),
-        tipo_comunicacion_id: values.tipo_comunicacion_id,
+        hora: values.hora.format('HH:mm:ss'),
         turno: values.turno,
-        descripcion_llamada: values.descripcion_llamada,
-        zona_incidencia_id: values.zona_incidencia_id,
-        operador_id: values.operador_id,
-        tipo_apoyo_incidencia_id: values.tipo_apoyo_incidencia_id,
-        personal_serenazgo_id: values.personal_serenazgo_id,
+        patrullero_id: values.patrullero_id,
         vehiculo_id: values.vehiculo_id,
+        zona_id: values.zona_id,
+        patrullaje_integrado: values.patrullaje_integrado,
+        ubicacion_persona: values.ubicacion_persona,
+        tipo_patrullaje_id: values.tipo_patrullaje_id,
+        num_partes_ocurrencia: values.num_partes_ocurrencia,
+        entrega_hoja_ruta: values.entrega_hoja_ruta,
+        codigo_radio: values.codigo_radio,
         supervisor_id: values.supervisor_id,
-        detalle_atencion: values.detalle_atencion,
       }
 
       console.log(objParams);
@@ -203,39 +202,14 @@ const DistribucionPersonalForm = ({ open, handleClose, refreshTable }) => {
             <Grid item xs={12} sm={6} md={3}>
               <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={locale}>
                 <TimePicker
-                  label="Hora de la Llamada"
-                  value={formik.values.hora_llamada}
+                  label="Hora"
+                  value={formik.values.hora}
                   onChange={(newValue) => {
-                    formik.setFieldValue('hora_llamada', newValue);
+                    formik.setFieldValue('hora', newValue);
                   }}
                   renderInput={(params) => <TextField {...params} variant="standard" />}
                 />
               </LocalizationProvider>
-            </Grid>
-
-            <Grid item xs={12} sm={6} md={3}>
-              <Autocomplete
-                disablePortal
-                id="tipo_comunicacion"
-                name="tipo_comunicacion"
-                options={tiposComunicacion}
-                getOptionLabel={(option) => (option.nombre !== undefined ? option.nombre : '')}
-                value={Object.entries(formik.values.tipo_comunicacion).length > 0 ? formik.values.tipo_comunicacion : null}
-                onChange={(event, newValue) => {
-                  formik.setFieldValue('tipo_comunicacion', newValue ?? {});
-                  formik.setFieldValue('tipo_comunicacion_id', newValue === null ? '' : newValue.id);
-                }}
-                isOptionEqualToValue={(option, value) => option.id === value.id}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Tipo de comunicación"
-                    error={formik.touched.tipo_comunicacion_id && Boolean(formik.errors.tipo_comunicacion_id)}
-                    helperText={formik.touched.tipo_comunicacion_id && formik.errors.tipo_comunicacion_id}
-                    variant="standard"
-                  />
-                )}
-              />
             </Grid>
 
             <Grid item xs={12} sm={6} md={3}>
@@ -257,120 +231,27 @@ const DistribucionPersonalForm = ({ open, handleClose, refreshTable }) => {
               </FormControl>
             </Grid>
 
-            <Grid item xs={12} sm={12} md={12}>
-              <TextField
-                id="descripcion_llamada"
-                label="Descripción de la llamada"
-                multiline
-                maxRows={4}
-                fullWidth
-                variant="standard"
-                value={formik.values.descripcion_llamada}
-                onChange={(event) => {
-                  formik.handleChange(event);
-                }}
-                onBlur={formik.handleBlur}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6} md={3}>
-              <Autocomplete
-                disablePortal
-                id="zona"
-                name="zona"
-                options={zonasList}
-                getOptionLabel={(option) => (option.nombre !== undefined ? option.nombre : '')}
-                value={Object.entries(formik.values.zona).length > 0 ? formik.values.zona : null}
-                onChange={(event, newValue) => {
-                  formik.setFieldValue('zona', newValue ?? {});
-                  formik.setFieldValue('zona_incidencia_id', newValue === null ? '' : newValue.id);
-                }}
-                isOptionEqualToValue={(option, value) => option.id === value.id}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Zona"
-                    error={formik.touched.zona_incidencia_id && Boolean(formik.errors.zona_incidencia_id)}
-                    helperText={formik.touched.zona_incidencia_id && formik.errors.zona_incidencia_id}
-                    variant="standard"
-                  />
-                )}
-              />
-            </Grid>
-
             <Grid item xs={12} sm={6} md={6}>
               <Autocomplete
                 disablePortal
-                id="operador"
-                name="operador"
+                id="patrullero"
+                name="patrullero"
                 options={personas}
                 getOptionLabel={(option) =>
                   option.nombres !== undefined ? `${option.nombres} ${option.p_apellido} ${option.s_apellido}` : ''
                 }
-                value={Object.entries(formik.values.operador).length > 0 ? formik.values.operador : null}
+                value={Object.entries(formik.values.patrullero).length > 0 ? formik.values.patrullero : null}
                 onChange={(event, newValue) => {
-                  formik.setFieldValue('operador', newValue === null ? {} : newValue);
-                  formik.setFieldValue('operador_id', newValue === null ? null : newValue.id);
-                }}
-                isOptionEqualToValue={(option, value) => option.id === value.id}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Operador"
-                    error={formik.touched.operador_id && Boolean(formik.errors.operador_id)}
-                    helperText={formik.touched.operador_id && formik.errors.operador_id}
-                    variant="standard"
-                  />
-                )}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6} md={3}>
-              <Autocomplete
-                disablePortal
-                id="tipo_apoyo_incidencia"
-                name="tipo_apoyo_incidencia"
-                options={tiposIncidencia}
-                getOptionLabel={(option) => (option.nombre !== undefined ? option.nombre : '')}
-                value={Object.entries(formik.values.tipo_apoyo_incidencia).length > 0 ? formik.values.tipo_apoyo_incidencia : null}
-                onChange={(event, newValue) => {
-                  formik.setFieldValue('tipo_apoyo_incidencia', newValue ?? {});
-                  formik.setFieldValue('tipo_apoyo_incidencia_id', newValue === null ? '' : newValue.id);
-                }}
-                isOptionEqualToValue={(option, value) => option.id === value.id}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Tipo Incidencia"
-                    error={formik.touched.tipo_apoyo_incidencia_id && Boolean(formik.errors.tipo_apoyo_incidencia_id)}
-                    helperText={formik.touched.tipo_apoyo_incidencia_id && formik.errors.tipo_apoyo_incidencia_id}
-                    variant="standard"
-                  />
-                )}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6} md={6}>
-              <Autocomplete
-                disablePortal
-                id="personal_serenazgo"
-                name="personal_serenazgo"
-                options={personas}
-                getOptionLabel={(option) =>
-                  option.nombres !== undefined ? `${option.nombres} ${option.p_apellido} ${option.s_apellido}` : ''
-                }
-                value={Object.entries(formik.values.personal_serenazgo).length > 0 ? formik.values.personal_serenazgo : null}
-                onChange={(event, newValue) => {
-                  formik.setFieldValue('personal_serenazgo', newValue === null ? {} : newValue);
-                  formik.setFieldValue('personal_serenazgo_id', newValue === null ? null : newValue.id);
+                  formik.setFieldValue('patrullero', newValue === null ? {} : newValue);
+                  formik.setFieldValue('patrullero_id', newValue === null ? null : newValue.id);
                 }}
                 isOptionEqualToValue={(option, value) => option.id === value.id}
                 renderInput={(params) => (
                   <TextField
                     {...params}
                     label="Sereno"
-                    error={formik.touched.personal_serenazgo_id && Boolean(formik.errors.personal_serenazgo_id)}
-                    helperText={formik.touched.personal_serenazgo_id && formik.errors.personal_serenazgo_id}
+                    error={formik.touched.patrullero_id && Boolean(formik.errors.patrullero_id)}
+                    helperText={formik.touched.patrullero_id && formik.errors.patrullero_id}
                     variant="standard"
                   />
                 )}
@@ -402,6 +283,152 @@ const DistribucionPersonalForm = ({ open, handleClose, refreshTable }) => {
               />
             </Grid>
 
+            <Grid item xs={12} sm={6} md={3}>
+              <Autocomplete
+                disablePortal
+                id="zona"
+                name="zona"
+                options={zonasList}
+                getOptionLabel={(option) => (option.nombre !== undefined ? option.nombre : '')}
+                value={Object.entries(formik.values.zona).length > 0 ? formik.values.zona : null}
+                onChange={(event, newValue) => {
+                  formik.setFieldValue('zona', newValue ?? {});
+                  formik.setFieldValue('zona_id', newValue === null ? '' : newValue.id);
+                }}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Zona"
+                    error={formik.touched.zona_id && Boolean(formik.errors.zona_id)}
+                    helperText={formik.touched.zona_id && formik.errors.zona_id}
+                    variant="standard"
+                  />
+                )}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6} md={6}>
+              <FormControlLabel
+                id="patrullaje_integrado"
+                name="patrullaje_integrado"
+                label="¿Patrullaje integrado?"
+                labelPlacement="end"
+                value={formik.values.patrullaje_integrado}
+                onChange={formik.handleChange}
+                control={
+                  <Switch
+                    color="primary"
+                    checked={formik.values.patrullaje_integrado === 1}
+                    value={formik.values.patrullaje_integrado}
+                    onChange={(event) => {
+                      formik.setFieldValue('patrullaje_integrado', event.target.checked ? 1 : 0);
+                    }}
+                    inputProps={{ 'aria-label': 'controlled' }}
+                  />
+                }
+                autoComplete="family-name"
+                variant="standard"
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={9} md={9}>
+              <TextField
+                id="ubicacion_persona"
+                label="Ubicación actual del personal durante el servicio"
+                multiline
+                maxRows={4}
+                fullWidth
+                value={formik.values.ubicacion_persona}
+                onChange={(event) => {
+                  formik.handleChange(event);
+                }}
+                onBlur={formik.handleBlur}
+                variant="standard"
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6} md={3}>
+              <Autocomplete
+                disablePortal
+                id="tipo_patrullaje"
+                name="tipo_patrullaje"
+                options={tiposPatrullaje}
+                getOptionLabel={(option) => (option.nombre !== undefined ? option.nombre : '')}
+                value={Object.entries(formik.values.tipo_patrullaje).length > 0 ? formik.values.tipo_patrullaje : null}
+                onChange={(event, newValue) => {
+                  formik.setFieldValue('tipo_patrullaje', newValue ?? {});
+                  formik.setFieldValue('tipo_patrullaje_id', newValue === null ? '' : newValue.id);
+                }}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Tipo de patrullaje"
+                    error={formik.touched.tipo_patrullaje_id && Boolean(formik.errors.tipo_patrullaje_id)}
+                    helperText={formik.touched.tipo_patrullaje_id && formik.errors.tipo_patrullaje_id}
+                    variant="standard"
+                  />
+                )}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={3} md={3}>
+              <TextField
+                id="num_partes_ocurrencia"
+                name="num_partes_ocurrencia"
+                label="Partes de ocurrencias"
+                type="number"
+                value={formik.values.num_partes_ocurrencia > 0 ? formik.values.num_partes_ocurrencia : ''}
+                onChange={formik.handleChange}
+                error={formik.touched.num_partes_ocurrencia && Boolean(formik.errors.num_partes_ocurrencia)}
+                helperText={formik.touched.num_partes_ocurrencia && formik.errors.num_partes_ocurrencia}
+                fullWidth
+                InputProps={{
+                  startAdornment: <InputAdornment position="start">Cantidad</InputAdornment>
+                }}
+                variant="standard"
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6} md={6}>
+              <FormControlLabel
+                id="entrega_hoja_ruta"
+                name="entrega_hoja_ruta"
+                label="¿Se entrego Hoja de Ruta del patrullaje?"
+                labelPlacement="end"
+                value={formik.values.entrega_hoja_ruta}
+                onChange={formik.handleChange}
+                control={
+                  <Switch
+                    color="primary"
+                    checked={formik.values.entrega_hoja_ruta === 1}
+                    value={formik.values.entrega_hoja_ruta}
+                    onChange={(event) => {
+                      formik.setFieldValue('entrega_hoja_ruta', event.target.checked ? 1 : 0);
+                    }}
+                    inputProps={{ 'aria-label': 'controlled' }}
+                  />
+                }
+                autoComplete="family-name"
+                variant="standard"
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={3} md={3}>
+              <TextField
+                id="codigo_radio"
+                label="Código de radio portátil"
+                fullWidth
+                variant="standard"
+                value={formik.values.codigo_radio}
+                onChange={(event) => {
+                  formik.handleChange(event);
+                }}
+                onBlur={formik.handleBlur}
+              />
+            </Grid>
+
             <Grid item xs={12} sm={6} md={6}>
               <Autocomplete
                 disablePortal
@@ -426,22 +453,6 @@ const DistribucionPersonalForm = ({ open, handleClose, refreshTable }) => {
                     variant="standard"
                   />
                 )}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={12} md={12}>
-              <TextField
-                id="detalle_atencion"
-                label="Resultado de la atención"
-                multiline
-                maxRows={4}
-                fullWidth
-                variant="standard"
-                value={formik.values.detalle_atencion}
-                onChange={(event) => {
-                  formik.handleChange(event);
-                }}
-                onBlur={formik.handleBlur}
               />
             </Grid>
 

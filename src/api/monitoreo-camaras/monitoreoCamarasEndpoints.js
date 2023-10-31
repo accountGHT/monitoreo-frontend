@@ -9,6 +9,8 @@ const monitoreoCamarasEndpoints = {
     tiposComunicacion: '/multi-table?nombre_lista=TIPO DE COMUNICACIÓN',
     tiposPatrullaje: '/multi-table?nombre_lista=TIPO DE PATRULLAJE',
     createCentralComunicacion: '/central-comunicaciones',
+    createDistribucionPersonal: '/distribucion-personal',
+    datosGrafico: '/monitoreo-camara/datos-grafico',
   };
   
   export default monitoreoCamarasEndpoints;

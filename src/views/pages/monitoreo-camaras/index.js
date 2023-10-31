@@ -44,13 +44,13 @@ const MonitoreoCamaras = () => {
         { field: 'hora_fin', headerName: 'Hora fin', width: 75 },
         { field: 'turno', headerName: 'Turno', width: 70 },
         { field: 'descripcion_incidencia', headerName: 'Descripción Incidencia', width: 200 },
-        { field: 'zona_id', headerName: 'Zona', width: 100 },
+        // { field: 'zona_id', headerName: 'Zona', width: 100 },
         { field: 'camara_nombre', headerName: 'Cámara', width: 100 },
-        { field: 'operador_camaras_id', headerName: 'operador_camaras_id', width: 100 },
-        { field: 'tipo_incidencia_id', headerName: 'tipo_incidencia_id', width: 100 },
-        { field: 'personal_serenazgo_id', headerName: 'personal_serenazgo_id', width: 100 },
-        { field: 'vehiculo_serenazgo_id', headerName: 'vehiculo_serenazgo_id', width: 100 },
-        { field: 'encargado_id', headerName: 'Encargado', width: 100 },
+        // { field: 'operador_camaras_id', headerName: 'operador_camaras_id', width: 100 },
+        // { field: 'tipo_incidencia_id', headerName: 'tipo_incidencia_id', width: 100 },
+        // { field: 'personal_serenazgo_id', headerName: 'personal_serenazgo_id', width: 100 },
+        // { field: 'vehiculo_serenazgo_id', headerName: 'vehiculo_serenazgo_id', width: 100 },
+        // { field: 'encargado_id', headerName: 'Encargado', width: 100 },
     ];
 
     useEffect(() => {

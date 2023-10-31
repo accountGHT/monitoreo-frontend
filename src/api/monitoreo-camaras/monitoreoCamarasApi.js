@@ -94,3 +94,35 @@ export const postCreateCentralComunicacion = async (params) => {
     throw error;
   }
 };
+
+export const getTiposPatrullaje = async () => {
+  try {
+    const response = await apiAxios.get(monitoreoCamarasEndpoints.tiposPatrullaje);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+export const postCreateDistribucionPersonal = async (params) => {
+  try {
+    const response = await apiAxios.post(monitoreoCamarasEndpoints.createDistribucionPersonal, params);
+    console.log(response);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+
+export const getDatosGrafico = async (params) => {
+  try {
+    const response = await apiAxios.get(`${monitoreoCamarasEndpoints.datosGrafico}${params}`);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
