@@ -18,6 +18,8 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
 
+import MonitoreoCamarasTable from './monitoreo-camaras/MonitoreoCamarasTable';
+
 
 // Get Data
 import { getDatosGrafico, getZonas } from 'api/monitoreo-camaras/monitoreoCamarasApi';
@@ -26,15 +28,20 @@ const LuisitoBarChart = ({ isLoading }) => {
     // Fechas
     const locale = dayjs.locale('es');
 
+    //
+    const [drawTable, setDrawTable] = useState(true);
+
+    // filters
     const [fechaInicio, setFechaInicio] = useState('2000-01-01');
     const [fechaFin, setFechaFin] = useState('2023-10-31');
+    const [zona, setzona] = useState({});
+    const [turno, setTurno] = useState('');
+    const [tipoReporte, setTipoReporte] = useState('');
 
     // Combos
     const [zonas, setzonas] = useState([]);
-    const [zona, setzona] = useState({});
-    const [turno, setTurno] = useState('');
 
-
+    // Chart
     const [optionsChart, setOptionsChart] = useState({});
     const [seriesChart, setSeriesChart] = useState([]);
 
@@ -47,11 +54,11 @@ const LuisitoBarChart = ({ isLoading }) => {
     const listDatosGrafico = async (fechaInicio, fechaFin, zona = null, turno = '') => {
         let params = `?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
 
-        if(turno !== '') {
+        if (turno !== '') {
             params = params + `&turno=${turno}`;
         }
 
-        if(zona !== null) {
+        if (zona !== null) {
             // params = params + `&turno=${turno}`;
         }
 
@@ -83,30 +90,45 @@ const LuisitoBarChart = ({ isLoading }) => {
     }
 
     useEffect(() => {
+        setTipoReporte('Monitoreo Cámaras');
         fillFilters();
         listDatosGrafico(fechaInicio, fechaFin);
     }, []);
 
     const onChangeFechaDesde = (value) => {
+        setDrawTable(false);
         setFechaInicio(value.format('YYYY-MM-DD'));
-        listDatosGrafico(value.format('YYYY-MM-DD'), fechaFin);
+        listDatosGrafico(value.format('YYYY-MM-DD'), fechaFin, null, turno);
+        setDrawTable(true);
     }
 
     const onChangeFechaHasta = (fecha) => {
+        setDrawTable(false);
         setFechaFin(fecha.format('YYYY-MM-DD'));
-        listDatosGrafico(fechaInicio, fecha.format('YYYY-MM-DD'));
+        listDatosGrafico(fechaInicio, fecha.format('YYYY-MM-DD'), null, turno);
+        setDrawTable(true);
     }
 
     const onChangeZona = (value) => {
+        // setDrawTable(false);
         console.log(value);
         setzona(value ?? {});
         // listDatosGrafico(fechaInicio, fecha.format('YYYY-MM-DD'));
+        setDrawTable(true);
     }
 
     const onChangeTurno = (event) => {
+        setDrawTable(false);
         console.log(event.target.value);
         setTurno(event.target.value);
         listDatosGrafico(fechaInicio, fechaFin, null, event.target.value);
+        setDrawTable(true);
+    }
+
+
+    const onChangeTipoReporte = (event) => {
+        console.log(event.target.value);
+        setTipoReporte(event.target.value);
     }
 
 
@@ -117,18 +139,20 @@ const LuisitoBarChart = ({ isLoading }) => {
             ) : (
                 <MainCard>
                     <Grid container spacing={gridSpacing}>
+                        <Grid item xs={12}><Typography variant="h1">CENTRAL DE MONITOREO SERENAZGO TALARA</Typography></Grid>
                         <Grid item xs={12}>
                             <Grid container alignItems="center" justifyContent="space-between">
                                 <Grid item>
                                     <Grid container direction="column" spacing={1}>
                                         <Grid item>
-                                            <Typography variant="h3">Monitoreo Cámaras</Typography>
+                                            <Typography variant="h3">{tipoReporte}</Typography>
                                         </Grid>
                                     </Grid>
                                 </Grid>
                             </Grid>
                         </Grid>
-                        <Grid item xs={12}>
+
+                        <Grid item xs={9}>
                             <Grid container spacing={3}>
                                 <Grid item xs={12} sm={6} md={3}>
                                     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={locale}>
@@ -209,8 +233,6 @@ const LuisitoBarChart = ({ isLoading }) => {
                                     </FormControl>
                                 </Grid>
                             </Grid>
-                        </Grid>
-                        <Grid item xs={12}>
                             <Chart
                                 options={optionsChart}
                                 series={seriesChart}
@@ -218,6 +240,30 @@ const LuisitoBarChart = ({ isLoading }) => {
                             // width="500"
                             />
                         </Grid>
+                        <Grid item xs={12} sm={6} md={3}>
+                            <h3>Selecciona el tipo de reporte</h3>
+                            <FormControl fullWidth variant="standard">
+                                <InputLabel id="tipo-reporte-select-label">Tipo de reporte</InputLabel>
+                                <Select
+                                    labelId="tipo-reporte-select-label"
+                                    id="tipo-reporte-select"
+                                    value={tipoReporte}
+                                    label="Tipo de reporte"
+                                    onChange={onChangeTipoReporte}
+                                >
+                                    <MenuItem value={"Monitoreo Cámaras"}>Monitoreo Cámaras</MenuItem>
+                                    <MenuItem value={"CECOM"}>CECOM</MenuItem>
+                                    <MenuItem value={"Distribución del personal"}>Distribución del personal</MenuItem>
+                                </Select>
+                            </FormControl>
+                        </Grid>
+
+                        {drawTable && (
+                            <Grid item xs={12}>
+                                <MonitoreoCamarasTable fechaInicio={fechaInicio} fechaFin={fechaFin} turno={turno} />
+                            </Grid>
+                        )}
+
                     </Grid>
                 </MainCard>
             )}

@@ -10,7 +10,6 @@ import SecondaryAction from 'ui-component/cards/CardSecondaryAction';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import DistribucionPersonalForm from './DistribucionPersonalForm';
-// import { list } from 'api/monitoreo-camaras/monitoreoCamarasApi';
 import axios from 'axios';
 
 

@@ -126,3 +126,25 @@ export const getDatosGrafico = async (params) => {
     throw error;
   }
 };
+
+export const getTablaGrafico = async (params) => {
+  try {
+    params = params ?? '';
+    const response = await apiAxios.get(`${monitoreoCamarasEndpoints.tablaGrafico}${params}`);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+
+export const getDatosGraficoCentralComunicaciones = async (params) => {
+  try {
+    const response = await apiAxios.get(`${monitoreoCamarasEndpoints.datosGraficoCentralComunicaciones}${params}`);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
