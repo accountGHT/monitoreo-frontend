@@ -1,92 +1,85 @@
-import React, { useEffect, useState } from 'react';
-
-// material-ui
-import { Grid, Button } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
-
-// ui-component
+import React, { useState, useEffect } from 'react';
 import MainCard from 'ui-component/cards/MainCard';
-import SecondaryAction from 'ui-component/cards/CardSecondaryAction';
-
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-
-import VehiclesAdd from './VehiclesAdd';
-import { getVehiculos } from 'api/vehiculos/vehiculosApi';
+import { Grid, Snackbar } from '@mui/material';
+import MuiAlert from '@mui/material/Alert';
+import CreateVehicleForm from './CreateVehicleForm';
+import EditVehicleForm from './EditVehicleForm';
+import VehicleList from './ VehicleList';
+import { getVehiculos, deleteVehiculo } from 'api/vehiculos/vehiculosApi';
 
 const Vehicles = () => {
-    const [openModalAdd, setOpenModalAdd] = useState(false);
+  const [vehicles, setVehicles] = useState([]);
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success',
+  });
 
-    // Functions
-    const handleOpenModalAdd = () => setOpenModalAdd(true);
-    const closeModalAdd = () => setOpenModalAdd(false);
-
-    const [data, setData] = useState([]);
-
-    const fillVehiculos = async () => {
-        const resp = await getVehiculos();
-        console.log(resp);
-        setData(resp.data.data);
+  const fetchVehicles = async () => {
+    try {
+      const response = await getVehiculos();
+      console.log(response.data.data);
+      setVehicles(response.data.data);
+    } catch (error) {
+      console.error('Error al obtener los vehículos:', error);
     }
+  };
 
+  useEffect(() => {
+    fetchVehicles();
+  }, []);
 
-    const refreshTable = () => {
-        console.log(`refreshTable`);
-        fillVehiculos();
-    };
+  const handleVehicleCreated = (newVehicle) => {
+    setVehicles([...vehicles, newVehicle]);
+    setSnackbar({ open: true, message: 'Vehículo creado con éxito', severity: 'success' });
+  };
 
-    const columns = [
-        { field: 'id', headerName: 'Id', width: 30 },
-        { field: 'codigo', headerName: 'Código', width: 75 },
-        { field: 'marca', headerName: 'Marca', width: 75 },
-        { field: 'modelo', headerName: 'Modelo', width: 75 },
-        { field: 'anio', headerName: 'Año', width: 70 },
-        { field: 'placa', headerName: 'Placa', width: 70 },
-        { field: 'color', headerName: 'Color', width: 70 },
-        { field: 'kilometraje', headerName: 'Kilometraje', width: 130 },
-        {
-            field: 'esta_operativo',
-            headerName: 'Operativo',
-            width: 100,
-            renderCell: (params) => {
-                return params.row.esta_operativo ? 'SI' : 'NO';
-            }
-        },
-        { field: 'descripcion', headerName: 'Descripción', width: 200 },
-        {
-            field: 'estado',
-            headerName: 'Estado',
-            width: 200,
-            renderCell: (params) => {
-                return params.row.estado ? 'SI' : 'NO';
-            }
-        },
-    ];
+  const handleVehicleUpdated = (updatedVehicle) => {
+    const updatedVehicles = vehicles.map((vehicle) =>
+      vehicle.id === updatedVehicle.id ? updatedVehicle : vehicle
+    );
+    setVehicles(updatedVehicles);
+    setSelectedVehicle(null);
+    setSnackbar({ open: true, message: 'Vehículo actualizado con éxito', severity: 'success' });
+  };
 
-    useEffect(() => {
-        fillVehiculos();
-        return () => {
-            setOpenModalAdd(false);
-        }
-    }, []);
-    return (
-        <MainCard title="Vehículos" style={{ marginTop: '20px' }} secondary={<SecondaryAction link="#" />}>
-            <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'end', marginBottom: '12px' }}>
-                <Button variant="contained" color="primary" onClick={handleOpenModalAdd}>
-                    Agregar Nuevo Registro
-                </Button>
-            </div>
-            <div style={{ height: 500, width: '100%' }}>
-                <DataGrid rows={data} columns={columns} pageSize={10} />
-            </div>
-            <Grid container justifyContent="flex-end">
-                {openModalAdd && (
-                    <VehiclesAdd open={openModalAdd} handleClose={closeModalAdd} refreshTable={refreshTable} />
-                )}
-            </Grid>
-            <ToastContainer />
-        </MainCard>
-    )
-}
+  const handleDeleteVehicle = async (vehicleId) => {
+    try {
+      await deleteVehiculo(vehicleId);
+      const updatedVehicles = vehicles.filter((vehicle) => vehicle.id !== vehicleId);
+      setVehicles(updatedVehicles);
+      setSnackbar({ open: true, message: 'Vehículo eliminado con éxito', severity: 'success' });
+    } catch (error) {
+      console.error('Error al eliminar el vehículo:', error);
+      setSnackbar({ open: true, message: 'Error al eliminar el vehículo', severity: 'error' });
+    }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+
+  return (
+    <MainCard title="Vehículos" style={{ marginTop: '20px' }}>
+      <Grid container spacing={2}>
+        <Grid item xs={6}>
+          <CreateVehicleForm onVehicleCreated={handleVehicleCreated} />
+        </Grid>
+        <Grid item xs={6}>
+          <VehicleList vehicles={vehicles} onEdit={setSelectedVehicle} onDelete={handleDeleteVehicle} />
+        </Grid>
+      </Grid>
+      {selectedVehicle && (
+        <EditVehicleForm vehicleId={selectedVehicle.id} onVehicleUpdated={handleVehicleUpdated} />
+      )}
+      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+        <MuiAlert onClose={handleCloseSnackbar} severity={snackbar.severity} elevation={6} variant="filled">
+          {snackbar.message}
+        </MuiAlert>
+      </Snackbar>
+    </MainCard>
+  );
+};
 
 export default Vehicles;
