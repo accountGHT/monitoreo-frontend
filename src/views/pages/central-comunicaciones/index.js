@@ -34,7 +34,7 @@ const CentralComunicaciones = () => {
     const fetchData = async () => {
         try {
             const response = await axios.get(
-                `http://apimonitoreotalara.pagaltoque.com/api/central-comunicaciones?page=${page}`
+                `https://apimonitoreotalara.pagaltoque.com/api/central-comunicaciones?page=${page}`
             );
             const responseData = response.data.data.data;
             setData(responseData);

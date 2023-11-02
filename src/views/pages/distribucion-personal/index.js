@@ -40,7 +40,7 @@ const DistribucionPersonal = () => {
     const fetchData = async () => {
         try {
             const response = await axios.get(
-                `http://apimonitoreotalara.pagaltoque.com/api/distribucion-personal?page=${page}`
+                `https://apimonitoreotalara.pagaltoque.com/api/distribucion-personal?page=${page}`
             );
             const responseData = response.data.data.data;
             setData(responseData);
