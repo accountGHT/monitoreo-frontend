@@ -8,9 +8,9 @@ import Loadable from 'ui-component/Loadable';
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/Default')));
 
 // utilities routing
-// const UtilsTypography = Loadable(lazy(() => import('views/utilities/Typography')));
-// const UtilsColor = Loadable(lazy(() => import('views/utilities/Color')));
-// const UtilsShadow = Loadable(lazy(() => import('views/utilities/Shadow')));
+const UtilsTypography = Loadable(lazy(() => import('views/utilities/Typography')));
+const UtilsColor = Loadable(lazy(() => import('views/utilities/Color')));
+const UtilsShadow = Loadable(lazy(() => import('views/utilities/Shadow')));
 const UtilsMaterialIcons = Loadable(lazy(() => import('views/utilities/MaterialIcons')));
 const UtilsTablerIcons = Loadable(lazy(() => import('views/utilities/TablerIcons')));
 
@@ -20,6 +20,11 @@ const SamplePage = Loadable(lazy(() => import('views/sample-page')));
 const PagesMonitoreoCamaras = Loadable(lazy(() => import('views/pages/monitoreo-camaras')));
 const PagesCentralComunicaciones = Loadable(lazy(() => import('views/pages/central-comunicaciones')));
 const PagesDistribucionPersonal = Loadable(lazy(() => import('views/pages/distribucion-personal')));
+
+
+// settings routing
+const SettingsVehicles = Loadable(lazy(() => import('views/settings/vehicles')));
+const SettingsPersons = Loadable(lazy(() => import('views/settings/persons')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -46,7 +51,7 @@ const MainRoutes = {
         {
           path: 'monitoreo-camaras',
           element: <PagesMonitoreoCamaras />
-        }, 
+        },
         {
           path: 'central-comunicaciones',
           element: <PagesCentralComunicaciones />
@@ -57,33 +62,46 @@ const MainRoutes = {
         }
       ]
     },
-    // {
-    //   path: 'utils',
-    //   children: [
-    //     {
-    //       path: 'util-typography',
-    //       element: <UtilsTypography />
-    //     }
-    //   ]
-    // },
-    // {
-    //   path: 'utils',
-    //   children: [
-    //     {
-    //       path: 'util-color',
-    //       element: <UtilsColor />
-    //     }
-    //   ]
-    // },
-    // {
-    //   path: 'utils',
-    //   children: [
-    //     {
-    //       path: 'util-shadow',
-    //       element: <UtilsShadow />
-    //     }
-    //   ]
-    // },
+    {
+      path: 'configuraciones',
+      children: [
+        {
+          path: 'vehiculos',
+          element: <SettingsVehicles />
+        },
+        {
+          path: 'personas',
+          element: <SettingsPersons />
+        }
+      ]
+    },
+    {
+      path: 'utils',
+      children: [
+        {
+          path: 'util-typography',
+          element: <UtilsTypography />
+        }
+      ]
+    },
+    {
+      path: 'utils',
+      children: [
+        {
+          path: 'util-color',
+          element: <UtilsColor />
+        }
+      ]
+    },
+    {
+      path: 'utils',
+      children: [
+        {
+          path: 'util-shadow',
+          element: <UtilsShadow />
+        }
+      ]
+    },
     {
       path: 'icons',
       children: [

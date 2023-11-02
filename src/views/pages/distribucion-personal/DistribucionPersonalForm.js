@@ -45,7 +45,8 @@ import 'dayjs/locale/es';
 import { toast } from 'react-toastify';
 
 // Get Data
-import { getPersonas, getTiposPatrullaje, getVehiculos, getZonas, postCreateDistribucionPersonal } from 'api/monitoreo-camaras/monitoreoCamarasApi';
+import { getPersonas, getTiposPatrullaje, getZonas, postCreateDistribucionPersonal } from 'api/monitoreo-camaras/monitoreoCamarasApi';
+import { getVehiculosForAutocomplete } from 'api/vehiculos/vehiculosApi';
 
 const maxWidth = 'md'; // xs, sm, md, lg, xl
 const fullWidth = true;
@@ -77,7 +78,7 @@ const DistribucionPersonalForm = ({ open, handleClose, refreshTable }) => {
     const resZonas = await getZonas();
     const resTiposPatrullaje = await getTiposPatrullaje();
     const resPersonas = await getPersonas();
-    const resVehiculos = await getVehiculos();
+    const resVehiculos = await getVehiculosForAutocomplete();
     setzonasList(resZonas.data);
     setTiposPatrullaje(resTiposPatrullaje.data);
     setPersonas(resPersonas.data);

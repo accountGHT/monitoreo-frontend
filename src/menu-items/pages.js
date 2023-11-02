@@ -12,8 +12,8 @@ const icons = {
 
 const pages = {
   id: 'pages',
-  title: 'Pages',
-  caption: 'Pages Caption',
+  title: 'Principal',
+  caption: 'Páginas Principales',
   type: 'group',
   children: [
     {
