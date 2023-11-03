@@ -25,6 +25,12 @@ const PagesDistribucionPersonal = Loadable(lazy(() => import('views/pages/distri
 // settings routing
 const SettingsVehicles = Loadable(lazy(() => import('views/settings/vehicles')));
 const SettingsPersons = Loadable(lazy(() => import('views/settings/persons')));
+const SettingsZonas = Loadable(lazy(() => import('views/settings/multi-table/Zonas')));
+const SettingsTiposComunicacion = Loadable(lazy(() => import('views/settings/multi-table/TiposComunicacion')));
+const SettingsTiposApoyo = Loadable(lazy(() => import('views/settings/multi-table/TiposComunicacion')));
+const SettingsTiposIncidencia = Loadable(lazy(() => import('views/settings/multi-table/TiposIncidencia')));
+const SettingsTiposPatrullaje = Loadable(lazy(() => import('views/settings/multi-table/TiposPatrullaje')));
+const SettingsCamaras = Loadable(lazy(() => import('views/settings/multi-table/Camaras')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -72,6 +78,35 @@ const MainRoutes = {
         {
           path: 'personas',
           element: <SettingsPersons />
+        },
+        {
+          path: 'otros',
+          children: [
+            {
+              path: 'zonas',
+              element: <SettingsZonas />
+            },
+            {
+              path: 'tipos-comunicacion',
+              element: <SettingsTiposComunicacion />
+            },
+            {
+              path: 'tipos-apoyo',
+              element: <SettingsTiposApoyo />
+            },
+            {
+              path: 'tipos-incidencia',
+              element: <SettingsTiposIncidencia />
+            },
+            {
+              path: 'tipos-patrullaje',
+              element: <SettingsTiposPatrullaje />
+            },
+            {
+              path: 'camaras',
+              element: <SettingsCamaras />
+            }
+          ]
         }
       ]
     },

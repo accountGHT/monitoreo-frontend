@@ -38,7 +38,7 @@ const PersonForm = ({ open, handleClose, onSubmit, initialValues }) => {
   });
   return (
     <Dialog open={open} onClose={handleClose} TransitionComponent={Transition}>
-      <DialogTitle>Formulario de Vehículo</DialogTitle>
+      <DialogTitle>NUEVO REGISTRO</DialogTitle>
       <DialogContent>
         <form onSubmit={formik.handleSubmit}>
           {/* Agrega más campos de formulario aquí */}

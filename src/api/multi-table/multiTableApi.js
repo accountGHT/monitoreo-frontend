@@ -1,10 +1,30 @@
 import { handleError } from 'api/apiHelpers';
 import apiAxios from '../apiAxios';
-import endpoints from './vehiculosEndpoints';
+import endpoints from './multiTablesEndpoints';
 
-export const getVehiculos = async () => {
+export const getMultiTables = async (params) => {
     try {
-        const response = await apiAxios.get(endpoints.list);
+        params = params ?? '';
+        const response = await apiAxios.get(`${endpoints.list}${params}`);
+        return response.data;
+    } catch (error) {
+        return handleError(error);
+    }
+};
+
+export const createMultiTable = async (params) => {
+    try {
+        const response = await apiAxios.post(endpoints.list, params);
+        return response.data;
+    } catch (error) {
+        return handleError(error);
+    }
+};
+
+
+export const getVehiculoById = async (id) => {
+    try {
+        const response = await apiAxios.get(`${endpoints.list}/${id}`);
         return response.data;
     } catch (error) {
         console.log(error);
@@ -12,11 +32,33 @@ export const getVehiculos = async () => {
     }
 };
 
-export const createVehiculo = async (params) => {
+export const updateMultiTable = async (id, formData) => {
+    console.log(formData);
     try {
-        const response = await apiAxios.post(endpoints.list, params);
+        const response = await apiAxios.get(`${endpoints.list}/${id}`);
         return response.data;
     } catch (error) {
-        return handleError(error);
+        console.log(error);
+        throw error;
+    }
+};
+
+export const deleteMultiTable = async (id) => {
+    try {
+        const response = await apiAxios.get(`${endpoints.list}/${id}`);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};
+
+export const getMultiTablesForAutocomplete = async () => {
+    try {
+        const response = await apiAxios.get(endpoints.autocomplete);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        throw error;
     }
 };

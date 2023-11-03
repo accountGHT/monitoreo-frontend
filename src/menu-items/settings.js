@@ -33,27 +33,55 @@ const settings = {
       breadcrumbs: false
     },
     {
-      id: 'icons',
+      id: 'setting-others',
       title: 'Otros',
       type: 'collapse',
       icon: icons.IconWindmill,
       children: [
         {
-          id: 'tabler-icons',
-          title: 'Tabler Icons',
+          id: 'setting-zonas',
+          title: 'ZONAS',
           type: 'item',
-          url: '/icons/tabler-icons',
+          url: '/configuraciones/otros/zonas',
           breadcrumbs: false
         },
         {
-          id: 'material-icons',
-          title: 'Material Icons',
+          id: 'setting-tipos-comunicacion',
+          title: 'TIPOS DE COMUNICACIÓN',
           type: 'item',
-          external: true,
-          target: '_blank',
-          url: 'https://mui.com/material-ui/material-icons/',
+          url: '/configuraciones/otros/tipos-comunicacion',
+          breadcrumbs: false
+        },
+        {
+          id: 'setting-tipos-incidencia',
+          title: 'TIPOS DE INCIDENCIA',
+          type: 'item',
+          url: '/configuraciones/otros/tipos-incidencia',
+          breadcrumbs: false
+        },
+        {
+          id: 'setting-tipos-patrullaje',
+          title: 'TIPOS DE PATRULLAJE',
+          type: 'item',
+          url: '/configuraciones/otros/tipos-patrullaje',
+          breadcrumbs: false
+        },
+        {
+          id: 'setting-camaras',
+          title: 'CÁMARAS',
+          type: 'item',
+          url: '/configuraciones/otros/camaras',
           breadcrumbs: false
         }
+        // ,{
+        //   id: 'material-icons',
+        //   title: 'Material Icons',
+        //   type: 'item',
+        //   external: true,
+        //   target: '_blank',
+        //   url: 'https://mui.com/material-ui/material-icons/',
+        //   breadcrumbs: false
+        // }
       ]
     }
   ]

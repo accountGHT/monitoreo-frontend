@@ -35,7 +35,7 @@ const validationSchema = Yup.object().shape({
     estado: Yup.boolean(),
 });
 
-const VehicleForm = ({ open, handleClose, onSubmit, initialValues }) => {
+const MultiTableForm = ({ open, handleClose, onSubmit, initialValues }) => {
     console.log(`initialValues`, initialValues);
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
@@ -238,4 +238,4 @@ const VehicleForm = ({ open, handleClose, onSubmit, initialValues }) => {
     );
 };
 
-export default VehicleForm;
+export default MultiTableForm;
