@@ -1,8 +1,7 @@
-import { handleError } from 'api/apiHelpers';
 import apiAxios from '../apiAxios';
-import endpoints from './vehiculosEndpoints';
+import endpoints from './personasEndpoints';
 
-export const getVehiculos = async () => {
+export const getPersonas = async () => {
     try {
         const response = await apiAxios.get(endpoints.list);
         return response.data;
@@ -12,16 +11,17 @@ export const getVehiculos = async () => {
     }
 };
 
-export const createVehiculo = async (params) => {
+export const createPersona = async () => {
     try {
-        const response = await apiAxios.post(endpoints.list, params);
+        const response = await apiAxios.post(endpoints.list);
         return response.data;
     } catch (error) {
-        return handleError(error);
+        console.log(error);
+        throw error;
     }
 };
 
-export const getVehiculoById = async (id) => {
+export const getPersonaById = async (id) => {
     try {
         const response = await apiAxios.get(`${endpoints.list}/${id}`);
         return response.data;
@@ -31,7 +31,7 @@ export const getVehiculoById = async (id) => {
     }
 };
 
-export const updateVehiculo = async (id, formData) => {
+export const updatePersona = async (id, formData) => {
     console.log(formData);
     try {
         const response = await apiAxios.get(`${endpoints.list}/${id}`);
@@ -42,7 +42,7 @@ export const updateVehiculo = async (id, formData) => {
     }
 };
 
-export const deleteVehiculo = async (id) => {
+export const deletePersona = async (id) => {
     try {
         const response = await apiAxios.get(`${endpoints.list}/${id}`);
         return response.data;
@@ -52,7 +52,7 @@ export const deleteVehiculo = async (id) => {
     }
 };
 
-export const getVehiculosForAutocomplete = async () => {
+export const getPersonasForAutocomplete = async () => {
     try {
         const response = await apiAxios.get(endpoints.autocomplete);
         return response.data;

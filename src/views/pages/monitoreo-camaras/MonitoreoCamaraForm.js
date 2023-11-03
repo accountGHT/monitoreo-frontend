@@ -42,8 +42,9 @@ import 'dayjs/locale/es';
 import { toast } from 'react-toastify';
 
 // Get Data
-import { getCamaras, getPersonas, getTiposIncidencia, getZonas, postCreate } from 'api/monitoreo-camaras/monitoreoCamarasApi';
+import { getCamaras, getTiposIncidencia, getZonas, postCreate } from 'api/monitoreo-camaras/monitoreoCamarasApi';
 import { getVehiculosForAutocomplete } from 'api/vehiculos/vehiculosApi';
+import { getPersonasForAutocomplete } from 'api/personas/personasApi';
 
 const maxWidth = 'md'; // xs, sm, md, lg, xl
 const fullWidth = true;
@@ -76,7 +77,7 @@ const MonitoreoCamaraForm = ({ open, handleClose, refreshTable }) => {
     const resZonas = await getZonas();
     const resTiposIncidencia = await getTiposIncidencia();
     const resCamaras = await getCamaras();
-    const resPersonas = await getPersonas();
+    const resPersonas = await getPersonasForAutocomplete();
     const resVehiculos = await getVehiculosForAutocomplete();
     setzonasList(resZonas.data);
     setTiposIncidencia(resTiposIncidencia.data);

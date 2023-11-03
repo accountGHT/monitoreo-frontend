@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from 'react';
+import {
+  Grid,
+  Button,
+  Snackbar,
+  Alert,
+  Typography,
+} from '@mui/material';
 import MainCard from 'ui-component/cards/MainCard';
-import { Grid, Snackbar } from '@mui/material';
-import MuiAlert from '@mui/material/Alert';
-import CreateVehicleForm from './CreateVehicleForm';
-import EditVehicleForm from './EditVehicleForm';
+import VehicleForm from './VehicleForm';
 import VehicleList from './ VehicleList';
-import { getVehiculos, deleteVehiculo } from 'api/vehiculos/vehiculosApi';
+import { getVehiculos, createVehiculo, deleteVehiculo } from 'api/vehiculos/vehiculosApi';
 
 const Vehicles = () => {
   const [vehicles, setVehicles] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [openForm, setOpenForm] = useState(false);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
@@ -19,7 +24,6 @@ const Vehicles = () => {
   const fetchVehicles = async () => {
     try {
       const response = await getVehiculos();
-      console.log(response.data.data);
       setVehicles(response.data.data);
     } catch (error) {
       console.error('Error al obtener los vehículos:', error);
@@ -30,25 +34,32 @@ const Vehicles = () => {
     fetchVehicles();
   }, []);
 
-  const handleVehicleCreated = (newVehicle) => {
-    setVehicles([...vehicles, newVehicle]);
-    setSnackbar({ open: true, message: 'Vehículo creado con éxito', severity: 'success' });
+  const handleVehicleCreated = async (values) => {
+    console.log(`handleVehicleCreated`, values);
+    const resp = await createVehiculo(values);
+
+    if (resp.error) {
+      setSnackbar({ open: true, message: resp.responseData.message, severity: 'error' });
+      return { success: false, response: resp.responseData };
+    } else {
+      console.log(resp);
+      fetchVehicles();
+      setSnackbar({ open: true, message: 'Vehículo creado con éxito', severity: 'success' });
+      return { success: true, response: resp };
+    }
+
   };
 
-  const handleVehicleUpdated = (updatedVehicle) => {
-    const updatedVehicles = vehicles.map((vehicle) =>
-      vehicle.id === updatedVehicle.id ? updatedVehicle : vehicle
-    );
-    setVehicles(updatedVehicles);
-    setSelectedVehicle(null);
+  const handleVehicleUpdated = (values) => {
+    fetchVehicles();
+    console.log(`handleVehicleCreated`, values);
     setSnackbar({ open: true, message: 'Vehículo actualizado con éxito', severity: 'success' });
   };
 
   const handleDeleteVehicle = async (vehicleId) => {
     try {
       await deleteVehiculo(vehicleId);
-      const updatedVehicles = vehicles.filter((vehicle) => vehicle.id !== vehicleId);
-      setVehicles(updatedVehicles);
+      fetchVehicles();
       setSnackbar({ open: true, message: 'Vehículo eliminado con éxito', severity: 'success' });
     } catch (error) {
       console.error('Error al eliminar el vehículo:', error);
@@ -60,23 +71,38 @@ const Vehicles = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
+  const handleFormClose = () => {
+    setOpenForm(false);
+    setSelectedVehicle(null);
+  };
+
   return (
-    <MainCard title="Vehículos" style={{ marginTop: '20px' }}>
-      <Grid container spacing={2}>
+    <MainCard style={{ marginTop: '20px' }}>
+      <Grid container spacing={2} sx={{ p: 2 }}>
         <Grid item xs={6}>
-          <CreateVehicleForm onVehicleCreated={handleVehicleCreated} />
+          <Typography variant="h2" gutterBottom>
+            Vehículos
+          </Typography>
         </Grid>
         <Grid item xs={6}>
-          <VehicleList vehicles={vehicles} onEdit={setSelectedVehicle} onDelete={handleDeleteVehicle} />
+          <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'end', marginBottom: '12px' }}>
+            <Button variant="contained" onClick={() => setOpenForm(true)}>
+              Nuevo Vehículo
+            </Button>
+          </div>
+        </Grid>
+        <Grid item xs={12}>
+          <VehicleList vehicles={vehicles} onEdit={(vehicle) => setSelectedVehicle(vehicle)} onDelete={handleDeleteVehicle} />
         </Grid>
       </Grid>
-      {selectedVehicle && (
-        <EditVehicleForm vehicleId={selectedVehicle.id} onVehicleUpdated={handleVehicleUpdated} />
-      )}
-      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar}>
-        <MuiAlert onClose={handleCloseSnackbar} severity={snackbar.severity} elevation={6} variant="filled">
+      <VehicleForm open={openForm} handleClose={handleFormClose} onSubmit={selectedVehicle ? handleVehicleUpdated : handleVehicleCreated} initialValues={selectedVehicle || {}} />
+      <Snackbar
+        open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} elevation={6} variant="filled">
           {snackbar.message}
-        </MuiAlert>
+        </Alert>
       </Snackbar>
     </MainCard>
   );
