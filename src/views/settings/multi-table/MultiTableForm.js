@@ -4,35 +4,32 @@ import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import {
     Button,
-    Checkbox,
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
     Grid,
-    InputAdornment,
     Slide,
     Switch,
+    Autocomplete,
     TextField,
 } from '@mui/material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import { getMultiTablesForAutocomplete } from 'api/multi-table/multiTableApi';
 
-const maxWidth = 'md'; // xs, sm, md, lg, xl
+const maxWidth = 'sm'; // xs, sm, md, lg, xl
 const fullWidth = true;
 const Transition = React.forwardRef((props, ref) => <Slide direction="up" ref={ref} {...props} />);
 
 const validationSchema = Yup.object().shape({
-    codigo: Yup.string(),
-    marca: Yup.string().required('Campo requerido'),
-    modelo: Yup.string().required('Campo requerido'),
-    anio: Yup.number().required('Campo requerido'),
-    placa: Yup.string().required('Campo requerido'),
-    color: Yup.string(),
-    kilometraje: Yup.number(),
-    esta_operativo: Yup.boolean(),
-    descripcion: Yup.string(),
-    estado: Yup.boolean(),
+    codigo: Yup.string().nullable(),
+    nombre: Yup.string().required('El nombre es obligatorio'),
+    nombre_plural: Yup.string().nullable(),
+    // es_tabla: Yup.boolean().required('Este campo es obligatorio'),
+    es_tabla: Yup.boolean(),
+    padre_id: Yup.number().nullable(),
+    estado: Yup.boolean().required('Este campo es obligatorio'),
 });
 
 const MultiTableForm = ({ open, handleClose, onSubmit, initialValues }) => {
@@ -40,31 +37,24 @@ const MultiTableForm = ({ open, handleClose, onSubmit, initialValues }) => {
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
+    const [options, setOptions] = React.useState([]);
+
     const formik = useFormik({
         initialValues: Object.entries(initialValues).length > 0 ? initialValues : {
             codigo: '',
-            marca: '',
-            modelo: '',
-            anio: '',
-            placa: '',
-            color: '',
-            kilometraje: '',
-            esta_operativo: true,
-            descripcion: '',
+            nombre: '',
+            nombre_plural: '',
+            padre_id: '',
             estado: true,
         },
         validationSchema: validationSchema,
         onSubmit: async (values, { resetForm }) => {
             const valuesAsParams = {
                 codigo: values.codigo,
-                marca: values.marca,
-                modelo: values.modelo,
-                anio: values.anio,
-                placa: values.placa,
-                color: values.color,
-                kilometraje: values.kilometraje,
-                esta_operativo: values.esta_operativo,
-                descripcion: values.descripcion,
+                nombre: values.nombre,
+                nombre_plural: values.nombre_plural,
+                // padre_id: values.padre_id,
+                es_tabla: 0,
                 estado: values.estado,
             }
             const resp = await onSubmit(valuesAsParams, resetForm);
@@ -74,9 +64,23 @@ const MultiTableForm = ({ open, handleClose, onSubmit, initialValues }) => {
             } else {
                 console.log(resp);
             }
-
         },
     });
+
+    const fetchParent = async () => {
+        // try {
+        const resp = await getMultiTablesForAutocomplete(`?es_tabla=1`);
+        setOptions(resp.data);
+        // } catch (error) {
+        //     console.error(error);
+        // }
+    }
+
+    React.useEffect(() => {
+
+        fetchParent();
+    }, []); // La dependencia vacía asegura que la solicitud se realice solo una vez al montar el componente
+
 
     return (
 
@@ -107,112 +111,47 @@ const MultiTableForm = ({ open, handleClose, onSubmit, initialValues }) => {
                                 helperText={formik.touched.codigo && formik.errors.codigo}
                             />
                         </Grid>
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid item xs={12} sm={6} md={4}>
                             <TextField
                                 fullWidth
-                                id="marca"
-                                name="marca"
-                                label="Marca"
-                                value={formik.values.marca}
+                                id="nombre"
+                                name="nombre"
+                                label="Nombre"
+                                value={formik.values.nombre}
                                 onChange={formik.handleChange}
                                 variant="standard"
-                                error={formik.touched.marca && Boolean(formik.errors.marca)}
-                                helperText={formik.touched.marca && formik.errors.marca}
+                                error={formik.touched.nombre && Boolean(formik.errors.nombre)}
+                                helperText={formik.touched.nombre && formik.errors.nombre}
                             />
                         </Grid>
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid item xs={12} sm={6} md={5}>
                             <TextField
                                 fullWidth
-                                id="modelo"
-                                name="modelo"
-                                label="Modelo"
-                                value={formik.values.modelo}
+                                id="nombre_plural"
+                                name="nombre_plural"
+                                label="Nombre plural"
+                                value={formik.values.nombre_plural}
                                 onChange={formik.handleChange}
                                 variant="standard"
-                                error={formik.touched.modelo && Boolean(formik.errors.modelo)}
-                                helperText={formik.touched.modelo && formik.errors.modelo}
+                                error={formik.touched.nombre_plural && Boolean(formik.errors.nombre_plural)}
+                                helperText={formik.touched.nombre_plural && formik.errors.nombre_plural}
                             />
                         </Grid>
-                        <Grid item xs={12} sm={6} md={3}>
-                            <TextField
+                        <Grid item xs={12} sm={6} md={7}>
+                            <Autocomplete
                                 fullWidth
-                                id="anio"
-                                name="anio"
-                                label="Año"
-                                type="number"
-                                value={formik.values.anio}
-                                onChange={formik.handleChange}
-                                variant="standard"
-                                error={formik.touched.anio && Boolean(formik.errors.anio)}
-                                helperText={formik.touched.anio && formik.errors.anio}
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={6} md={3}>
-                            <TextField
-                                fullWidth
-                                id="placa"
-                                name="placa"
-                                label="Placa"
-                                value={formik.values.placa}
-                                onChange={formik.handleChange}
-                                variant="standard"
-                                error={formik.touched.placa && Boolean(formik.errors.placa)}
-                                helperText={formik.touched.placa && formik.errors.placa}
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={6} md={3}>
-                            <TextField
-                                fullWidth
-                                id="color"
-                                name="color"
-                                label="Color"
-                                value={formik.values.color}
-                                onChange={formik.handleChange}
-                                variant="standard"
-                                error={formik.touched.color && Boolean(formik.errors.color)}
-                                helperText={formik.touched.color && formik.errors.color}
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={6} md={3}>
-                            <TextField
-                                fullWidth
-                                id="kilometraje"
-                                name="kilometraje"
-                                label="kilometraje"
-                                type="number"
-                                value={formik.values.kilometraje}
-                                onChange={formik.handleChange}
-                                variant="standard"
-                                InputProps={{
-                                    endAdornment: <InputAdornment position="start">Km</InputAdornment>
+                                id="padre_id"
+                                name="padre_id"
+                                options={options}
+                                getOptionLabel={(option) => option.nombre}
+                                value={options.find((option) => option.id === formik.values.padre_id) || null}
+                                onChange={(event, newValue) => {
+                                    formik.setFieldValue('padre_id', newValue ? newValue.id : null);
                                 }}
-                                error={formik.touched.kilometraje && Boolean(formik.errors.kilometraje)}
-                                helperText={formik.touched.kilometraje && formik.errors.kilometraje}
+                                renderInput={(params) => <TextField {...params} variant="standard" label="Padre" />}
                             />
                         </Grid>
-                        <Grid item xs={12} sm={6} md={3}>
-                            <Checkbox
-                                id="esta_operativo"
-                                name="esta_operativo"
-                                checked={formik.values.esta_operativo}
-                                onChange={formik.handleChange}
-                            />
-                            <label htmlFor="esta_operativo">¿Está operativo?</label>
-                        </Grid>
-                        <Grid item xs={12} sm={7} md={9}>
-                            <TextField
-                                id="descripcion"
-                                name="descripcion"
-                                label="Descripción"
-                                multiline
-                                maxRows={4}
-                                fullWidth
-                                variant="standard"
-                                value={formik.values.descripcion}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                            />
-                        </Grid>
+
                         <Grid item xs={12} sm={5} md={3}>
                             <Switch
                                 id="estado"
@@ -221,7 +160,7 @@ const MultiTableForm = ({ open, handleClose, onSubmit, initialValues }) => {
                                 onChange={formik.handleChange}
                                 color="primary"
                             />
-                            <label htmlFor="estado">Estado</label>
+                            <label htmlFor="estado">Habilitado</label>
                         </Grid>
                     </Grid>
                     <DialogActions>

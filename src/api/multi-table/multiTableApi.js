@@ -53,9 +53,10 @@ export const deleteMultiTable = async (id) => {
     }
 };
 
-export const getMultiTablesForAutocomplete = async () => {
+export const getMultiTablesForAutocomplete = async (params) => {
     try {
-        const response = await apiAxios.get(endpoints.autocomplete);
+        params = params ?? '';
+        const response = await apiAxios.get(`${endpoints.autocomplete}${params}`);
         return response.data;
     } catch (error) {
         console.log(error);
