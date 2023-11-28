@@ -41,29 +41,29 @@ const pages = {
       icon: icons.IconBrandChrome,
       breadcrumbs: false
     },
-    {
-      id: 'authentication',
-      title: 'Authentication',
-      type: 'collapse',
-      icon: icons.IconKey,
+    // {
+    //   id: 'authentication',
+    //   title: 'Authentication',
+    //   type: 'collapse',
+    //   icon: icons.IconKey,
 
-      children: [
-        {
-          id: 'login',
-          title: 'Login',
-          type: 'item',
-          url: '/pages/login/login',
-          target: true
-        },
-        {
-          id: 'register3',
-          title: 'Register',
-          type: 'item',
-          url: '/pages/register/register3',
-          target: true
-        }
-      ]
-    }
+    //   children: [
+    //     {
+    //       id: 'login',
+    //       title: 'Login',
+    //       type: 'item',
+    //       url: '/pages/login/login',
+    //       target: true
+    //     },
+    //     {
+    //       id: 'register3',
+    //       title: 'Register',
+    //       type: 'item',
+    //       url: '/pages/register/register3',
+    //       target: true
+    //     }
+    //   ]
+    // }
   ]
 };
 

@@ -3,8 +3,11 @@ import { DataGrid } from '@mui/x-data-grid';
 import { IconButton } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { loadFromLocalStorage } from 'utils/localStorage';
 
-const columns = [
+const userLocalStorage = loadFromLocalStorage('user');
+
+const columnsWithoutActions = [
   { field: 'id', headerName: 'Id', width: 30 },
   { field: 'codigo', headerName: 'Código', width: 75 },
   { field: 'marca', headerName: 'Marca', width: 75 },
@@ -30,6 +33,10 @@ const columns = [
       return params.row.estado ? 'SI' : 'NO';
     }
   },
+];
+
+const columnsWithActions = [
+  ...columnsWithoutActions,
   {
     field: 'actions',
     headerName: 'Acciones',
@@ -55,9 +62,11 @@ const VehicleList = ({ vehicles, onEdit, onDelete }) => {
     onDelete: onDelete,
   }));
 
+  const columnsToDisplay = userLocalStorage ? columnsWithActions : columnsWithoutActions;
+
   return (
     <div style={{ height: 500, width: '100%' }}>
-      <DataGrid rows={rows} columns={columns} pageSize={10} />
+      <DataGrid rows={rows} columns={columnsToDisplay} pageSize={10} />
     </div>
   );
 };
