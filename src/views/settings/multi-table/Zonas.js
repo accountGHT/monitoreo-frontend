@@ -10,8 +10,11 @@ import MainCard from 'ui-component/cards/MainCard';
 import MultiTableForm from './MultiTableForm';
 import MultiTableList from './MultiTableList';
 import { getMultiTables, createMultiTable, deleteMultiTable } from 'api/multi-table/multiTableApi';
+import { loadFromLocalStorage } from 'utils/localStorage';
 
 const Zonas = () => {
+  const userLocalStorage = loadFromLocalStorage('user');
+
   const [data, setData] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
   const [openForm, setOpenForm] = useState(false);
@@ -20,7 +23,6 @@ const Zonas = () => {
   // const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   // const [totalPages, setTotalPages] = useState(1);
-
 
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -46,12 +48,11 @@ const Zonas = () => {
   const handleItemCreated = async (values) => {
     console.log(`handleItemCreated`, values);
     const resp = await createMultiTable(values);
-
+    console.log(resp);
     if (resp.error) {
       setSnackbar({ open: true, message: resp.responseData.message, severity: 'error' });
       return { success: false, response: resp.responseData };
     } else {
-      console.log(resp);
       fetchData();
       setSnackbar({ open: true, message: 'Dato creado con éxito', severity: 'success' });
       return { success: true, response: resp };
@@ -94,17 +95,26 @@ const Zonas = () => {
           </Typography>
         </Grid>
         <Grid item xs={6}>
-          <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'end', marginBottom: '12px' }}>
-            <Button variant="contained" onClick={() => setOpenForm(true)}>
-              NUEVA ZONA
-            </Button>
-          </div>
+          {userLocalStorage && (
+            <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'end', marginBottom: '12px' }}>
+              <Button variant="contained" onClick={() => setOpenForm(true)}>
+                NUEVA ZONA
+              </Button>
+            </div>
+          )}
         </Grid>
         <Grid item xs={12}>
           <MultiTableList data={data} onEdit={(vehicle) => setSelectedItem(vehicle)} onDelete={handleDeleteItem} />
         </Grid>
       </Grid>
-      <MultiTableForm open={openForm} handleClose={handleFormClose} onSubmit={selectedItem ? handleItemUpdated : handleItemCreated} initialValues={selectedItem || {}} />
+
+      {userLocalStorage && (
+        <MultiTableForm
+          open={openForm} handleClose={handleFormClose} onSubmit={selectedItem ? handleItemUpdated : handleItemCreated}
+          initialValues={selectedItem || {}} setSnackbar={setSnackbar}
+        />
+      )}
+
       <Snackbar
         open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}

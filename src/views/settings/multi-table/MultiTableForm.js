@@ -32,7 +32,7 @@ const validationSchema = Yup.object().shape({
     estado: Yup.boolean().required('Este campo es obligatorio'),
 });
 
-const MultiTableForm = ({ open, handleClose, onSubmit, initialValues }) => {
+const MultiTableForm = ({ open, handleClose, onSubmit, initialValues, setSnackbar }) => {
     console.log(`initialValues`, initialValues);
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
@@ -68,12 +68,13 @@ const MultiTableForm = ({ open, handleClose, onSubmit, initialValues }) => {
     });
 
     const fetchParent = async () => {
-        // try {
         const resp = await getMultiTablesForAutocomplete(`?es_tabla=1`);
-        setOptions(resp.data);
-        // } catch (error) {
-        //     console.error(error);
-        // }
+        if (resp.error) {
+            setOptions([]);
+            setSnackbar({ open: true, message: resp.responseData.message, severity: 'error' });
+        } else {
+            setOptions(resp.data);
+        }
     }
 
     React.useEffect(() => {

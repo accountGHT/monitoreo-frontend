@@ -10,8 +10,11 @@ import MainCard from 'ui-component/cards/MainCard';
 import MultiTableForm from './MultiTableForm';
 import MultiTableList from './MultiTableList';
 import { getMultiTables, createMultiTable, deleteMultiTable } from 'api/multi-table/multiTableApi';
+import { loadFromLocalStorage } from 'utils/localStorage';
 
 const TiposIncidencia = () => {
+  const userLocalStorage = loadFromLocalStorage('user');
+
   const [data, setData] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
   const [openForm, setOpenForm] = useState(false);
@@ -94,17 +97,26 @@ const TiposIncidencia = () => {
           </Typography>
         </Grid>
         <Grid item xs={6}>
-          <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'end', marginBottom: '12px' }}>
-            <Button variant="contained" onClick={() => setOpenForm(true)}>
-              Nuevo TIPO DE INCIDENCIA
-            </Button>
-          </div>
+          {userLocalStorage && (
+            <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'end', marginBottom: '12px' }}>
+              <Button variant="contained" onClick={() => setOpenForm(true)}>
+                Nuevo registro
+              </Button>
+            </div>
+          )}
         </Grid>
         <Grid item xs={12}>
           <MultiTableList data={data} onEdit={(vehicle) => setSelectedItem(vehicle)} onDelete={handleDeleteItem} />
         </Grid>
       </Grid>
-      <MultiTableForm open={openForm} handleClose={handleFormClose} onSubmit={selectedItem ? handleItemUpdated : handleItemCreated} initialValues={selectedItem || {}} />
+
+      {userLocalStorage && (
+        <MultiTableForm
+          open={openForm} handleClose={handleFormClose} onSubmit={selectedItem ? handleItemUpdated : handleItemCreated}
+          initialValues={selectedItem || {}} setSnackbar={setSnackbar}
+        />
+      )}
+
       <Snackbar
         open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}

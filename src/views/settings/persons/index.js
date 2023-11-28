@@ -4,8 +4,11 @@ import PersonForm from './PersonForm';
 import PersonList from './PersonList';
 import { getPersonas, deletePersona } from 'api/personas/personasApi';
 import MainCard from 'ui-component/cards/MainCard';
+import { loadFromLocalStorage } from 'utils/localStorage';
 
 const Persons = () => {
+    const userLocalStorage = loadFromLocalStorage('user');
+
     const [persons, setPersons] = useState([]);
     const [selectedPerson, setSelectedPerson] = useState(null);
     const [openForm, setOpenForm] = useState(false);
@@ -72,11 +75,13 @@ const Persons = () => {
                     </Typography>
                 </Grid>
                 <Grid item xs={6}>
-                    <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'end', marginBottom: '12px' }}>
-                        <Button variant="contained" onClick={() => setOpenForm(true)}>
-                            Nuevo Persona
-                        </Button>
-                    </div>
+                    {userLocalStorage && (
+                        <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'end', marginBottom: '12px' }}>
+                            <Button variant="contained" onClick={() => setOpenForm(true)}>
+                                Nuevo registro
+                            </Button>
+                        </div>
+                    )}
                 </Grid>
                 <Grid item xs={12}>
                     <PersonList persons={persons} onEdit={(Person) => setSelectedPerson(Person)} onDelete={handleDeletePerson} />

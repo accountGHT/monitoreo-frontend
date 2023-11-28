@@ -10,8 +10,11 @@ import MainCard from 'ui-component/cards/MainCard';
 import VehicleForm from './VehicleForm';
 import VehicleList from './ VehicleList';
 import { getVehiculos, createVehiculo, deleteVehiculo } from 'api/vehiculos/vehiculosApi';
+import { loadFromLocalStorage } from 'utils/localStorage';
 
 const Vehicles = () => {
+  const userLocalStorage = loadFromLocalStorage('user');
+
   const [vehicles, setVehicles] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [openForm, setOpenForm] = useState(false);
@@ -85,11 +88,13 @@ const Vehicles = () => {
           </Typography>
         </Grid>
         <Grid item xs={6}>
-          <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'end', marginBottom: '12px' }}>
-            <Button variant="contained" onClick={() => setOpenForm(true)}>
-              Nuevo Vehículo
-            </Button>
-          </div>
+          {userLocalStorage && (
+            <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'end', marginBottom: '12px' }}>
+              <Button variant="contained" onClick={() => setOpenForm(true)}>
+                Nuevo registro
+              </Button>
+            </div>
+          )}
         </Grid>
         <Grid item xs={12}>
           <VehicleList vehicles={vehicles} onEdit={(vehicle) => setSelectedVehicle(vehicle)} onDelete={handleDeleteVehicle} />
