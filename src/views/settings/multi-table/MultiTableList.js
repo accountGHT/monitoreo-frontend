@@ -9,8 +9,8 @@ const userLocalStorage = loadFromLocalStorage('user');
 
 const columnsWithoutActions = [
   // { field: 'id', headerName: 'Id', width: 30 },
-  { field: 'codigo', headerName: 'Código', width: 120 },
-  { field: 'nombre', headerName: 'Nombre', width: 200 },
+  { field: 'codigo', headerName: 'Código', flex: 1, minWidth: 100, maxWidth: 400 },
+  { field: 'nombre', headerName: 'Nombre', flex: 1, minWidth: 100, maxWidth: 400 },
   // { field: 'nombre_plural', headerName: 'Nombre Plural', width: 160 },
   // {
   //   field: 'es_tabla', headerName: 'es_tabla', width: 100,
@@ -18,8 +18,14 @@ const columnsWithoutActions = [
   //     return params.row.esta_operativo ? 'SI' : 'NO';
   //   }
   // },
-  { field: 'padre', headerName: 'Padre', width: 200, renderCell: (params) => params.row.padre ? params.row.padre.nombre : '' },
-  { field: 'estado', headerName: 'Estado', width: 200, renderCell: (params) => params.row.estado ? 'HABILITADO' : 'INHABILITADO' },
+  { 
+    field: 'padre', headerName: 'Padre', flex: 1, minWidth: 100, maxWidth: 400, 
+    renderCell: (params) => params.row.padre ? params.row.padre.nombre : '' 
+  },
+  {
+    field: 'estado', headerName: 'Estado', flex: 1, minWidth: 60, maxWidth: 400,
+    renderCell: (params) => params.row.estado ? 'HABILITADO' : 'INHABILITADO'
+  },
 ];
 
 const columnsWithActions = [

@@ -8,22 +8,20 @@ import { loadFromLocalStorage } from 'utils/localStorage';
 const userLocalStorage = loadFromLocalStorage('user');
 
 const columnsWithoutActions = [
-  { field: 'id', headerName: 'Id', width: 30 },
-  { field: 'nombres', headerName: 'Nombres', width: 150 },
-  { field: 'p_apellido', headerName: 'P. Apellido', width: 120 },
-  { field: 's_apellido', headerName: 'S. Apellido', width: 120 },
-  { field: 'dni', headerName: 'Dni', width: 100 },
-  { field: 'correo', headerName: 'Correo', width: 200 },
-  { field: 'fecha_nacimiento', headerName: 'Fecha Nac.', width: 120 },
-  { field: 'genero', headerName: 'genero', width: 130 },
+  { field: 'id', headerName: 'Id', flex: 0.5, minWidth: 50, maxWidth: 60 },
+  { field: 'nombres', headerName: 'Nombres', flex: 2, minWidth: 150, maxWidth: 200 },
+  { field: 'p_apellido', headerName: 'P. Apellido', flex: 1, minWidth: 120, maxWidth: 160 },
+  { field: 's_apellido', headerName: 'S. Apellido', flex: 1, minWidth: 120, maxWidth: 160 },
+  { field: 'dni', headerName: 'Dni', flex: 0.5, minWidth: 100, maxWidth: 160 },
+  { field: 'correo', headerName: 'Correo', flex: 2, minWidth: 150, maxWidth: 300 },
+  { field: 'fecha_nacimiento', headerName: 'Fecha Nac.', flex: 1, minWidth: 150, maxWidth: 300 },
+  { field: 'genero', headerName: 'genero', flex: 0.5, minWidth: 100, maxWidth: 120 },
 ];
 
 const columnsWithActions = [
   ...columnsWithoutActions,
   {
-    field: 'actions',
-    headerName: 'Acciones',
-    width: 120,
+    field: 'actions', headerName: 'Acciones',  flex: 0.5, minWidth: 120, maxWidth: 150,
     renderCell: (params) => (
       <>
         <IconButton color="primary" aria-label="Editar" onClick={() => params.row.onEdit(params.row.id)}>

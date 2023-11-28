@@ -8,27 +8,23 @@ import { loadFromLocalStorage } from 'utils/localStorage';
 const userLocalStorage = loadFromLocalStorage('user');
 
 const columnsWithoutActions = [
-  { field: 'id', headerName: 'Id', width: 30 },
-  { field: 'codigo', headerName: 'Código', width: 75 },
-  { field: 'marca', headerName: 'Marca', width: 75 },
-  { field: 'modelo', headerName: 'Modelo', width: 75 },
-  { field: 'anio', headerName: 'Año', width: 70 },
-  { field: 'placa', headerName: 'Placa', width: 70 },
-  { field: 'color', headerName: 'Color', width: 70 },
-  { field: 'kilometraje', headerName: 'Kilometraje', width: 130 },
+  { field: 'id', headerName: 'Id', flex: 0.5, minWidth: 50, maxWidth: 60 },
+  { field: 'codigo', headerName: 'Código', flex: 1, minWidth: 75, maxWidth: 100 },
+  { field: 'marca', headerName: 'Marca', flex: 1, minWidth: 75, maxWidth: 100 },
+  { field: 'modelo', headerName: 'Modelo', flex: 1, minWidth: 75, maxWidth: 100 },
+  { field: 'anio', headerName: 'Año', flex: 0.8, minWidth: 70, maxWidth: 80 },
+  { field: 'placa', headerName: 'Placa', flex: 0.8, minWidth: 70, maxWidth: 80 },
+  { field: 'color', headerName: 'Color', flex: 0.8, minWidth: 70, maxWidth: 80 },
+  { field: 'kilometraje', headerName: 'Kilometraje', flex: 1.5, minWidth: 130, maxWidth: 150 },
   {
-    field: 'esta_operativo',
-    headerName: 'Operativo',
-    width: 100,
+    field: 'esta_operativo', headerName: 'Operativo', flex: 1, minWidth: 100, maxWidth: 120,
     renderCell: (params) => {
       return params.row.esta_operativo ? 'SI' : 'NO';
     }
   },
-  { field: 'descripcion', headerName: 'Descripción', width: 200 },
+  { field: 'descripcion', headerName: 'Descripción', flex: 5, minWidth: 200 },
   {
-    field: 'estado',
-    headerName: 'Estado',
-    width: 200,
+    field: 'estado', headerName: 'Estado', flex: 1, minWidth: 60, maxWidth: 300,
     renderCell: (params) => {
       return params.row.estado ? 'SI' : 'NO';
     }
@@ -38,9 +34,7 @@ const columnsWithoutActions = [
 const columnsWithActions = [
   ...columnsWithoutActions,
   {
-    field: 'actions',
-    headerName: 'Acciones',
-    width: 120,
+    field: 'actions', headerName: 'Acciones', flex: 0.5, minWidth: 120, maxWidth: 150,
     renderCell: (params) => (
       <>
         <IconButton color="primary" aria-label="Editar" onClick={() => params.row.onEdit(params.row.id)}>
