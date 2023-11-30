@@ -28,29 +28,27 @@ export const getMultiTableById = async (id) => {
         return response.data;
     } catch (error) {
         console.log(error);
-        // throw error;
         return handleError(error);
     }
 };
 
 export const updateMultiTable = async (id, formData) => {
-    console.log(formData);
     try {
-        const response = await apiAxios.get(`${endpoints.list}/${id}`);
+        const response = await apiAxios.put(`${endpoints.list}/${id}`, formData);
         return response.data;
     } catch (error) {
         console.log(error);
-        throw error;
+        return handleError(error);
     }
 };
 
 export const deleteMultiTable = async (id) => {
     try {
-        const response = await apiAxios.get(`${endpoints.list}/${id}`);
+        const response = await apiAxios.delete(`${endpoints.list}/${id}`);
         return response.data;
     } catch (error) {
         console.log(error);
-        throw error;
+        return handleError(error);
     }
 };
 

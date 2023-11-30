@@ -9,8 +9,7 @@ import {
 import MainCard from 'ui-component/cards/MainCard';
 import MultiTableForm from './MultiTableForm';
 import MultiTableList from './MultiTableList';
-// import { getMultiTables, createMultiTable, deleteMultiTable, getMultiTableById, updateMultiTable } from 'api/multi-table/multiTableApi';
-import { getMultiTables, createMultiTable, deleteMultiTable, getMultiTableById } from 'api/multi-table/multiTableApi';
+import { getMultiTables, createMultiTable, deleteMultiTable, getMultiTableById, updateMultiTable } from 'api/multi-table/multiTableApi';
 import { loadFromLocalStorage } from 'utils/localStorage';
 
 const TiposComunicacion = () => {
@@ -60,26 +59,6 @@ const TiposComunicacion = () => {
       setSnackbar({ open: true, message: 'Dato creado con éxito', severity: 'success' });
       return { success: true, response: resp };
     }
-
-  };
-
-  const handleItemUpdated = async (values) => {
-    fetchData();
-    console.log(`handleItemUpdated`, values);
-    // const resp = updateMultiTable(values);
-    console.log(`handleItemUpdated`, values);
-    // setSnackbar({ open: true, message: 'Dato actualizado con éxito', severity: 'success' });
-  };
-
-  const handleDeleteItem = async (vehicleId) => {
-    try {
-      await deleteMultiTable(vehicleId);
-      fetchData();
-      setSnackbar({ open: true, message: 'Dato eliminado con éxito', severity: 'success' });
-    } catch (error) {
-      console.error('Error al eliminar el vehículo:', error);
-      setSnackbar({ open: true, message: 'Error al eliminar el vehículo', severity: 'error' });
-    }
   };
 
   const handleEditItem = async (id) => {
@@ -93,6 +72,24 @@ const TiposComunicacion = () => {
     setOpenForm(true);
   }
 
+  const handleItemUpdated = async (values) => {
+    fetchData();
+    console.log(`handleItemUpdated`, values);
+    const resp = updateMultiTable(values.id, values);
+    console.log(`resp`, resp);
+    // setSnackbar({ open: true, message: 'Dato actualizado con éxito', severity: 'success' });
+  };
+
+  const handleDeleteItem = async (vehicleId) => {
+    try {
+      await deleteMultiTable(vehicleId);
+      fetchData();
+      setSnackbar({ open: true, message: 'Dato eliminado con éxito', severity: 'success' });
+    } catch (error) {
+      console.error('Error al eliminar el vehículo:', error);
+      setSnackbar({ open: true, message: 'Error al eliminar el vehículo', severity: 'error' });
+    }
+  };
 
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });

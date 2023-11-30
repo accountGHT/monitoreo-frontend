@@ -9,7 +9,7 @@ import {
 import MainCard from 'ui-component/cards/MainCard';
 import MultiTableForm from './MultiTableForm';
 import MultiTableList from './MultiTableList';
-import { getMultiTables, createMultiTable, deleteMultiTable } from 'api/multi-table/multiTableApi';
+import { getMultiTables, createMultiTable, deleteMultiTable, getMultiTableById } from 'api/multi-table/multiTableApi';
 import { loadFromLocalStorage } from 'utils/localStorage';
 
 const Camaras = () => {
@@ -62,6 +62,17 @@ const Camaras = () => {
 
   };
 
+  const handleEditItem = async (id) => {
+    const resp = await getMultiTableById(id);
+    if (resp.message !== 'success') {
+      console.log(`resp.message`, resp.message);
+      return;
+    }
+
+    setSelectedItem(resp.data);
+    setOpenForm(true);
+  }
+
   const handleItemUpdated = (values) => {
     fetchData();
     console.log(`handleItemUpdated`, values);
@@ -106,7 +117,7 @@ const Camaras = () => {
           )}
         </Grid>
         <Grid item xs={12}>
-          <MultiTableList data={data} onEdit={(vehicle) => setSelectedItem(vehicle)} onDelete={handleDeleteItem} />
+          <MultiTableList data={data} onEdit={(id) => handleEditItem(id)} onDelete={handleDeleteItem} />
         </Grid>
       </Grid>
 

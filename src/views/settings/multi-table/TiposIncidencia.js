@@ -9,7 +9,7 @@ import {
 import MainCard from 'ui-component/cards/MainCard';
 import MultiTableForm from './MultiTableForm';
 import MultiTableList from './MultiTableList';
-import { getMultiTables, createMultiTable, deleteMultiTable } from 'api/multi-table/multiTableApi';
+import { getMultiTables, createMultiTable, deleteMultiTable, getMultiTableById, updateMultiTable } from 'api/multi-table/multiTableApi';
 import { loadFromLocalStorage } from 'utils/localStorage';
 
 const TiposIncidencia = () => {
@@ -47,25 +47,40 @@ const TiposIncidencia = () => {
   }, []);
 
   const handleItemCreated = async (values) => {
-    console.log(`handleItemCreated`, values);
     const resp = await createMultiTable(values);
 
-    if (resp.error) {
-      setSnackbar({ open: true, message: resp.responseData.message, severity: 'error' });
+    if (!resp.success) {
+      setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
       return { success: false, response: resp.responseData };
-    } else {
-      console.log(resp);
-      fetchData();
-      setSnackbar({ open: true, message: 'Dato creado con éxito', severity: 'success' });
-      return { success: true, response: resp };
     }
 
+    fetchData();
+    setSnackbar({ open: true, message: 'Registro creado con éxito', severity: 'success' });
+    return { success: true, response: resp };
   };
 
-  const handleItemUpdated = (values) => {
-    fetchData();
-    console.log(`handleItemUpdated`, values);
+  const handleEditItem = async (id) => {
+    const resp = await getMultiTableById(id);
+    if (!resp.success) {
+      setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
+      return;
+    }
+
+    setSelectedItem(resp.data);
+    setOpenForm(true);
+  }
+
+  const handleItemUpdated = async (values) => {
+    const resp = await updateMultiTable(values.id, values);
+
+    if (!resp.success) {
+      setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
+      return { success: false, response: resp.responseData };
+    }
+
     setSnackbar({ open: true, message: 'Dato actualizado con éxito', severity: 'success' });
+    fetchData();
+    return { success: true, response: resp };
   };
 
   const handleDeleteItem = async (vehicleId) => {
@@ -106,7 +121,7 @@ const TiposIncidencia = () => {
           )}
         </Grid>
         <Grid item xs={12}>
-          <MultiTableList data={data} onEdit={(vehicle) => setSelectedItem(vehicle)} onDelete={handleDeleteItem} />
+          <MultiTableList data={data} onEdit={(id) => handleEditItem(id)} onDelete={handleDeleteItem} />
         </Grid>
       </Grid>
 

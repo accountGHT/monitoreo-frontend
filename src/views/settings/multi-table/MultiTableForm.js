@@ -26,7 +26,6 @@ const validationSchema = Yup.object().shape({
     codigo: Yup.string().nullable(),
     nombre: Yup.string().required('El nombre es obligatorio'),
     nombre_plural: Yup.string().nullable(),
-    // es_tabla: Yup.boolean().required('Este campo es obligatorio'),
     es_tabla: Yup.boolean(),
     padre_id: Yup.number().nullable(),
     estado: Yup.boolean().required('Este campo es obligatorio'),
@@ -35,7 +34,6 @@ const validationSchema = Yup.object().shape({
 const MultiTableForm = ({ open, handleClose, onSubmit, initialValues, setSnackbar }) => {
     console.log(`open`, open);
     console.log(`initialValues`, initialValues);
-    // console.log(`Object.entries(initialValues).length`, Object.entries(initialValues).length);
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -78,6 +76,7 @@ const MultiTableForm = ({ open, handleClose, onSubmit, initialValues, setSnackba
                 // Modificar la asignación de initialValues
                 formik.setValues(prevValues => ({
                     ...prevValues,
+                    id: initialValues.id || null,
                     codigo: initialValues.codigo || '',
                     nombre: initialValues.nombre || '',
                     nombre_plural: initialValues.nombre_plural || '',
@@ -93,10 +92,8 @@ const MultiTableForm = ({ open, handleClose, onSubmit, initialValues, setSnackba
         fetchParent();
     }, [open]); // Agrega initialValues como dependencia
 
-
-
     return (
-        <> {console.log('Formik Values:', formik.values)}
+        <>
             {loading ? (
                 <p>Cargando...</p>
             ) : (
@@ -160,7 +157,6 @@ const MultiTableForm = ({ open, handleClose, onSubmit, initialValues, setSnackba
                                         name="padre_id"
                                         options={options}
                                         getOptionLabel={(option) => option.nombre}
-                                        // getOptionSelected={(option, value) => option.padre_id === value.padre_id}
                                         value={options.find((option) => option.id === formik.values.padre_id) || null}
                                         onChange={(event, newValue) => {
                                             formik.setFieldValue('padre_id', newValue ? newValue.id : null);
