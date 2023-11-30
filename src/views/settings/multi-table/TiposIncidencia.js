@@ -78,20 +78,20 @@ const TiposIncidencia = () => {
       return { success: false, response: resp.responseData };
     }
 
-    setSnackbar({ open: true, message: 'Dato actualizado con éxito', severity: 'success' });
+    setSnackbar({ open: true, message: resp.message, severity: 'success' });
     fetchData();
     return { success: true, response: resp };
   };
 
-  const handleDeleteItem = async (vehicleId) => {
-    try {
-      await deleteMultiTable(vehicleId);
-      fetchData();
-      setSnackbar({ open: true, message: 'Dato eliminado con éxito', severity: 'success' });
-    } catch (error) {
-      console.error('Error al eliminar el vehículo:', error);
-      setSnackbar({ open: true, message: 'Error al eliminar el vehículo', severity: 'error' });
+  const handleDeleteItem = async (id) => {
+    const resp = await deleteMultiTable(id);
+    if (!(resp === '')) {
+      setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
+      return;
     }
+
+    fetchData();
+    setSnackbar({ open: true, message: `Registro eliminado correctamente`, severity: 'success' });
   };
 
   const handleCloseSnackbar = () => {

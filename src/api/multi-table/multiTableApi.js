@@ -17,6 +17,7 @@ export const createMultiTable = async (params) => {
         const response = await apiAxios.post(endpoints.list, params);
         return response.data;
     } catch (error) {
+        console.log(error);
         return handleError(error);
     }
 };
@@ -27,7 +28,6 @@ export const getMultiTableById = async (id) => {
         const response = await apiAxios.get(`${endpoints.list}/${id}`);
         return response.data;
     } catch (error) {
-        console.log(error);
         return handleError(error);
     }
 };
@@ -37,7 +37,6 @@ export const updateMultiTable = async (id, formData) => {
         const response = await apiAxios.put(`${endpoints.list}/${id}`, formData);
         return response.data;
     } catch (error) {
-        console.log(error);
         return handleError(error);
     }
 };
@@ -47,7 +46,6 @@ export const deleteMultiTable = async (id) => {
         const response = await apiAxios.delete(`${endpoints.list}/${id}`);
         return response.data;
     } catch (error) {
-        console.log(error);
         return handleError(error);
     }
 };
