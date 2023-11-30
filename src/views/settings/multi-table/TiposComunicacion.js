@@ -9,7 +9,8 @@ import {
 import MainCard from 'ui-component/cards/MainCard';
 import MultiTableForm from './MultiTableForm';
 import MultiTableList from './MultiTableList';
-import { getMultiTables, createMultiTable, deleteMultiTable } from 'api/multi-table/multiTableApi';
+// import { getMultiTables, createMultiTable, deleteMultiTable, getMultiTableById, updateMultiTable } from 'api/multi-table/multiTableApi';
+import { getMultiTables, createMultiTable, deleteMultiTable, getMultiTableById } from 'api/multi-table/multiTableApi';
 import { loadFromLocalStorage } from 'utils/localStorage';
 
 const TiposComunicacion = () => {
@@ -62,10 +63,12 @@ const TiposComunicacion = () => {
 
   };
 
-  const handleItemUpdated = (values) => {
+  const handleItemUpdated = async (values) => {
     fetchData();
     console.log(`handleItemUpdated`, values);
-    setSnackbar({ open: true, message: 'Dato actualizado con éxito', severity: 'success' });
+    // const resp = updateMultiTable(values);
+    console.log(`handleItemUpdated`, values);
+    // setSnackbar({ open: true, message: 'Dato actualizado con éxito', severity: 'success' });
   };
 
   const handleDeleteItem = async (vehicleId) => {
@@ -78,6 +81,18 @@ const TiposComunicacion = () => {
       setSnackbar({ open: true, message: 'Error al eliminar el vehículo', severity: 'error' });
     }
   };
+
+  const handleEditItem = async (id) => {
+    const resp = await getMultiTableById(id);
+    if (resp.message !== 'success') {
+      console.log(`resp.message`, resp.message);
+      return;
+    }
+
+    setSelectedItem(resp.data);
+    setOpenForm(true);
+  }
+
 
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
@@ -106,7 +121,7 @@ const TiposComunicacion = () => {
           )}
         </Grid>
         <Grid item xs={12}>
-          <MultiTableList data={data} onEdit={(vehicle) => setSelectedItem(vehicle)} onDelete={handleDeleteItem} />
+          <MultiTableList data={data} onEdit={(id) => handleEditItem(id)} onDelete={handleDeleteItem} />
         </Grid>
       </Grid>
 

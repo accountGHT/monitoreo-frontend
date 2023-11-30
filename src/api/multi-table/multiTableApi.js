@@ -22,13 +22,14 @@ export const createMultiTable = async (params) => {
 };
 
 
-export const getVehiculoById = async (id) => {
+export const getMultiTableById = async (id) => {
     try {
         const response = await apiAxios.get(`${endpoints.list}/${id}`);
         return response.data;
     } catch (error) {
         console.log(error);
-        throw error;
+        // throw error;
+        return handleError(error);
     }
 };
 
