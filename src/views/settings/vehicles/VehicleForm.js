@@ -94,7 +94,7 @@ const VehicleForm = ({ open, handleClose, onSubmit, initialValues }) => {
             // second
             // 
         }
-    }, [open])
+    }, [open]);
 
 
     return (

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Grid, Button, Snackbar, Alert, Typography } from '@mui/material';
 import PersonForm from './PersonForm';
 import PersonList from './PersonList';
-import { getPersonas, deletePersona } from 'api/personas/personasApi';
+import { getPersonas, deletePersona, getPersonById } from 'api/personas/personasApi';
 import MainCard from 'ui-component/cards/MainCard';
 import { loadFromLocalStorage } from 'utils/localStorage';
 
@@ -12,15 +12,23 @@ const Persons = () => {
     const [persons, setPersons] = useState([]);
     const [selectedPerson, setSelectedPerson] = useState(null);
     const [openForm, setOpenForm] = useState(false);
+
+    // const [loading, setLoading] = useState(true);
+    // const [page, setPage] = useState(1);
+    const [perPage, setPerPage] = useState(10);
+    // const [totalPages, setTotalPages] = useState(1);
+
     const [snackbar, setSnackbar] = useState({
         open: false,
         message: '',
         severity: 'success',
     });
 
-    const fetchPersons = async () => {
+    const fetchData = async () => {
+        setPerPage(10);
         try {
-            const response = await getPersonas();
+            let params = `?per_page=${perPage}`;
+            const response = await getPersonas(params);
             console.log(response.data.data);
             setPersons(response.data.data);
         } catch (error) {
@@ -30,18 +38,29 @@ const Persons = () => {
     };
 
     useEffect(() => {
-        fetchPersons();
+        fetchData();
     }, []);
 
     const handlePersonCreated = () => {
         console.log(`handlePersonCreated`);
-        fetchPersons();
+        fetchData();
         setSnackbar({ open: true, message: 'Vehículo creado con éxito', severity: 'success' });
     };
 
+    const handleEditPerson = async (id) => {
+        const resp = await getPersonById(id);
+        if (!resp.success) {
+            setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
+            return;
+        }
+
+        setSelectedPerson(resp.data);
+        setOpenForm(true);
+    }
+
     const handlePersonUpdated = () => {
         console.log(`handlePersonUpdated`);
-        fetchPersons();
+        fetchData();
         setSnackbar({ open: true, message: 'Vehículo actualizado con éxito', severity: 'success' });
     };
 
@@ -49,7 +68,7 @@ const Persons = () => {
         console.log(`handleDeletePerson`);
         try {
             await deletePersona(PersonId);
-            fetchPersons();
+            fetchData();
             setSnackbar({ open: true, message: 'Vehículo eliminado con éxito', severity: 'success' });
         } catch (error) {
             console.error('Error al eliminar el vehículo:', error);
@@ -84,7 +103,7 @@ const Persons = () => {
                     )}
                 </Grid>
                 <Grid item xs={12}>
-                    <PersonList persons={persons} onEdit={(Person) => setSelectedPerson(Person)} onDelete={handleDeletePerson} />
+                    <PersonList persons={persons} onEdit={(id) => handleEditPerson(id)} onDelete={handleDeletePerson} />
                 </Grid>
             </Grid>
             <PersonForm open={openForm} handleClose={handleFormClose} onSubmit={selectedPerson ? handlePersonUpdated : handlePersonCreated} initialValues={selectedPerson || {}} />

@@ -1,3 +1,4 @@
+import { handleError } from 'api/apiHelpers';
 import apiAxios from '../apiAxios';
 import endpoints from './personasEndpoints';
 
@@ -21,13 +22,13 @@ export const createPersona = async () => {
     }
 };
 
-export const getPersonaById = async (id) => {
+export const getPersonById = async (id) => {
     try {
         const response = await apiAxios.get(`${endpoints.list}/${id}`);
         return response.data;
     } catch (error) {
         console.log(error);
-        throw error;
+        return handleError(error);
     }
 };
 
