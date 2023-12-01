@@ -28,7 +28,6 @@ export function handleError(error) {
     console.error('Respuesta del servidor:', responseData);
 
     return {
-        // success: false,
         error: true,
         errorCode,
         errorMessage,

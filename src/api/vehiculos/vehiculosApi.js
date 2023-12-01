@@ -21,34 +21,31 @@ export const createVehiculo = async (params) => {
     }
 };
 
-export const getVehiculoById = async (id) => {
+export const getVehicleById = async (id) => {
     try {
         const response = await apiAxios.get(`${endpoints.list}/${id}`);
         return response.data;
     } catch (error) {
-        console.log(error);
-        throw error;
+        return handleError(error);
     }
 };
 
-export const updateVehiculo = async (id, formData) => {
-    console.log(formData);
+export const updateVehicle = async (id, formData) => {
     try {
-        const response = await apiAxios.get(`${endpoints.list}/${id}`);
+        const response = await apiAxios.put(`${endpoints.list}/${id}`, formData);
         return response.data;
     } catch (error) {
-        console.log(error);
-        throw error;
+        return handleError(error);
     }
 };
 
-export const deleteVehiculo = async (id) => {
+export const deleteVehicle = async (id) => {
     try {
-        const response = await apiAxios.get(`${endpoints.list}/${id}`);
+        const response = await apiAxios.delete(`${endpoints.list}/${id}`);
         return response.data;
     } catch (error) {
         console.log(error);
-        throw error;
+        return handleError(error);
     }
 };
 

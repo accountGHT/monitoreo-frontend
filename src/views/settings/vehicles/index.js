@@ -9,7 +9,7 @@ import {
 import MainCard from 'ui-component/cards/MainCard';
 import VehicleForm from './VehicleForm';
 import VehicleList from './ VehicleList';
-import { getVehiculos, createVehiculo, deleteVehiculo } from 'api/vehiculos/vehiculosApi';
+import { getVehiculos, createVehiculo, getVehicleById, updateVehicle, deleteVehicle } from 'api/vehiculos/vehiculosApi';
 import { loadFromLocalStorage } from 'utils/localStorage';
 
 const Vehicles = () => {
@@ -18,15 +18,23 @@ const Vehicles = () => {
   const [vehicles, setVehicles] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [openForm, setOpenForm] = useState(false);
+
+  // const [loading, setLoading] = useState(true);
+  // const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  // const [totalPages, setTotalPages] = useState(1);
+
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
     severity: 'success',
   });
 
-  const fetchVehicles = async () => {
+  const fetchData = async () => {
+    setPerPage(10);
     try {
-      const response = await getVehiculos();
+      let params = `?per_page=${perPage}`;
+      const response = await getVehiculos(params);
       setVehicles(response.data.data);
     } catch (error) {
       console.error('Error al obtener los vehículos:', error);
@@ -34,40 +42,58 @@ const Vehicles = () => {
   };
 
   useEffect(() => {
-    fetchVehicles();
+    fetchData();
   }, []);
 
   const handleVehicleCreated = async (values) => {
-    console.log(`handleVehicleCreated`, values);
     const resp = await createVehiculo(values);
+    console.log(`resp`, resp);
 
-    if (resp.error) {
-      setSnackbar({ open: true, message: resp.responseData.message, severity: 'error' });
+    if (!resp.success) {
+      setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
       return { success: false, response: resp.responseData };
-    } else {
-      console.log(resp);
-      fetchVehicles();
-      setSnackbar({ open: true, message: 'Vehículo creado con éxito', severity: 'success' });
-      return { success: true, response: resp };
     }
+
+    fetchData();
+    setSnackbar({ open: true, message: 'Vehículo creado con éxito', severity: 'success' });
+    return { success: true, response: resp };
+  };
+  
+  const handleEditVehicle = async (id) => {
+    const resp = await getVehicleById(id);
+    if (!resp.success) {
+      setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
+      return;
+    }
+
+    setSelectedVehicle(resp.data);
+    setOpenForm(true);
+  }
+
+  const handleVehicleUpdated = async (values) => {
+    const resp = await updateVehicle(values.id, values);
+
+    if (!resp.success) {
+      setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
+      return { success: false, data: resp.responseData };
+    }
+
+    setSnackbar({ open: true, message: resp.message, severity: 'success' });
+    // setSnackbar({ open: true, message: 'Vehículo actualizado con éxito', severity: 'success' });
+    fetchData();
+    return { success: true, data: resp };
 
   };
 
-  const handleVehicleUpdated = (values) => {
-    fetchVehicles();
-    console.log(`handleVehicleCreated`, values);
-    setSnackbar({ open: true, message: 'Vehículo actualizado con éxito', severity: 'success' });
-  };
-
-  const handleDeleteVehicle = async (vehicleId) => {
-    try {
-      await deleteVehiculo(vehicleId);
-      fetchVehicles();
-      setSnackbar({ open: true, message: 'Vehículo eliminado con éxito', severity: 'success' });
-    } catch (error) {
-      console.error('Error al eliminar el vehículo:', error);
-      setSnackbar({ open: true, message: 'Error al eliminar el vehículo', severity: 'error' });
+  const handleDeleteVehicle = async (id) => {
+    const resp = await deleteVehicle(id);
+    if (!(resp === '')) {
+      setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
+      return;
     }
+
+    fetchData();
+    setSnackbar({ open: true, message: `Vehículo eliminado con éxito`, severity: 'success' });
   };
 
   const handleCloseSnackbar = () => {
@@ -97,7 +123,7 @@ const Vehicles = () => {
           )}
         </Grid>
         <Grid item xs={12}>
-          <VehicleList vehicles={vehicles} onEdit={(vehicle) => setSelectedVehicle(vehicle)} onDelete={handleDeleteVehicle} />
+          <VehicleList vehicles={vehicles} onEdit={(id) => handleEditVehicle(id)} onDelete={handleDeleteVehicle} />
         </Grid>
       </Grid>
       <VehicleForm open={openForm} handleClose={handleFormClose} onSubmit={selectedVehicle ? handleVehicleUpdated : handleVehicleCreated} initialValues={selectedVehicle || {}} />
