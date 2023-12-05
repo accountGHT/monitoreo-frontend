@@ -27,7 +27,7 @@ const columnsWithActions = [
         <IconButton color="primary" aria-label="Editar" onClick={() => params.row.onEdit(params.row.id)}>
           <EditIcon />
         </IconButton>
-        <IconButton color="secondary" aria-label="Eliminar" onClick={() => params.row.onDelete(params.row.id)}>
+        <IconButton color="secondary" aria-label="Eliminar" onClick={() => params.row.onDelete(params.row)}>
           <DeleteIcon />
         </IconButton>
       </>

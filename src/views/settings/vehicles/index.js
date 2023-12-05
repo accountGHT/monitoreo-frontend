@@ -11,6 +11,7 @@ import VehicleForm from './VehicleForm';
 import VehicleList from './ VehicleList';
 import { getVehiculos, createVehiculo, getVehicleById, updateVehicle, deleteVehicle } from 'api/vehiculos/vehiculosApi';
 import { loadFromLocalStorage } from 'utils/localStorage';
+import DeleteConfirmationDialog from 'components/DeleteConfirmationDialog';
 
 const Vehicles = () => {
   const userLocalStorage = loadFromLocalStorage('user');
@@ -18,6 +19,11 @@ const Vehicles = () => {
   const [vehicles, setVehicles] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [openForm, setOpenForm] = useState(false);
+
+  // For option delete
+  const [isDialogConfirmDeleteOpen, setIsDialogConfirmDeleteOpen] = useState(false);
+  const [itemIdToDelete, setItemIdToDelete] = useState(null);
+  const [itemNameToDelete, setItemNameToDelete] = useState('');
 
   // const [loading, setLoading] = useState(true);
   // const [page, setPage] = useState(1);
@@ -47,7 +53,6 @@ const Vehicles = () => {
 
   const handleVehicleCreated = async (values) => {
     const resp = await createVehiculo(values);
-    console.log(`resp`, resp);
 
     if (!resp.success) {
       setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
@@ -58,7 +63,7 @@ const Vehicles = () => {
     setSnackbar({ open: true, message: 'Vehículo creado con éxito', severity: 'success' });
     return { success: true, response: resp };
   };
-  
+
   const handleEditVehicle = async (id) => {
     const resp = await getVehicleById(id);
     if (!resp.success) {
@@ -85,8 +90,20 @@ const Vehicles = () => {
 
   };
 
-  const handleDeleteVehicle = async (id) => {
-    const resp = await deleteVehicle(id);
+  const handleDeleteVehicle = async (vehicle) => {
+    setItemIdToDelete(vehicle.id);
+    setItemNameToDelete(`${vehicle.marca} ${vehicle.modelo}`);
+    setIsDialogConfirmDeleteOpen(true);
+  };
+
+  const handleCloseDialogConfirmDelete = () => {
+    setIsDialogConfirmDeleteOpen(false);
+    setItemIdToDelete(null);
+    setItemNameToDelete('');
+  };
+
+  const handleDialogConfirmDelete = async () => {
+    const resp = await deleteVehicle(itemIdToDelete);
     if (!(resp === '')) {
       setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
       return;
@@ -94,6 +111,7 @@ const Vehicles = () => {
 
     fetchData();
     setSnackbar({ open: true, message: `Vehículo eliminado con éxito`, severity: 'success' });
+    handleCloseDialogConfirmDelete();
   };
 
   const handleCloseSnackbar = () => {
@@ -135,6 +153,12 @@ const Vehicles = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
+      <DeleteConfirmationDialog
+        open={isDialogConfirmDeleteOpen}
+        onClose={handleCloseDialogConfirmDelete}
+        onConfirm={handleDialogConfirmDelete}
+        itemName={itemNameToDelete}
+      />
     </MainCard>
   );
 };

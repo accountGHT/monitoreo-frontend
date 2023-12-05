@@ -12,13 +12,13 @@ export const getPersonas = async () => {
     }
 };
 
-export const createPersona = async () => {
+export const createPerson = async (payload) => {
     try {
-        const response = await apiAxios.post(endpoints.list);
+        const response = await apiAxios.post(endpoints.list, payload);
         return response.data;
     } catch (error) {
         console.log(error);
-        throw error;
+        return handleError(error);
     }
 };
 
@@ -32,24 +32,22 @@ export const getPersonById = async (id) => {
     }
 };
 
-export const updatePersona = async (id, formData) => {
-    console.log(formData);
+export const updatePerson = async (id, payload) => {
     try {
-        const response = await apiAxios.get(`${endpoints.list}/${id}`);
+        const response = await apiAxios.put(`${endpoints.list}/${id}`, payload);
         return response.data;
     } catch (error) {
-        console.log(error);
-        throw error;
+        return handleError(error);
     }
 };
 
-export const deletePersona = async (id) => {
+export const deletePerson = async (id) => {
     try {
-        const response = await apiAxios.get(`${endpoints.list}/${id}`);
+        const response = await apiAxios.delete(`${endpoints.list}/${id}`);
         return response.data;
     } catch (error) {
         console.log(error);
-        throw error;
+        return handleError(error);
     }
 };
 

@@ -67,6 +67,9 @@ const VehicleForm = ({ open, handleClose, onSubmit, initialValues }) => {
                 handleClose();
             } else {
                 console.log(resp.data);
+                if (Object.entries(resp.data.errors).length > 0) {
+                    formik.setErrors(resp.data.errors);
+                }
             }
 
         },

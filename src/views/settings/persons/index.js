@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Grid, Button, Snackbar, Alert, Typography } from '@mui/material';
 import PersonForm from './PersonForm';
 import PersonList from './PersonList';
-import { getPersonas, deletePersona, getPersonById } from 'api/personas/personasApi';
+import { getPersonas, getPersonById, createPerson, updatePerson, deletePerson } from 'api/personas/personasApi';
 import MainCard from 'ui-component/cards/MainCard';
 import { loadFromLocalStorage } from 'utils/localStorage';
+import DeleteConfirmationDialog from 'components/DeleteConfirmationDialog';
 
 const Persons = () => {
     const userLocalStorage = loadFromLocalStorage('user');
@@ -12,6 +13,11 @@ const Persons = () => {
     const [persons, setPersons] = useState([]);
     const [selectedPerson, setSelectedPerson] = useState(null);
     const [openForm, setOpenForm] = useState(false);
+
+    // For option delete
+    const [isDialogConfirmDeleteOpen, setIsDialogConfirmDeleteOpen] = useState(false);
+    const [itemIdToDelete, setItemIdToDelete] = useState(null);
+    const [itemNameToDelete, setItemNameToDelete] = useState('');
 
     // const [loading, setLoading] = useState(true);
     // const [page, setPage] = useState(1);
@@ -23,6 +29,12 @@ const Persons = () => {
         message: '',
         severity: 'success',
     });
+
+    const handleCloseDialogConfirmDelete = () => {
+        setIsDialogConfirmDeleteOpen(false);
+        setItemIdToDelete(null);
+        setItemNameToDelete('');
+    };
 
     const fetchData = async () => {
         setPerPage(10);
@@ -41,13 +53,19 @@ const Persons = () => {
         fetchData();
     }, []);
 
-    const handlePersonCreated = () => {
-        console.log(`handlePersonCreated`);
+    const handlePersonCreated = async (values) => {
+        const resp = await createPerson(values);
+        if (!resp.success) {
+            setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
+            return { success: false, data: resp.responseData };
+        }
+
         fetchData();
-        setSnackbar({ open: true, message: 'Vehículo creado con éxito', severity: 'success' });
+        setSnackbar({ open: true, message: 'Persona creada con éxito', severity: 'success' });
+        return { success: true, data: resp };
     };
 
-    const handleEditPerson = async (id) => {
+    const handlePersonEdit = async (id) => {
         const resp = await getPersonById(id);
         if (!resp.success) {
             setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
@@ -58,22 +76,36 @@ const Persons = () => {
         setOpenForm(true);
     }
 
-    const handlePersonUpdated = () => {
-        console.log(`handlePersonUpdated`);
+    const handlePersonUpdate = async (values) => {
+        const resp = await updatePerson(values.id, values);
+
+        if (!resp.success) {
+            setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
+            return { success: false, data: resp.responseData };
+        }
+
+        setSnackbar({ open: true, message: resp.message, severity: 'success' });
         fetchData();
-        setSnackbar({ open: true, message: 'Vehículo actualizado con éxito', severity: 'success' });
+        return { success: true, data: resp };
     };
 
-    const handleDeletePerson = async (PersonId) => {
-        console.log(`handleDeletePerson`);
-        try {
-            await deletePersona(PersonId);
-            fetchData();
-            setSnackbar({ open: true, message: 'Vehículo eliminado con éxito', severity: 'success' });
-        } catch (error) {
-            console.error('Error al eliminar el vehículo:', error);
-            setSnackbar({ open: true, message: 'Error al eliminar el vehículo', severity: 'error' });
+    const handleDeletePerson = async (person) => {
+        console.log(`handleDeletePerson`, person);
+        setItemIdToDelete(person.id);
+        setItemNameToDelete(`${person.nombres} ${person.p_apellido} ${person.s_apellido}`);
+        setIsDialogConfirmDeleteOpen(true);
+    };
+
+    const handleDialogConfirmDelete = async () => {
+        const resp = await deletePerson(itemIdToDelete);
+        if (!(resp === '')) {
+            setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
+            return;
         }
+
+        fetchData();
+        setSnackbar({ open: true, message: `Persona eliminada con éxito`, severity: 'success' });
+        handleCloseDialogConfirmDelete();
     };
 
     const handleCloseSnackbar = () => {
@@ -103,15 +135,25 @@ const Persons = () => {
                     )}
                 </Grid>
                 <Grid item xs={12}>
-                    <PersonList persons={persons} onEdit={(id) => handleEditPerson(id)} onDelete={handleDeletePerson} />
+                    <PersonList persons={persons} onEdit={(id) => handlePersonEdit(id)} onDelete={handleDeletePerson} />
                 </Grid>
             </Grid>
-            <PersonForm open={openForm} handleClose={handleFormClose} onSubmit={selectedPerson ? handlePersonUpdated : handlePersonCreated} initialValues={selectedPerson || {}} />
-            <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+            <PersonForm open={openForm} handleClose={handleFormClose} onSubmit={selectedPerson ? handlePersonUpdate : handlePersonCreated} initialValues={selectedPerson || {}} />
+
+            <Snackbar
+                open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            >
                 <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} elevation={6} variant="filled">
                     {snackbar.message}
                 </Alert>
             </Snackbar>
+            <DeleteConfirmationDialog
+                open={isDialogConfirmDeleteOpen}
+                onClose={handleCloseDialogConfirmDelete}
+                onConfirm={handleDialogConfirmDelete}
+                itemName={itemNameToDelete}
+            />
         </MainCard>
     );
 };
