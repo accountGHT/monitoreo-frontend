@@ -247,33 +247,6 @@ const DistribucionPersonalForm = ({ open, handleClose, onSubmit, initialValues }
                   </FormControl>
                 </Grid>
 
-                {/* <Grid item xs={12} sm={6} md={6}>
-                  <Autocomplete
-                    disablePortal
-                    id="patrullero"
-                    name="patrullero"
-                    options={patrulleros}
-                    getOptionLabel={(option) =>
-                      option.nombres !== undefined ? `${option.nombre_completo}` : ''
-                    }
-                    value={Object.entries(formik.values.patrullero).length > 0 ? formik.values.patrullero : null}
-                    onChange={(event, newValue) => {
-                      formik.setFieldValue('patrullero', newValue === null ? {} : newValue);
-                      formik.setFieldValue('patrullero_id', newValue === null ? null : newValue.id);
-                    }}
-                    isOptionEqualToValue={(option, value) => option.id === value.id}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Sereno"
-                        error={formik.touched.patrullero_id && Boolean(formik.errors.patrullero_id)}
-                        helperText={formik.touched.patrullero_id && formik.errors.patrullero_id}
-                        variant="standard"
-                      />
-                    )}
-                  />
-                </Grid> */}
-
                 <Grid item xs={12} sm={6} md={6}>
                   <Autocomplete
                     disablePortal
@@ -307,11 +280,13 @@ const DistribucionPersonalForm = ({ open, handleClose, onSubmit, initialValues }
                     id="vehiculo"
                     name="vehiculo"
                     options={vehiculos}
-                    getOptionLabel={(option) => (option.placa !== undefined ? option.placa : '')}
-                    value={Object.entries(formik.values.vehiculo).length > 0 ? formik.values.vehiculo : null}
+                    getOptionLabel={(option) =>
+                      option.placa !== undefined ? `${option.placa}` : ''
+                    }
+                    value={vehiculos.find((p) => p.id === formik.values.vehiculo_id) || null}
                     onChange={(event, newValue) => {
-                      formik.setFieldValue('vehiculo', newValue ?? {});
-                      formik.setFieldValue('vehiculo_id', newValue === null ? '' : newValue.id);
+                      formik.setFieldValue('vehiculo', newValue || {});
+                      formik.setFieldValue('vehiculo_id', newValue ? newValue.id : null);
                     }}
                     isOptionEqualToValue={(option, value) => option.id === value.id}
                     renderInput={(params) => (
@@ -332,11 +307,13 @@ const DistribucionPersonalForm = ({ open, handleClose, onSubmit, initialValues }
                     id="zona"
                     name="zona"
                     options={zonasList}
-                    getOptionLabel={(option) => (option.nombre !== undefined ? option.nombre : '')}
-                    value={Object.entries(formik.values.zona).length > 0 ? formik.values.zona : null}
+                    getOptionLabel={(option) =>
+                      option.nombre !== undefined ? `${option.nombre}` : ''
+                    }
+                    value={zonasList.find((p) => p.id === formik.values.zona_id) || null}
                     onChange={(event, newValue) => {
-                      formik.setFieldValue('zona', newValue ?? {});
-                      formik.setFieldValue('zona_id', newValue === null ? '' : newValue.id);
+                      formik.setFieldValue('zona', newValue || {});
+                      formik.setFieldValue('zona_id', newValue ? newValue.id : null);
                     }}
                     isOptionEqualToValue={(option, value) => option.id === value.id}
                     renderInput={(params) => (
@@ -397,11 +374,13 @@ const DistribucionPersonalForm = ({ open, handleClose, onSubmit, initialValues }
                     id="tipo_patrullaje"
                     name="tipo_patrullaje"
                     options={tiposPatrullaje}
-                    getOptionLabel={(option) => (option.nombre !== undefined ? option.nombre : '')}
-                    value={Object.entries(formik.values.tipo_patrullaje).length > 0 ? formik.values.tipo_patrullaje : null}
+                    getOptionLabel={(option) =>
+                      option.nombre !== undefined ? `${option.nombre}` : ''
+                    }
+                    value={tiposPatrullaje.find((p) => p.id === formik.values.tipo_patrullaje_id) || null}
                     onChange={(event, newValue) => {
-                      formik.setFieldValue('tipo_patrullaje', newValue ?? {});
-                      formik.setFieldValue('tipo_patrullaje_id', newValue === null ? '' : newValue.id);
+                      formik.setFieldValue('tipo_patrullaje', newValue || {});
+                      formik.setFieldValue('tipo_patrullaje_id', newValue ? newValue.id : null);
                     }}
                     isOptionEqualToValue={(option, value) => option.id === value.id}
                     renderInput={(params) => (
@@ -479,12 +458,12 @@ const DistribucionPersonalForm = ({ open, handleClose, onSubmit, initialValues }
                     name="supervisor"
                     options={supervisores}
                     getOptionLabel={(option) =>
-                      option.nombres !== undefined ? `${option.nombres} ${option.p_apellido} ${option.s_apellido}` : ''
+                      option.nombres !== undefined ? `${option.nombre_completo}` : ''
                     }
-                    value={Object.entries(formik.values.supervisor).length > 0 ? formik.values.supervisor : null}
+                    value={supervisores.find((p) => p.id === formik.values.supervisor_id) || null}
                     onChange={(event, newValue) => {
-                      formik.setFieldValue('supervisor', newValue === null ? {} : newValue);
-                      formik.setFieldValue('supervisor_id', newValue === null ? null : newValue.id);
+                      formik.setFieldValue('supervisor', newValue || {});
+                      formik.setFieldValue('supervisor_id', newValue ? newValue.id : null);
                     }}
                     isOptionEqualToValue={(option, value) => option.id === value.id}
                     renderInput={(params) => (
