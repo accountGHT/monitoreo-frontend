@@ -1,50 +1,48 @@
-import React, { useEffect, useState } from 'react';
-
-// material-ui
-import { Grid, Button, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, TablePagination, CircularProgress, Paper } from '@mui/material';
-
-// ui-component
-import MainCard from 'ui-component/cards/MainCard';
-import SecondaryAction from 'ui-component/cards/CardSecondaryAction';
-
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useState, useEffect } from 'react';
+// import { Grid, Button, Snackbar, Alert, Typography } from '@mui/material';
+import { Grid, Button, Typography, CircularProgress, Alert, Snackbar } from '@mui/material';
 import DistribucionPersonalForm from './DistribucionPersonalForm';
-import axios from 'axios';
+import DistribucionPersonalList from './DistribucionPersonalList';
+import { createDistribucionPersonal, getDistribucionPersonal, getDistribucionPersonalById, updateDistribucionPersonal } from 'api/distribucion-personal/distribucionPersonalApi';
 
+import MainCard from 'ui-component/cards/MainCard';
+import { loadFromLocalStorage } from 'utils/localStorage';
+// import DeleteConfirmationDialog from 'components/DeleteConfirmationDialog';
 
 const DistribucionPersonal = () => {
-    const [openModalAdd, setOpenModalAdd] = useState(false);
-
+    const userLocalStorage = loadFromLocalStorage('user');
     const [data, setData] = useState([]);
+    const [selectedPerson, setSelectedItem] = useState(null);
+    const [openForm, setOpenForm] = useState(false);
+
     const [loading, setLoading] = useState(true);
-    const [page, setPage] = useState(1);
+    // const [page, setPage] = useState(1);
     const [perPage, setPerPage] = useState(10);
-    const [totalPages, setTotalPages] = useState(1);
+    // const [totalPages, setTotalPages] = useState(1);
 
-    // Functions
-    const handleOpenModalAdd = () => setOpenModalAdd(true);
-    const closeModalAdd = () => setOpenModalAdd(false);
-
-    const formatearFecha = (fecha) => {
-        const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
-        return new Date(fecha).toLocaleDateString(undefined, options);
-    }
-
-    const formatearHora = (hora) => {
-        // const options = { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short' };
-        const options = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
-        return new Date(hora).toLocaleTimeString(undefined, options);
-    }
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: '',
+        severity: 'success',
+    });
 
     const fetchData = async () => {
+        setPerPage(10);
         try {
-            const response = await axios.get(
-                `http://127.0.0.1:8000/api/distribucion-personal?page=${page}`
-            );
-            const responseData = response.data.data.data;
-            setData(responseData);
-            setTotalPages(response.data.data.last_page);
+            let params = `?per_page=${perPage}`;
+            const resp = await getDistribucionPersonal(params);
+            // console.log(resp);
+            console.log(resp.data);
+
+            if (!resp.success) {
+                console.error(resp);
+                setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
+                // setSnackbar({ open: true, message: 'Error al obtener los vehículos', severity: 'error' });
+                return;
+            }
+
+            setData(resp.data);
+            console.log(data);
         } catch (error) {
             console.error("Error fetching data: ", error);
         } finally {
@@ -52,25 +50,75 @@ const DistribucionPersonal = () => {
         }
     };
 
-    const refreshTable = () => {
-        console.log(`refreshTable`);
-        fetchData();
-    };
-
     useEffect(() => {
         fetchData();
-        return () => {
-            setOpenModalAdd(false);
-        }
     }, []);
 
-    const handleChangePage = (event, newPage) => {
-        setPage(newPage + 1);
+    const handleItemCreated = async (values) => {
+        const resp = await createDistribucionPersonal(values);
+        if (!resp.success) {
+            setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
+            return { success: false, data: resp.responseData };
+        }
+
+        fetchData();
+        setSnackbar({ open: true, message: resp.message, severity: 'success' });
+        // toast.success(respCreate.message);
+        return { success: true, data: resp };
     };
 
-    const handleChangeRowsPerPage = (event) => {
-        setPerPage(parseInt(event.target.value, 10));
-        setPage(1);
+    const handleItemEdit = async (id) => {
+        const resp = await getDistribucionPersonalById(id);
+        console.log(`resp`, resp);
+        if (!resp.success) {
+            setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
+            return;
+        }
+
+        setSelectedItem(resp.data);
+        setOpenForm(true);
+    }
+
+    const handleItemUpdate = async (values) => {
+        console.log(`handleItemUpdate`, values);
+        const resp = await updateDistribucionPersonal(values.id, values);
+
+        if (!resp.success) {
+            setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
+            return { success: false, data: resp.responseData };
+        }
+
+        setSnackbar({ open: true, message: resp.message, severity: 'success' });
+        fetchData();
+        return { success: true, data: resp };
+    };
+
+    const handleItemDelete = async (item) => {
+        console.log(`handleItemDelete`, item);
+        // setItemIdToDelete(item.id);
+        // setItemNameToDelete(`${item.nombres} ${item.p_apellido} ${item.s_apellido}`);
+        // setIsDialogConfirmDeleteOpen(true);
+    };
+
+    // const handleDialogConfirmDelete = async () => {
+    //     const resp = await deletePerson(itemIdToDelete);
+    //     if (!(resp === '')) {
+    //         setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
+    //         return;
+    //     }
+
+    //     fetchData();
+    //     setSnackbar({ open: true, message: `Persona eliminada con éxito`, severity: 'success' });
+    //     handleCloseDialogConfirmDelete();
+    // };
+
+    const handleCloseSnackbar = () => {
+        setSnackbar({ ...snackbar, open: false });
+    };
+
+    const handleFormClose = () => {
+        setOpenForm(false);
+        setSelectedItem(null);
     };
 
     if (loading) {
@@ -78,72 +126,37 @@ const DistribucionPersonal = () => {
     }
 
     return (
-        <MainCard title="Distribución del personal" secondary={<SecondaryAction link="/" />}>
-            <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'end', marginBottom: '12px' }}>
-                <Button variant="contained" color="primary" onClick={handleOpenModalAdd}>
-                    Agregar Nuevo Registro
-                </Button>
-            </div>
-            <div>
-                <TableContainer component={Paper}>
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Fecha</TableCell>
-                                <TableCell>Hora</TableCell>
-                                <TableCell>Turno</TableCell>
-                                <TableCell>Patrullero</TableCell>
-                                <TableCell>Vehículo</TableCell>
-                                <TableCell>Zona</TableCell>
-                                <TableCell>PATRULLAJE MUNICIPAL O INTEGRADO</TableCell>
-                                <TableCell style={{ width: "200px" }}>Ubicacion persona</TableCell>
-                                <TableCell>Tipo patrullaje</TableCell>
-                                <TableCell>Num. Ocurrencia</TableCell>
-                                <TableCell>Entregó hoja ruta?</TableCell>
-                                <TableCell>Cód. radio</TableCell>
-                                <TableCell>Supervisor</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {data.map((item) => (
-                                <TableRow key={item.id}>
-                                    <TableCell>{formatearFecha(item.fecha)}</TableCell>
-                                    <TableCell>{formatearHora(item.hora)}</TableCell>
-                                    <TableCell>{item.turno}</TableCell>
-                                    <TableCell>{`${item.patrullero.nombres} ${item.patrullero.p_apellido}`}</TableCell>
-                                    <TableCell>{item.vehiculo.placa}</TableCell>
-                                    <TableCell>{item.zona.nombre}</TableCell>
-                                    <TableCell>
-                                        {item.patrullaje_integrado ? `PATRULLAJE INTEGRADO` : `PATRULLAJE MUNICIPAL`}
-                                    </TableCell>
-                                    <TableCell style={{ width: "200px" }}>{item.ubicacion_persona}</TableCell>
-                                    <TableCell>{item.tipo_patrullaje.nombre}</TableCell>
-                                    <TableCell>{item.num_partes_ocurrencia}</TableCell>
-                                    <TableCell>{item.entrega_hoja_ruta ? `SI` : `NO`}</TableCell>
-                                    <TableCell>{item.codigo_radio}</TableCell>
-                                    <TableCell>{`${item.supervisor.nombres} ${item.supervisor.p_apellido}`}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-                <TablePagination
-                    component="div"
-                    count={perPage * totalPages}
-                    page={page - 1}
-                    onPageChange={handleChangePage}
-                    rowsPerPage={perPage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                />
-            </div>
-            <Grid container justifyContent="flex-end">
-                {openModalAdd && (
-                    <DistribucionPersonalForm open={openModalAdd} handleClose={closeModalAdd} refreshTable={refreshTable}></DistribucionPersonalForm>
-                )}
+        <MainCard style={{ marginTop: '20px' }}>
+            <Grid container spacing={2} sx={{ p: 2 }}>
+                <Grid item xs={6}>
+                    <Typography variant="h2" gutterBottom>
+                        Distribución del personal
+                    </Typography>
+                </Grid>
+                <Grid item xs={6}>
+                    {userLocalStorage && (
+                        <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'end', marginBottom: '12px' }}>
+                            <Button variant="contained" onClick={() => setOpenForm(true)}>
+                                Nuevo registro
+                            </Button>
+                        </div>
+                    )}
+                </Grid>
+                <Grid item xs={12}>
+                    <DistribucionPersonalList data={data} onEdit={(id) => handleItemEdit(id)} onDelete={handleItemDelete} />
+                </Grid>
             </Grid>
-            <ToastContainer />
+            <DistribucionPersonalForm open={openForm} handleClose={handleFormClose} onSubmit={selectedPerson ? handleItemUpdate : handleItemCreated} initialValues={selectedPerson || {}} />
+            <Snackbar
+                open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            >
+                <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} elevation={6} variant="filled">
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </MainCard>
-    )
-}
+    );
+};
 
-export default DistribucionPersonal
+export default DistribucionPersonal;

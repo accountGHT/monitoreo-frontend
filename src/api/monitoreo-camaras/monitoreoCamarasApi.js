@@ -105,18 +105,6 @@ export const getTiposPatrullaje = async () => {
   }
 };
 
-export const postCreateDistribucionPersonal = async (params) => {
-  try {
-    const response = await apiAxios.post(monitoreoCamarasEndpoints.createDistribucionPersonal, params);
-    console.log(response);
-    return response.data;
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-};
-
-
 export const getDatosGrafico = async (params) => {
   try {
     const response = await apiAxios.get(`${monitoreoCamarasEndpoints.datosGrafico}${params}`);

@@ -60,3 +60,24 @@ export const getMultiTablesForAutocomplete = async (params) => {
         return handleError(error);
     }
 };
+
+//
+export const getZonasForAutocomplete = async () => {
+    try {
+        const response = await apiAxios.get(endpoints.autocompleteZonas);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        return handleError(error);
+    }
+};
+
+export const getTiposPatrullajeForAutocomplete = async () => {
+    try {
+        const response = await apiAxios.get(endpoints.autocompleteTiposPatrullaje);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        return handleError(error);
+    }
+};
