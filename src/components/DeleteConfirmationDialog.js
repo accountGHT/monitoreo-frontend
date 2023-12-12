@@ -19,7 +19,7 @@ const DeleteConfirmationDialog = ({ open, onClose, onConfirm, itemName }) => {
                 <DialogTitle id="alert-dialog-title">Eliminar Registro</DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        ¿Estás seguro de que deseas eliminar el registro `{itemName}`?
+                        {`¿Estás seguro de que deseas eliminar el registro ${itemName}?`}
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>

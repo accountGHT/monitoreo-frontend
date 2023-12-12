@@ -12,6 +12,10 @@ import themes from 'themes';
 // project imports
 import NavigationScroll from 'layout/NavigationScroll';
 
+// Para notificaciones
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 // ==============================|| APP ||============================== //
 
 const App = () => {
@@ -25,6 +29,7 @@ const App = () => {
           <Routes />
         </NavigationScroll>
       </ThemeProvider>
+      <ToastContainer />
     </StyledEngineProvider>
   );
 };

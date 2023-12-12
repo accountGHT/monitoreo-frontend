@@ -1,62 +1,134 @@
 import React, { useEffect, useState } from 'react';
-
 // material-ui
-import { Grid, Button, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, TablePagination, CircularProgress, Paper } from '@mui/material';
+import {
+    Grid, Button, TablePagination, CircularProgress, Typography
+} from '@mui/material';
 
 // ui-component
 import MainCard from 'ui-component/cards/MainCard';
-import SecondaryAction from 'ui-component/cards/CardSecondaryAction';
-
-import { ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import CentralComunicacionesForm from './CentralComunicacionesForm';
-// import { list } from 'api/monitoreo-camaras/monitoreoCamarasApi';
-import axios from 'axios';
 
-const CentralComunicaciones = () => {
-    const [openModalAdd, setOpenModalAdd] = useState(false);
+// import CentralComunicacionesForm from './CentralComunicacionesForm';
+import { loadFromLocalStorage } from 'utils/localStorage';
+import CommunicationsCenterForm from './CommunicationsCenterForm';
+import CommunicationsCenterList from './CommunicationsCenterList';
+import { createCommunicationsCenter, deleteCommunicationsCenter, getCommunicationsCenter, getCommunicationsCenterById } from 'api/communications-center/communicationsCenterApi';
+import DeleteConfirmationDialog from 'components/DeleteConfirmationDialog';
 
+const CommunicationsCenter = () => {
+    const userLocalStorage = loadFromLocalStorage('user');
     const [data, setData] = useState([]);
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [openForm, setOpenForm] = useState(false);
+
+    // For option delete
+    const [isDialogConfirmDeleteOpen, setIsDialogConfirmDeleteOpen] = useState(false);
+    const [itemIdToDelete, setItemIdToDelete] = useState(null);
+    const [itemNameToDelete, setItemNameToDelete] = useState('');
+
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
     const [perPage, setPerPage] = useState(10);
     const [totalPages, setTotalPages] = useState(1);
 
-    // Functions
-    const handleOpenModalAdd = () => setOpenModalAdd(true);
-    const closeModalAdd = () => setOpenModalAdd(false);
-
-    const formatearFecha = (fecha) => {
-        const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
-        return new Date(fecha).toLocaleDateString(undefined, options);
-    }
-
     const fetchData = async () => {
+        setPerPage(10);
         try {
-            const response = await axios.get(
-                `http://127.0.0.1:8000/api/central-comunicaciones?page=${page}`
-            );
-            const responseData = response.data.data.data;
-            setData(responseData);
-            setTotalPages(response.data.data.last_page);
+            let params = `?per_page=${perPage}`;
+            const resp = await getCommunicationsCenter(params);
+            console.log(resp);
+
+            if (!resp.success) {
+                console.error(resp);
+                toast.error(resp.errorMessage);
+                return;
+            }
+
+            setData(resp.data);
+            setTotalPages(resp.pagination.last_page);
         } catch (error) {
             console.error("Error fetching data: ", error);
+            setLoading(false);
         } finally {
             setLoading(false);
         }
     };
 
-    const refreshTable = () => {
-        console.log(`refreshTable`);
-        fetchData();
-    };
-
     useEffect(() => {
         fetchData();
-        return () => {
-            setOpenModalAdd(false);
-        }
     }, []);
+
+
+    const handleItemCreated = async (values) => {
+        console.log(`handleItemCreated`, values);
+        const resp = await createCommunicationsCenter(values);
+        if (!resp.success) {
+            // setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
+            return { success: false, data: resp.responseData };
+        }
+
+        fetchData();
+        // setSnackbar({ open: true, message: resp.message, severity: 'success' });
+        // toast.success(respCreate.message);
+        return { success: true, data: resp };
+    };
+
+    const handleItemEdit = async (id) => {
+        console.log(`handleItemEdit`, id);
+        const resp = await getCommunicationsCenterById(id);
+        console.log(`resp`, resp);
+        if (!resp.success) {
+            toast.error(resp.errorMessage);
+            return;
+        }
+
+        if (Object.entries(resp.data).length > 0) {
+            setSelectedItem(resp.data);
+            setOpenForm(true);
+            return;
+        }
+
+        toast.warning(`No se encontró el registro`);
+    }
+
+    const handleItemUpdate = async (values) => {
+        console.log(`handleItemUpdate`, values);
+        // const resp = await updateDistribucionPersonal(values.id, values);
+
+        // if (!resp.success) {
+        //     setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
+        //     return { success: false, data: resp.responseData };
+        // }
+
+        // setSnackbar({ open: true, message: resp.message, severity: 'success' });
+        // fetchData();
+        // return { success: true, data: resp };
+    };
+
+    const handleItemDelete = async (item) => {
+        setItemIdToDelete(item.id);
+        setItemNameToDelete(" con id " + `${item.id}`);
+        setIsDialogConfirmDeleteOpen(true);
+    };
+
+    const handleDialogConfirmDelete = async () => {
+        const resp = await deleteCommunicationsCenter(itemIdToDelete);
+        if (!(resp === '')) {
+            toast.error(resp.errorMessage);
+            return;
+        }
+
+        fetchData();
+        toast.success(`Registro eliminado con éxito`);
+        handleCloseDialogConfirmDelete();
+    };
+
+    const handleCloseDialogConfirmDelete = () => {
+        setIsDialogConfirmDeleteOpen(false);
+        setItemIdToDelete(null);
+        setItemNameToDelete('');
+    };
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage + 1);
@@ -67,56 +139,46 @@ const CentralComunicaciones = () => {
         setPage(1);
     };
 
+    const handleFormClose = () => {
+        setOpenForm(false);
+        setSelectedItem(null);
+    };
+
     if (loading) {
         return <CircularProgress />;
     }
 
     return (
-        <MainCard title="Central de comunicaciones" secondary={<SecondaryAction link="/" />}>
-            <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'end', marginBottom: '12px' }}>
-                <Button variant="contained" color="primary" onClick={handleOpenModalAdd}>
-                    Agregar Nuevo Registro
-                </Button>
-            </div>
+        <MainCard style={{ marginTop: '20px' }}>
+            <Grid container spacing={2} sx={{ p: 2 }}>
+                <Grid item xs={6}>
+                    <Typography variant="h2" gutterBottom>
+                        Central de Comunicaciones
+                    </Typography>
+                </Grid>
+                <Grid item xs={6}>
+                    {userLocalStorage && (
+                        <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'end', marginBottom: '12px' }}>
+                            <Button variant="contained" onClick={() => setOpenForm(true)}>
+                                Nuevo registro
+                            </Button>
+                        </div>
+                    )}
+                </Grid>
+                <Grid item xs={12}>
+                    <CommunicationsCenterList data={data} onEdit={(id) => handleItemEdit(id)} onDelete={handleItemDelete} />
+                </Grid>
+            </Grid>
+
+            <CommunicationsCenterForm open={openForm} handleClose={handleFormClose} onSubmit={selectedItem ? handleItemUpdate : handleItemCreated} initialValues={selectedItem || {}} />
+            <DeleteConfirmationDialog
+                open={isDialogConfirmDeleteOpen}
+                onClose={handleCloseDialogConfirmDelete}
+                onConfirm={handleDialogConfirmDelete}
+                itemName={itemNameToDelete}
+            />
+
             <div>
-                <TableContainer component={Paper}>
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Fecha</TableCell>
-                                <TableCell>Hora llamada</TableCell>
-                                <TableCell>Tipo comunicacion</TableCell>
-                                <TableCell>Turno</TableCell>
-                                <TableCell>descripcion_llamada</TableCell>
-                                <TableCell>Zona Incidencia</TableCell>
-                                <TableCell>Operador</TableCell>
-                                <TableCell>Tipo Incidencia</TableCell>
-                                <TableCell>Vehículo</TableCell>
-                                <TableCell>Personal serenazgo</TableCell>
-                                <TableCell>detalle_atencion</TableCell>
-                                <TableCell>Supervisor</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {data.map((item) => (
-                                <TableRow key={item.id}>
-                                    <TableCell>{formatearFecha(item.fecha)}</TableCell>
-                                    <TableCell>{item.hora_llamada}</TableCell>
-                                    <TableCell>{item.tipo_comunicacion.nombre}</TableCell>
-                                    <TableCell>{item.turno}</TableCell>
-                                    <TableCell>{item.descripcion_llamada}</TableCell>
-                                    <TableCell>{item.zona_incidencia.nombre}</TableCell>
-                                    <TableCell>{`${item.operador.nombres} ${item.operador.p_apellido}`}</TableCell>
-                                    <TableCell>{item.tipo_apoyo_incidencia.nombre}</TableCell>
-                                    <TableCell>{item.vehiculo.placa}</TableCell>
-                                    <TableCell>{`${item.personal_serenazgo.nombres} ${item.personal_serenazgo.p_apellido}`}</TableCell>
-                                    <TableCell>{item.detalle_atencion}</TableCell>
-                                    <TableCell>{`${item.supervisor.nombres} ${item.supervisor.p_apellido}`}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
                 <TablePagination
                     component="div"
                     count={perPage * totalPages}
@@ -126,14 +188,8 @@ const CentralComunicaciones = () => {
                     onRowsPerPageChange={handleChangeRowsPerPage}
                 />
             </div>
-            <Grid container justifyContent="flex-end">
-                {openModalAdd && (
-                    <CentralComunicacionesForm open={openModalAdd} handleClose={closeModalAdd} refreshTable={refreshTable}></CentralComunicacionesForm>
-                )}
-            </Grid>
-            <ToastContainer />
         </MainCard>
     )
 }
 
-export default CentralComunicaciones
+export default CommunicationsCenter;

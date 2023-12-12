@@ -1,6 +1,5 @@
 import React from 'react';
 import { DataGrid } from '@mui/x-data-grid';
-import Alert from '@mui/material/Alert';
 import { IconButton } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -54,8 +53,8 @@ const columnsWithoutActions = [
     },
     {
         field: 'estado', headerName: 'estado', flex: 0.5, minWidth: 120, maxWidth: 130,
-        renderCell: (params) => params.row.estado ? (<Alert severity="success">Habilitado</Alert>) : 
-            (<Alert severity="error">Deshabilitado</Alert>)
+        renderCell: (params) => params.row.estado ? (<span className="status-success">Habilitado</span>) : 
+            (<span className="status-error">Deshabilitado</span>)
     },
 ];
 

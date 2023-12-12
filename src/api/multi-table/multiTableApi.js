@@ -81,3 +81,23 @@ export const getTiposPatrullajeForAutocomplete = async () => {
         return handleError(error);
     }
 };
+
+export const getTiposComunicacionForAutocomplete = async () => {
+    try {
+        const response = await apiAxios.get(endpoints.autocompleteTiposComunicacion);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        return handleError(error);
+    }
+};
+
+export const getTiposIncidenciaForAutocomplete = async () => {
+    try {
+        const response = await apiAxios.get(endpoints.autocompleteTiposIncidencia);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        return handleError(error);
+    }
+};
