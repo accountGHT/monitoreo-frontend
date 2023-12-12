@@ -13,7 +13,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { loadFromLocalStorage } from 'utils/localStorage';
 import CommunicationsCenterForm from './CommunicationsCenterForm';
 import CommunicationsCenterList from './CommunicationsCenterList';
-import { createCommunicationsCenter, deleteCommunicationsCenter, getCommunicationsCenter, getCommunicationsCenterById } from 'api/communications-center/communicationsCenterApi';
+import { createCommunicationsCenter, deleteCommunicationsCenter, getCommunicationsCenter, getCommunicationsCenterById, updateCommunicationsCenter } from 'api/communications-center/communicationsCenterApi';
 import DeleteConfirmationDialog from 'components/DeleteConfirmationDialog';
 
 const CommunicationsCenter = () => {
@@ -63,14 +63,14 @@ const CommunicationsCenter = () => {
     const handleItemCreated = async (values) => {
         console.log(`handleItemCreated`, values);
         const resp = await createCommunicationsCenter(values);
+        console.log(`resp`, resp);
         if (!resp.success) {
-            // setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
+            toast.error(resp.errorMessage);
             return { success: false, data: resp.responseData };
         }
 
         fetchData();
-        // setSnackbar({ open: true, message: resp.message, severity: 'success' });
-        // toast.success(respCreate.message);
+        toast.success(resp.message);
         return { success: true, data: resp };
     };
 
@@ -94,16 +94,16 @@ const CommunicationsCenter = () => {
 
     const handleItemUpdate = async (values) => {
         console.log(`handleItemUpdate`, values);
-        // const resp = await updateDistribucionPersonal(values.id, values);
+        const resp = await updateCommunicationsCenter(values.id, values);
+        console.log(`resp`, resp);
+        if (!resp.success) {
+            toast.error(resp.errorMessage);
+            return { success: false, data: resp.responseData };
+        }
 
-        // if (!resp.success) {
-        //     setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
-        //     return { success: false, data: resp.responseData };
-        // }
-
-        // setSnackbar({ open: true, message: resp.message, severity: 'success' });
-        // fetchData();
-        // return { success: true, data: resp };
+        toast.success(resp.message);
+        fetchData();
+        return { success: true, data: resp };
     };
 
     const handleItemDelete = async (item) => {

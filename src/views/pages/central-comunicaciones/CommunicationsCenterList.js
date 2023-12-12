@@ -20,7 +20,7 @@ const columnsWithoutActions = [
         renderCell: (params) => params.row.tipo_comunicacion.nombre
     },
     { field: 'turno', headerName: 'Turno', flex: 1, minWidth: 100, maxWidth: 120 },
-    { field: 'descripcion_llamada', headerName: 'Desc. llamada', flex: 1, minWidth: 150, maxWidth: 200 },
+    // { field: 'descripcion_llamada', headerName: 'Desc. llamada', flex: 1, minWidth: 150, maxWidth: 200 },
     // { field: 'zona_incidencia_id', headerName: 'zona_incidencia_id', flex: 1, minWidth: 150, maxWidth: 300 },
     {
         field: 'zona_incidencia', headerName: 'Zona', flex: 1.5, minWidth: 120, maxWidth: 150,
@@ -28,8 +28,8 @@ const columnsWithoutActions = [
     },
     // { field: 'operador_id', headerName: 'operador_id', flex: 0.5, minWidth: 100, maxWidth: 120 },
     {
-        field: 'operador', headerName: 'Operador', flex: 0.5, minWidth: 100, maxWidth: 120,
-        renderCell: (params) => params.row.operador.nombres
+        field: 'operador', headerName: 'Operador', flex: 1, minWidth: 120, maxWidth: 200,
+        renderCell: (params) => params.row.operador.nombre_completo
     },
     // { field: 'tipo_apoyo_incidencia_id', headerName: 'tipo_apoyo_incidencia_id', flex: 0.5, minWidth: 100, maxWidth: 120 },
     {
@@ -43,14 +43,14 @@ const columnsWithoutActions = [
     },
     // { field: 'personal_serenazgo_id', headerName: 'personal_serenazgo_id', flex: 2, minWidth: 150, maxWidth: 300 },
     {
-        field: 'personal_serenazgo', headerName: 'Personal serenazgo', flex: 0.5, minWidth: 100, maxWidth: 120,
-        renderCell: (params) => params.row.personal_serenazgo.nombres
+        field: 'personal_serenazgo', headerName: 'Personal serenazgo', flex: 1, minWidth: 120, maxWidth: 200,
+        renderCell: (params) => params.row.personal_serenazgo.nombre_completo
     },
-    { field: 'detalle_atencion', headerName: 'detalle_atencion', flex: 0.5, minWidth: 100, maxWidth: 120 },
+    // { field: 'detalle_atencion', headerName: 'detalle_atencion', flex: 0.5, minWidth: 100, maxWidth: 120 },
     // { field: 'supervisor_id', headerName: 'supervisor_id', flex: 0.5, minWidth: 100, maxWidth: 120 },
     {
-        field: 'supervisor', headerName: 'Supervisor', flex: 0.5, minWidth: 100, maxWidth: 120,
-        renderCell: (params) => params.row.supervisor.nombres
+        field: 'supervisor', headerName: 'Supervisor', flex: 1, minWidth: 120, maxWidth: 200,
+        renderCell: (params) => params.row.supervisor.nombre_completo
     },
     // {
     //     field: 'estado', headerName: 'estado', flex: 0.5, minWidth: 120, maxWidth: 130,
