@@ -41,7 +41,7 @@ export const updateDistribucionPersonal = async (id, payload) => {
     }
 };
 
-export const deletePerson = async (id) => {
+export const deleteDistribucionPersonal = async (id) => {
     try {
         const response = await apiAxios.delete(`${endpoints.list}/${id}`);
         return response.data;
@@ -50,6 +50,16 @@ export const deletePerson = async (id) => {
         return handleError(error);
     }
 };
+
+// export const deletePerson = async (id) => {
+//     try {
+//         const response = await apiAxios.delete(`${endpoints.list}/${id}`);
+//         return response.data;
+//     } catch (error) {
+//         console.log(error);
+//         return handleError(error);
+//     }
+// };
 
 export const getPersonasForAutocomplete = async () => {
     try {

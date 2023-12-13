@@ -29,14 +29,14 @@ const columnsWithoutActions = [
         field: 'zona', headerName: 'Zona', flex: 1.5, minWidth: 120, maxWidth: 150,
         renderCell: (params) => params.row.zona.nombre
     },
-    {
-        field: 'patrullaje_integrado', headerName: 'PAT. MUN. O INTEGRADO?', flex: 1.5, minWidth: 130, maxWidth: 180,
-        renderCell: (params) => params.row.patrullaje_integrado ? `PATRULLAJE INTEGRADO` : `PATRULLAJE MUNICIPAL`
-    },
+    // {
+    //     field: 'patrullaje_integrado', headerName: 'PAT. MUN. O INTEGRADO?', flex: 1.5, minWidth: 180, maxWidth: 200,
+    //     renderCell: (params) => params.row.patrullaje_integrado ? `PATRULLAJE INTEGRADO` : `PATRULLAJE MUNICIPAL`
+    // },
     // { field: 'ubicacion_persona', headerName: 'Ubicación', flex: 0.5, minWidth: 100, maxWidth: 120 },
     // { field: 'tipo_patrullaje_id', headerName: 'tipo_patrullaje_id', flex: 0.5, minWidth: 100, maxWidth: 120 },
     {
-        field: 'tipo_patrullaje', headerName: 'Tipo patrullaje', flex: 0.5, minWidth: 100, maxWidth: 120,
+        field: 'tipo_patrullaje', headerName: 'Tipo patrullaje', flex: 1, minWidth: 140, maxWidth: 150,
         renderCell: (params) => params.row.tipo_patrullaje.nombre
     },
     // { field: 'num_partes_ocurrencia', headerName: 'Num. Ocurrencia', flex: 0.5, minWidth: 100, maxWidth: 120 },
@@ -44,10 +44,10 @@ const columnsWithoutActions = [
         field: 'entrega_hoja_ruta', headerName: 'Entregó hoja de ruta?', flex: 0.5, minWidth: 100, maxWidth: 120,
         renderCell: (params) => params.row.entrega_hoja_ruta ? `SI` : `NO`
     },
-    { field: 'codigo_radio', headerName: 'Cód. radio', flex: 0.5, minWidth: 100, maxWidth: 120 },
+    // { field: 'codigo_radio', headerName: 'Cód. radio', flex: 0.5, minWidth: 100, maxWidth: 120 },
     // { field: 'supervisor_id', headerName: 'supervisor_id', flex: 0.5, minWidth: 100, maxWidth: 120 },
     {
-        field: 'supervisor', headerName: 'Supervisor', flex: 1, minWidth: 120, maxWidth: 200,
+        field: 'supervisor', headerName: 'Supervisor', flex: 1, minWidth: 150, maxWidth: 200,
         renderCell: (params) => params.row.supervisor.nombre_completo
     },
     {

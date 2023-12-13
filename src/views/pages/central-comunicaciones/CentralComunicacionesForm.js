@@ -2,22 +2,11 @@
 import React, { useEffect, useState } from 'react';
 
 // material-ui
-import { useTheme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
 import {
-  AppBar,
   Autocomplete,
-  Divider,
   Grid,
-  IconButton,
-  Slide,
-  Stack,
   TextField,
-  Toolbar,
-  Typography,
-  Button,
   Dialog,
-  DialogActions,
   DialogContent,
   InputLabel,
   MenuItem,
@@ -25,65 +14,22 @@ import {
   Select
 } from '@mui/material';
 
-// assets
-import CloseIcon from '@mui/icons-material/Close';
-import CancelIcon from '@mui/icons-material/Cancel';
-import SaveIcon from '@mui/icons-material/Save';
-
 // Formik
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 
-// Fechas
-import { DatePicker, TimePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs from 'dayjs';
-import 'dayjs/locale/es';
-
-import { toast } from 'react-toastify';
-
 // Get Data
-import { getPersonas, getTiposComunicacion, getTiposIncidencia, getZonas, postCreateCentralComunicacion } from 'api/monitoreo-camaras/monitoreoCamarasApi';
-import { getVehiculosForAutocomplete } from 'api/vehiculos/vehiculosApi';
+import { getTiposComunicacion } from 'api/monitoreo-camaras/monitoreoCamarasApi';
 
-const maxWidth = 'md'; // xs, sm, md, lg, xl
-const fullWidth = true;
-const Transition = React.forwardRef((props, ref) => <Slide direction="up" ref={ref} {...props} />);
 const gridSpacing = 3;
 // ==============================|| FixedAssetMovementAdd Component ||============================== //
 const CentralComunicacionesForm = ({ open, handleClose, refreshTable }) => {
-  const theme = useTheme();
-  // const dispatch = useDispatch();
-  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-  // Fechas
-  const locale = dayjs.locale('es');
   // Combos
-  const [zonasList, setzonasList] = useState([]);
   const [tiposComunicacion, setTiposComunicacion] = useState([]);
-  const [tiposIncidencia, setTiposIncidencia] = useState([]);
-  const [personas, setPersonas] = useState([]);
-  const [vehiculos, setVehiculos] = useState([]);
-
-  const create = async (params) => {
-    const respCreate = await postCreateCentralComunicacion(params);
-    console.log(respCreate);
-    toast.success(respCreate.message);
-    formik.resetForm();
-    refreshTable();
-    handleClose();
-  }
 
   const listZonas = async () => {
-    const resZonas = await getZonas();
     const resTiposComunicacion = await getTiposComunicacion();
-    const resTiposIncidencia = await getTiposIncidencia();
-    const resPersonas = await getPersonas();
-    const resVehiculos = await getVehiculosForAutocomplete();
-    setzonasList(resZonas.data);
     setTiposComunicacion(resTiposComunicacion.data);
-    setTiposIncidencia(resTiposIncidencia.data);
-    setPersonas(resPersonas.data);
-    setVehiculos(resVehiculos.data);
   }
 
   const validationSchema = Yup.object({
@@ -96,7 +42,6 @@ const CentralComunicacionesForm = ({ open, handleClose, refreshTable }) => {
     supervisor_id: Yup.number('Supervisor no es válido').nullable(),
   });
 
-
   const formik = useFormik({
     initialValues: {
       fecha: dayjs(),
@@ -104,42 +49,15 @@ const CentralComunicacionesForm = ({ open, handleClose, refreshTable }) => {
       tipo_comunicacion_id: '',
       tipo_comunicacion: {},
       turno: '',
-      descripcion_llamada: '',
-      zona_incidencia_id: '',
-      zona: {},
-      tipo_apoyo_incidencia_id: '',
-      tipo_apoyo_incidencia: {},
-      operador_id: '',
-      operador: {},
-      personal_serenazgo_id: '',
-      personal_serenazgo: {},
-      vehiculo_id: '',
-      vehiculo: {},
-      supervisor_id: '',
-      supervisor: {},
-      detalle_atencion: '',
     },
     validationSchema,
     onSubmit: (values) => {
-      console.log(`onSubmit`);
-      console.log(values);
       const objParams = {
         fecha: values.fecha = values.fecha.format('YYYY-MM-DD'),
         hora_llamada: values.hora_llamada.format('HH:mm:ss'),
         tipo_comunicacion_id: values.tipo_comunicacion_id,
         turno: values.turno,
-        descripcion_llamada: values.descripcion_llamada,
-        zona_incidencia_id: values.zona_incidencia_id,
-        operador_id: values.operador_id,
-        tipo_apoyo_incidencia_id: values.tipo_apoyo_incidencia_id,
-        personal_serenazgo_id: values.personal_serenazgo_id,
-        vehiculo_id: values.vehiculo_id,
-        supervisor_id: values.supervisor_id,
-        detalle_atencion: values.detalle_atencion,
       }
-
-      console.log(objParams);
-      create(objParams);
     }
   });
 
@@ -147,73 +65,14 @@ const CentralComunicacionesForm = ({ open, handleClose, refreshTable }) => {
     listZonas();
     return () => {
       formik.resetForm();
-      // setOpen(false);
     }
   }, []);
 
   return (
-    <Dialog
-      fullScreen={fullScreen}
-      fullWidth={fullWidth}
-      maxWidth={maxWidth}
-      open={open}
-      onClose={handleClose}
-      TransitionComponent={Transition}
-      aria-labelledby="responsive-dialog-depreciation"
-      className="lal-dialog"
-    >
-      <AppBar position="static">
-        <Toolbar>
-          <Typography sx={{ ml: 0, flexGrow: 1, color: '#ffffff' }} variant="h4" component="div">
-            Agregar Registro
-          </Typography>
-          <IconButton edge="end" color="inherit" onClick={handleClose} aria-label="close">
-            <CloseIcon />
-          </IconButton>
-        </Toolbar>
-      </AppBar>
+    <Dialog>
       <DialogContent>
         <form onSubmit={formik.handleSubmit}>
           <Grid container spacing={gridSpacing}>
-
-            <Grid item xs={12} sm={6} md={3}>
-              <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={locale}>
-                <Stack spacing={3}>
-                  <DatePicker
-                    id="fecha"
-                    name="fecha"
-                    views={['day', 'month', 'year']}
-                    inputFormat="DD/MM/YYYY"
-                    label="Fecha *"
-                    value={formik.values.fecha}
-                    onChange={(newValue) => {
-                      formik.setFieldValue('fecha', newValue);
-                    }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        error={formik.touched.fecha && Boolean(formik.errors.fecha)}
-                        helperText={formik.touched.fecha && formik.errors.fecha}
-                        variant="standard"
-                      />
-                    )}
-                  />
-                </Stack>
-              </LocalizationProvider>
-            </Grid>
-
-            <Grid item xs={12} sm={6} md={3}>
-              <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={locale}>
-                <TimePicker
-                  label="Hora de la Llamada"
-                  value={formik.values.hora_llamada}
-                  onChange={(newValue) => {
-                    formik.setFieldValue('hora_llamada', newValue);
-                  }}
-                  renderInput={(params) => <TextField {...params} variant="standard" />}
-                />
-              </LocalizationProvider>
-            </Grid>
 
             <Grid item xs={12} sm={6} md={3}>
               <Autocomplete
@@ -260,27 +119,8 @@ const CentralComunicacionesForm = ({ open, handleClose, refreshTable }) => {
             </Grid>        
 
           </Grid>
-          <Button id="btnSubmitForm" type="submit" sx={{ display: 'none' }}>
-            submit
-          </Button>
         </form>
       </DialogContent>
-      <Divider />
-      <DialogActions>
-        <Button onClick={handleClose} endIcon={<CancelIcon />} variant="contained">
-          Cerrar
-        </Button>
-        <Button
-          color="primary"
-          startIcon={<SaveIcon />}
-          variant="contained"
-          onClick={() => {
-            document.getElementById('btnSubmitForm').click();
-          }}
-        >
-          Guardar
-        </Button>
-      </DialogActions>
     </Dialog>
   );
 };

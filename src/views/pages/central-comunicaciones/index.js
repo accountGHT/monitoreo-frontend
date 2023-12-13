@@ -1,20 +1,18 @@
 import React, { useEffect, useState } from 'react';
+
 // material-ui
-import {
-    Grid, Button, TablePagination, CircularProgress, Typography
-} from '@mui/material';
+import { Grid, Button, TablePagination, CircularProgress, Typography } from '@mui/material';
 
 // ui-component
 import MainCard from 'ui-component/cards/MainCard';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-// import CentralComunicacionesForm from './CentralComunicacionesForm';
 import { loadFromLocalStorage } from 'utils/localStorage';
-import CommunicationsCenterForm from './CommunicationsCenterForm';
 import CommunicationsCenterList from './CommunicationsCenterList';
-import { createCommunicationsCenter, deleteCommunicationsCenter, getCommunicationsCenter, getCommunicationsCenterById, updateCommunicationsCenter } from 'api/communications-center/communicationsCenterApi';
+import CommunicationsCenterForm from './CommunicationsCenterForm';
 import DeleteConfirmationDialog from 'components/DeleteConfirmationDialog';
+import { createCommunicationsCenter, deleteCommunicationsCenter, getCommunicationsCenter, getCommunicationsCenterById, updateCommunicationsCenter } from 'api/communications-center/communicationsCenterApi';
 
 const CommunicationsCenter = () => {
     const userLocalStorage = loadFromLocalStorage('user');
@@ -92,6 +90,11 @@ const CommunicationsCenter = () => {
         toast.warning(`No se encontró el registro`);
     }
 
+    const handleFormClose = () => {
+        setOpenForm(false);
+        setSelectedItem(null);
+    };
+
     const handleItemUpdate = async (values) => {
         console.log(`handleItemUpdate`, values);
         const resp = await updateCommunicationsCenter(values.id, values);
@@ -137,11 +140,6 @@ const CommunicationsCenter = () => {
     const handleChangeRowsPerPage = (event) => {
         setPerPage(parseInt(event.target.value, 10));
         setPage(1);
-    };
-
-    const handleFormClose = () => {
-        setOpenForm(false);
-        setSelectedItem(null);
     };
 
     if (loading) {

@@ -136,7 +136,7 @@ const DistribucionPersonalForm = ({ open, handleClose, onSubmit, initialValues }
         id: initialValues.id || null,
         fecha: initialValues.fecha || dayjs(),
         hora: initialValues.hora ? dayjs(initialValues.hora, 'HH:mm:ss').toDate() : dayjs(),
-        turno: initialValues.turno || '',
+        turno: initialValues.turno || 'TARDE',
         patrullero_id: initialValues.patrullero_id || '',
         patrullero: initialValues.patrullero || {},
         vehiculo_id: initialValues.vehiculo_id || '',
@@ -149,9 +149,9 @@ const DistribucionPersonalForm = ({ open, handleClose, onSubmit, initialValues }
         tipo_patrullaje: initialValues.tipo_patrullaje || {},
         num_partes_ocurrencia: initialValues.num_partes_ocurrencia || '',
         entrega_hoja_ruta: initialValues.entrega_hoja_ruta || 0,
+        codigo_radio: initialValues.codigo_radio || '',
         supervisor_id: initialValues.supervisor_id || '',
         supervisor: initialValues.supervisor || {},
-        codigo_radio: initialValues.codigo_radio || '',
       });
 
       setLoading(false);
@@ -235,10 +235,15 @@ const DistribucionPersonalForm = ({ open, handleClose, onSubmit, initialValues }
                     <Select
                       labelId="turno-select-label"
                       id="turno-select"
-                      value={formik.values.turno}
+                      value={formik.values.turno || 'TARDE'}
                       label="Turno"
                       onChange={(event) => {
-                        formik.setFieldValue('turno', event.target.value ?? '');
+                        const selectedValue = event.target.value ?? '';
+                        const isValidValue = ['DÍA', 'TARDE', 'NOCHE'].includes(selectedValue);
+
+                        if (isValidValue) {
+                          formik.setFieldValue('turno', selectedValue);
+                        }
                       }}
                     >
                       <MenuItem value={"DÍA"}>DÍA</MenuItem>

@@ -1,13 +1,19 @@
 import React, { useState, useEffect } from 'react';
-// import { Grid, Button, Snackbar, Alert, Typography } from '@mui/material';
-import { Grid, Button, Typography, CircularProgress, Alert, Snackbar } from '@mui/material';
-import DistribucionPersonalForm from './DistribucionPersonalForm';
-import DistribucionPersonalList from './DistribucionPersonalList';
-import { createDistribucionPersonal, getDistribucionPersonal, getDistribucionPersonalById, updateDistribucionPersonal } from 'api/distribucion-personal/distribucionPersonalApi';
 
+// material-ui
+import { Grid, Button, Typography, CircularProgress } from '@mui/material';
+
+// ui-component
 import MainCard from 'ui-component/cards/MainCard';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import { loadFromLocalStorage } from 'utils/localStorage';
-// import DeleteConfirmationDialog from 'components/DeleteConfirmationDialog';
+import DistribucionPersonalList from './DistribucionPersonalList';
+import DistribucionPersonalForm from './DistribucionPersonalForm';
+import DeleteConfirmationDialog from 'components/DeleteConfirmationDialog';
+import { createDistribucionPersonal, deleteDistribucionPersonal, getDistribucionPersonal, getDistribucionPersonalById, updateDistribucionPersonal } from 'api/distribucion-personal/distribucionPersonalApi';
+
 
 const DistribucionPersonal = () => {
     const userLocalStorage = loadFromLocalStorage('user');
@@ -15,16 +21,15 @@ const DistribucionPersonal = () => {
     const [selectedPerson, setSelectedItem] = useState(null);
     const [openForm, setOpenForm] = useState(false);
 
+    // For option delete
+    const [isDialogConfirmDeleteOpen, setIsDialogConfirmDeleteOpen] = useState(false);
+    const [itemIdToDelete, setItemIdToDelete] = useState(null);
+    const [itemNameToDelete, setItemNameToDelete] = useState('');
+
     const [loading, setLoading] = useState(true);
     // const [page, setPage] = useState(1);
     const [perPage, setPerPage] = useState(10);
     // const [totalPages, setTotalPages] = useState(1);
-
-    const [snackbar, setSnackbar] = useState({
-        open: false,
-        message: '',
-        severity: 'success',
-    });
 
     const fetchData = async () => {
         setPerPage(10);
@@ -36,13 +41,12 @@ const DistribucionPersonal = () => {
 
             if (!resp.success) {
                 console.error(resp);
-                setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
+                // setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
                 // setSnackbar({ open: true, message: 'Error al obtener los vehículos', severity: 'error' });
                 return;
             }
 
             setData(resp.data);
-            console.log(data);
         } catch (error) {
             console.error("Error fetching data: ", error);
         } finally {
@@ -57,68 +61,72 @@ const DistribucionPersonal = () => {
     const handleItemCreated = async (values) => {
         const resp = await createDistribucionPersonal(values);
         if (!resp.success) {
-            setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
+            toast.error(resp.errorMessage);
             return { success: false, data: resp.responseData };
         }
 
         fetchData();
-        setSnackbar({ open: true, message: resp.message, severity: 'success' });
-        // toast.success(respCreate.message);
+        toast.success(resp.message);
         return { success: true, data: resp };
     };
 
     const handleItemEdit = async (id) => {
         const resp = await getDistribucionPersonalById(id);
-        console.log(`resp`, resp);
         if (!resp.success) {
-            setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
+            toast.error(resp.errorMessage);
             return;
         }
 
-        setSelectedItem(resp.data);
-        setOpenForm(true);
+        if (Object.entries(resp.data).length > 0) {
+            setSelectedItem(resp.data);
+            setOpenForm(true);
+            return;
+        }
+
+        toast.warning(`No se encontró el registro`);
     }
+
+    const handleFormClose = () => {
+        setSelectedItem(null);
+        setOpenForm(false);
+    };
 
     const handleItemUpdate = async (values) => {
         console.log(`handleItemUpdate`, values);
         const resp = await updateDistribucionPersonal(values.id, values);
-
+        console.log(`resp`, resp);
         if (!resp.success) {
-            setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
+            toast.error(resp.errorMessage);
             return { success: false, data: resp.responseData };
         }
 
-        setSnackbar({ open: true, message: resp.message, severity: 'success' });
+        toast.success(resp.message);
         fetchData();
         return { success: true, data: resp };
     };
 
     const handleItemDelete = async (item) => {
-        console.log(`handleItemDelete`, item);
-        // setItemIdToDelete(item.id);
-        // setItemNameToDelete(`${item.nombres} ${item.p_apellido} ${item.s_apellido}`);
-        // setIsDialogConfirmDeleteOpen(true);
+        setItemIdToDelete(item.id);
+        setItemNameToDelete(" con id " + `${item.id}`);
+        setIsDialogConfirmDeleteOpen(true);
     };
 
-    // const handleDialogConfirmDelete = async () => {
-    //     const resp = await deletePerson(itemIdToDelete);
-    //     if (!(resp === '')) {
-    //         setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
-    //         return;
-    //     }
+    const handleDialogConfirmDelete = async () => {
+        const resp = await deleteDistribucionPersonal(itemIdToDelete);
+        if (!(resp === '')) {
+            toast.error(resp.errorMessage);
+            return;
+        }
 
-    //     fetchData();
-    //     setSnackbar({ open: true, message: `Persona eliminada con éxito`, severity: 'success' });
-    //     handleCloseDialogConfirmDelete();
-    // };
-
-    const handleCloseSnackbar = () => {
-        setSnackbar({ ...snackbar, open: false });
+        fetchData();
+        toast.success(`Registro eliminado con éxito`);
+        handleCloseDialogConfirmDelete();
     };
 
-    const handleFormClose = () => {
-        setOpenForm(false);
-        setSelectedItem(null);
+    const handleCloseDialogConfirmDelete = () => {
+        setIsDialogConfirmDeleteOpen(false);
+        setItemIdToDelete(null);
+        setItemNameToDelete('');
     };
 
     if (loading) {
@@ -147,14 +155,12 @@ const DistribucionPersonal = () => {
                 </Grid>
             </Grid>
             <DistribucionPersonalForm open={openForm} handleClose={handleFormClose} onSubmit={selectedPerson ? handleItemUpdate : handleItemCreated} initialValues={selectedPerson || {}} />
-            <Snackbar
-                open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-            >
-                <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} elevation={6} variant="filled">
-                    {snackbar.message}
-                </Alert>
-            </Snackbar>
+            <DeleteConfirmationDialog
+                open={isDialogConfirmDeleteOpen}
+                onClose={handleCloseDialogConfirmDelete}
+                onConfirm={handleDialogConfirmDelete}
+                itemName={itemNameToDelete}
+            />
         </MainCard>
     );
 };
