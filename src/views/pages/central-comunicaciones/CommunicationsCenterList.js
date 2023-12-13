@@ -12,7 +12,6 @@ const userLocalStorage = loadFromLocalStorage('user');
 const columnsWithoutActions = [
     { field: 'id', headerName: 'Id', flex: 0.5, minWidth: 50, maxWidth: 60 },
     { field: 'fecha', headerName: 'Fecha', flex: 1, minWidth: 100, maxWidth: 120, renderCell: (params) => fnFormatDate(params.row.fecha) },
-    // { field: 'hora_llamada', headerName: 'Hora Llamada', flex: 1, minWidth: 120, maxWidth: 140, renderCell: (params) => fnFormatTime(params.row.hora) },
     { field: 'hora_llamada', headerName: 'Hora Llamada', flex: 1, minWidth: 120, maxWidth: 140, renderCell: (params) => params.row.hora },
     // { field: 'tipo_comunicacion_id', headerName: 'tipo_comunicacion_id', flex: 0.5, minWidth: 100, maxWidth: 120 },
     {

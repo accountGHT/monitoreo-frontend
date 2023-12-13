@@ -17,13 +17,6 @@ import {
     Dialog,
     DialogActions,
     DialogContent
-    // InputLabel,
-    // MenuItem,
-    // FormControl,
-    // Select,
-    // FormControlLabel,
-    // Switch,
-    // InputAdornment
 } from '@mui/material';
 
 // assets
@@ -40,13 +33,11 @@ import { DatePicker, TimePicker, LocalizationProvider } from '@mui/x-date-picker
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
+
+// APIs
 import { getTiposComunicacionForAutocomplete, getTiposIncidenciaForAutocomplete, getZonasForAutocomplete } from 'api/multi-table/multiTableApi';
 import { getPersonasForAutocomplete } from 'api/personas/personasApi';
 import { getVehiculosForAutocomplete } from 'api/vehiculos/vehiculosApi';
-
-// APIs
-// import { getVehiculosForAutocomplete } from 'api/vehiculos/vehiculosApi';
-// import { getPersonasForAutocomplete } from 'api/personas/personasApi';
 
 const maxWidth = 'md'; // xs, sm, md, lg, xl
 const fullWidth = true;
@@ -55,7 +46,7 @@ const gridSpacing = 3;
 
 const validationSchema = Yup.object({
     fecha: Yup.date().required('La fecha es obligatoria'),
-    // hora_llamada: Yup.string().required('La hora de llamada es obligatoria'),
+    hora_llamada: Yup.date().required('La hora de llamada es obligatoria'),
 });
 
 // ==============================|| FixedAssetMovementAdd Component ||============================== //
@@ -134,10 +125,12 @@ const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }
         if (open) {
             loadAutocompletes();
 
+            console.log(`initialValues.hora_llamada`, initialValues.hora_llamada);
+
             formik.setValues({
                 id: initialValues.id || null,
                 fecha: initialValues.fecha || dayjs(),
-                hora_llamada: initialValues.hora_llamada || null,
+                hora_llamada: initialValues.hora_llamada ? dayjs(initialValues.hora_llamada, 'HH:mm:ss').toDate() : dayjs(),
                 tipo_comunicacion_id: initialValues.tipo_comunicacion_id || '',
                 tipo_comunicacion: initialValues.tipo_comunicacion || {},
                 turno: initialValues.turno || '',
@@ -182,8 +175,10 @@ const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }
                     <AppBar position="static">
                         <Toolbar>
                             <Typography sx={{ ml: 0, flexGrow: 1, color: '#ffffff' }} variant="h4" component="div">
-                                Agregar Registro
+                                {Object.entries(initialValues).length > 0 ? 'ACTUALIZAR REGISTRO' : 'NUEVO REGISTRO'}
                             </Typography>
+
+
                             <IconButton edge="end" color="inherit" onClick={handleClose} aria-label="close">
                                 <CloseIcon />
                             </IconButton>
@@ -464,9 +459,6 @@ const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }
                                 </Grid>
 
                             </Grid>
-                            {/* <Button id="btnSubmitForm" type="submit" sx={{ display: 'none' }}>
-                                submit
-                            </Button> */}
                         </form>
                     </DialogContent>
                     <Divider />
@@ -479,9 +471,6 @@ const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }
                             startIcon={<SaveIcon />}
                             variant="contained"
                             onClick={formik.submitForm}
-                        // onClick={() => {
-                        //     document.getElementById('btnSubmitForm').click();
-                        // }}
                         >
                             Guardar
                         </Button>

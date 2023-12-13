@@ -54,7 +54,8 @@ const Transition = React.forwardRef((props, ref) => <Slide direction="up" ref={r
 const gridSpacing = 3;
 
 const validationSchema = Yup.object({
-  fecha: Yup.object().nullable().required('Fecha es requerida'),
+  fecha: Yup.date().required('La fecha es obligatoria'),
+  hora: Yup.date().required('La hora es obligatoria'),
   zona_id: Yup.number('Zona no es válido').required('Zona es requerida'),
   patrullero_id: Yup.number('Activo Fijo no es válido').nullable(),
   vehiculo_id: Yup.number('Área no es válido').nullable(),
@@ -99,8 +100,8 @@ const DistribucionPersonalForm = ({ open, handleClose, onSubmit, initialValues }
       console.log(values);
       const payload = {
         id: values.id || null,
-        fecha: values.fecha = values.fecha.format('YYYY-MM-DD'),
-        hora: values.hora.format('HH:mm:ss'),
+        fecha: dayjs(values.fecha).format('YYYY-MM-DD'),
+        hora: dayjs(values.hora).format('HH:mm:ss'),
         turno: values.turno,
         patrullero_id: values.patrullero_id,
         vehiculo_id: values.vehiculo_id,
@@ -134,7 +135,7 @@ const DistribucionPersonalForm = ({ open, handleClose, onSubmit, initialValues }
       formik.setValues({
         id: initialValues.id || null,
         fecha: initialValues.fecha || dayjs(),
-        hora: initialValues.hora || null,
+        hora: initialValues.hora ? dayjs(initialValues.hora, 'HH:mm:ss').toDate() : dayjs(),
         turno: initialValues.turno || '',
         patrullero_id: initialValues.patrullero_id || '',
         patrullero: initialValues.patrullero || {},
@@ -178,7 +179,7 @@ const DistribucionPersonalForm = ({ open, handleClose, onSubmit, initialValues }
           <AppBar position="static">
             <Toolbar>
               <Typography sx={{ ml: 0, flexGrow: 1, color: '#ffffff' }} variant="h4" component="div">
-                Agregar Registro
+                {Object.entries(initialValues).length > 0 ? 'ACTUALIZAR REGISTRO' : 'NUEVO REGISTRO'}
               </Typography>
               <IconButton edge="end" color="inherit" onClick={handleClose} aria-label="close">
                 <CloseIcon />
