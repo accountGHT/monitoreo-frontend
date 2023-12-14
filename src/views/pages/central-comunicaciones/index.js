@@ -59,11 +59,9 @@ const CommunicationsCenter = () => {
 
 
     const handleItemCreated = async (values) => {
-        console.log(`handleItemCreated`, values);
         const resp = await createCommunicationsCenter(values);
-        console.log(`resp`, resp);
         if (!resp.success) {
-            toast.error(resp.errorMessage);
+            toast.error(resp.responseData.message ?? resp.errorMessage);
             return { success: false, data: resp.responseData };
         }
 

@@ -16,7 +16,11 @@ import {
     Button,
     Dialog,
     DialogActions,
-    DialogContent
+    DialogContent,
+    InputLabel,
+    MenuItem,
+    FormControl,
+    Select
 } from '@mui/material';
 
 // assets
@@ -49,9 +53,18 @@ const validationSchema = Yup.object({
     hora_llamada: Yup.date().required('La hora de llamada es obligatoria'),
 });
 
+// const validationSchema = Yup.object({
+//     fecha: Yup.object().nullable().required('Fecha es requerida'),
+//     zona_incidencia_id: Yup.number('Zona no es válido').required('Zona es requerida'),
+//     tipo_apoyo_incidencia_id: Yup.number('Tipo Incidencia no es válido').nullable(),
+//     operador_id: Yup.number('Operador no es válido').nullable(),
+//     personal_serenazgo_id: Yup.number('Activo Fijo no es válido').nullable(),
+//     vehiculo_id: Yup.number('Área no es válido').nullable(),
+//     supervisor_id: Yup.number('Supervisor no es válido').nullable(),
+// });
+
 // ==============================|| FixedAssetMovementAdd Component ||============================== //
 const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }) => {
-    console.log(`initialValues`, initialValues);
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -152,326 +165,350 @@ const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }
     }, [open]);
 
     return (
-        <>
-            {loading ? (
-                <p>Cargando...</p>
-            ) : (
-                <Dialog
-                    fullScreen={fullScreen}
-                    fullWidth={fullWidth}
-                    maxWidth={maxWidth}
-                    open={open}
-                    onClose={handleClose}
-                    TransitionComponent={Transition}
-                    aria-labelledby="responsive-dialog-depreciation"
-                    className="lal-dialog"
-                >
-                    <AppBar position="static">
-                        <Toolbar>
-                            <Typography sx={{ ml: 0, flexGrow: 1, color: '#ffffff' }} variant="h4" component="div">
-                                {Object.entries(initialValues).length > 0 ? 'ACTUALIZAR REGISTRO' : 'NUEVO REGISTRO'}
-                            </Typography>
+        <Dialog
+            fullScreen={fullScreen}
+            fullWidth={fullWidth}
+            maxWidth={maxWidth}
+            open={open}
+            onClose={handleClose}
+            TransitionComponent={Transition}
+            aria-labelledby="responsive-dialog-depreciation"
+            className="lal-dialog"
+        >
+            <AppBar position="static">
+                <Toolbar>
+                    <Typography sx={{ ml: 0, flexGrow: 1, color: '#ffffff' }} variant="h4" component="div">
+                        {Object.entries(initialValues).length > 0 ? 'ACTUALIZAR REGISTRO' : 'NUEVO REGISTRO'}
+                    </Typography>
 
 
-                            <IconButton edge="end" color="inherit" onClick={handleClose} aria-label="close">
-                                <CloseIcon />
-                            </IconButton>
-                        </Toolbar>
-                    </AppBar>
-                    <DialogContent>
-                        <form onSubmit={formik.handleSubmit}>
-                            <Grid container spacing={gridSpacing}>
+                    <IconButton edge="end" color="inherit" onClick={handleClose} aria-label="close">
+                        <CloseIcon />
+                    </IconButton>
+                </Toolbar>
+            </AppBar>
+            <DialogContent>
+                {loading ? (<p>Cargando...</p>) : (
+                    <form onSubmit={formik.handleSubmit}>
+                        <Grid container spacing={gridSpacing}>
 
-                                <Grid item xs={12} sm={6} md={3}>
-                                    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={locale}>
-                                        <Stack spacing={3}>
-                                            <DatePicker
-                                                id="fecha"
-                                                name="fecha"
-                                                views={['day', 'month', 'year']}
-                                                inputFormat="DD/MM/YYYY"
-                                                label="Fecha *"
-                                                value={formik.values.fecha}
-                                                onChange={(newValue) => {
-                                                    formik.setFieldValue('fecha', newValue);
-                                                }}
-                                                renderInput={(params) => (
-                                                    <TextField
-                                                        {...params}
-                                                        error={formik.touched.fecha && Boolean(formik.errors.fecha)}
-                                                        helperText={formik.touched.fecha && formik.errors.fecha}
-                                                        variant="standard"
-                                                    />
-                                                )}
-                                            />
-                                        </Stack>
-                                    </LocalizationProvider>
-                                </Grid>
-
-                                <Grid item xs={12} sm={6} md={3}>
-                                    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={locale}>
-                                        <TimePicker
-                                            label="Hora"
-                                            value={formik.values.hora_llamada}
+                            <Grid item xs={12} sm={6} md={3}>
+                                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={locale}>
+                                    <Stack spacing={3}>
+                                        <DatePicker
+                                            id="fecha"
+                                            name="fecha"
+                                            views={['day', 'month', 'year']}
+                                            inputFormat="DD/MM/YYYY"
+                                            label="Fecha *"
+                                            value={formik.values.fecha}
                                             onChange={(newValue) => {
-                                                formik.setFieldValue('hora_llamada', newValue);
+                                                formik.setFieldValue('fecha', newValue);
                                             }}
                                             renderInput={(params) => (
                                                 <TextField
                                                     {...params}
-                                                    error={formik.touched.hora_llamada && Boolean(formik.errors.hora_llamada)}
-                                                    helperText={formik.touched.hora_llamada && formik.errors.hora_llamada}
+                                                    error={formik.touched.fecha && Boolean(formik.errors.fecha)}
+                                                    helperText={formik.touched.fecha && formik.errors.fecha}
                                                     variant="standard"
                                                 />
                                             )}
                                         />
-                                    </LocalizationProvider>
-                                </Grid>
-
-                                <Grid item xs={12} sm={6} md={6}>
-                                    <Autocomplete
-                                        disablePortal
-                                        id="tipo_comunicacion"
-                                        name="tipo_comunicacion"
-                                        options={tiposComunicacion}
-
-                                        getOptionLabel={(option) =>
-                                            option.nombre !== undefined ? `${option.nombre}` : ''
-                                        }
-                                        value={tiposComunicacion.find((p) => p.id === formik.values.tipo_comunicacion_id) || null}
-                                        onChange={(event, newValue) => {
-                                            formik.setFieldValue('tipo_comunicacion', newValue || {});
-                                            formik.setFieldValue('tipo_comunicacion_id', newValue ? newValue.id : null);
-                                        }}
-                                        isOptionEqualToValue={(option, value) => option.id === value.id}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="Tipo comunicación"
-                                                error={formik.touched.tipo_comunicacion_id && Boolean(formik.errors.tipo_comunicacion_id)}
-                                                helperText={formik.touched.tipo_comunicacion_id && formik.errors.tipo_comunicacion_id}
-                                                variant="standard"
-                                            />
-                                        )}
-                                    />
-                                </Grid>
-
-                                {/* turno */}
-
-                                <Grid item xs={12} sm={12} md={12}>
-                                    <TextField
-                                        id="descripcion_llamada"
-                                        label="Descripción de la llamada"
-                                        multiline
-                                        maxRows={4}
-                                        fullWidth
-                                        variant="standard"
-                                        value={formik.values.descripcion_llamada}
-                                        onChange={(event) => {
-                                            formik.handleChange(event);
-                                        }}
-                                        onBlur={formik.handleBlur}
-                                    />
-                                </Grid>
-
-                                <Grid item xs={12} sm={6} md={6}>
-                                    <Autocomplete
-                                        disablePortal
-                                        id="zona_incidencia"
-                                        name="zona_incidencia"
-                                        options={zonasIncidencia}
-                                        getOptionLabel={(option) =>
-                                            option.nombre !== undefined ? `${option.nombre}` : ''
-                                        }
-                                        value={zonasIncidencia.find((p) => p.id === formik.values.zona_incidencia_id) || null}
-                                        onChange={(event, newValue) => {
-                                            formik.setFieldValue('zona_incidencia', newValue || {});
-                                            formik.setFieldValue('zona_incidencia_id', newValue ? newValue.id : null);
-                                        }}
-                                        isOptionEqualToValue={(option, value) => option.id === value.id}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="Zona"
-                                                error={formik.touched.zona_incidencia_id && Boolean(formik.errors.zona_incidencia_id)}
-                                                helperText={formik.touched.zona_incidencia_id && formik.errors.zona_incidencia_id}
-                                                variant="standard"
-                                            />
-                                        )}
-                                    />
-                                </Grid>
-
-                                <Grid item xs={12} sm={6} md={6}>
-                                    <Autocomplete
-                                        disablePortal
-                                        id="operador"
-                                        name="operador"
-                                        options={operadores}
-                                        getOptionLabel={(option) =>
-                                            option.nombres !== undefined ? `${option.nombre_completo}` : ''
-                                        }
-                                        value={operadores.find((p) => p.id === formik.values.operador_id) || null}
-                                        onChange={(event, newValue) => {
-                                            formik.setFieldValue('operador', newValue || {});
-                                            formik.setFieldValue('operador_id', newValue ? newValue.id : null);
-                                        }}
-                                        isOptionEqualToValue={(option, value) => option.id === value.id}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="Operador"
-                                                error={formik.touched.operador_id && Boolean(formik.errors.operador_id)}
-                                                helperText={formik.touched.operador_id && formik.errors.operador_id}
-                                                variant="standard"
-                                            />
-                                        )}
-                                    />
-                                </Grid>
-
-                                <Grid item xs={12} sm={6} md={6}>
-                                    <Autocomplete
-                                        disablePortal
-                                        id="tipo_apoyo_incidencia"
-                                        name="tipo_apoyo_incidencia"
-                                        options={tiposIncidencia}
-                                        getOptionLabel={(option) =>
-                                            option.nombre !== undefined ? `${option.nombre}` : ''
-                                        }
-                                        value={tiposIncidencia.find((p) => p.id === formik.values.tipo_apoyo_incidencia_id) || null}
-                                        onChange={(event, newValue) => {
-                                            formik.setFieldValue('tipo_apoyo_incidencia', newValue || {});
-                                            formik.setFieldValue('tipo_apoyo_incidencia_id', newValue ? newValue.id : null);
-                                        }}
-                                        isOptionEqualToValue={(option, value) => option.id === value.id}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="Tipo Incidencia"
-                                                error={formik.touched.tipo_apoyo_incidencia_id && Boolean(formik.errors.tipo_apoyo_incidencia_id)}
-                                                helperText={formik.touched.tipo_apoyo_incidencia_id && formik.errors.tipo_apoyo_incidencia_id}
-                                                variant="standard"
-                                            />
-                                        )}
-                                    />
-                                </Grid>
-
-                                <Grid item xs={12} sm={6} md={6}>
-                                    <Autocomplete
-                                        disablePortal
-                                        id="personal_serenazgo"
-                                        name="personal_serenazgo"
-                                        options={personasSerenazgo}
-                                        getOptionLabel={(option) =>
-                                            option.nombres !== undefined ? `${option.nombre_completo}` : ''
-                                        }
-                                        value={personasSerenazgo.find((p) => p.id === formik.values.personal_serenazgo_id) || null}
-                                        onChange={(event, newValue) => {
-                                            formik.setFieldValue('personal_serenazgo', newValue || {});
-                                            formik.setFieldValue('personal_serenazgo_id', newValue ? newValue.id : null);
-                                        }}
-                                        isOptionEqualToValue={(option, value) => option.id === value.id}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="Sereno"
-                                                error={formik.touched.personal_serenazgo_id && Boolean(formik.errors.personal_serenazgo_id)}
-                                                helperText={formik.touched.personal_serenazgo_id && formik.errors.personal_serenazgo_id}
-                                                variant="standard"
-                                            />
-                                        )}
-                                    />
-                                </Grid>
-
-                                <Grid item xs={12} sm={6} md={6}>
-                                    <Autocomplete
-                                        disablePortal
-                                        id="vehiculo"
-                                        name="vehiculo"
-                                        options={vehiculos}
-                                        getOptionLabel={(option) =>
-                                            option.placa !== undefined ? `${option.placa}` : ''
-                                        }
-                                        value={vehiculos.find((p) => p.id === formik.values.vehiculo_id) || null}
-                                        onChange={(event, newValue) => {
-                                            formik.setFieldValue('vehiculo', newValue || {});
-                                            formik.setFieldValue('vehiculo_id', newValue ? newValue.id : null);
-                                        }}
-                                        isOptionEqualToValue={(option, value) => option.id === value.id}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="Vehículo"
-                                                error={formik.touched.vehiculo_id && Boolean(formik.errors.vehiculo_id)}
-                                                helperText={formik.touched.vehiculo_id && formik.errors.vehiculo_id}
-                                                variant="standard"
-                                            />
-                                        )}
-                                    />
-                                </Grid>
-
-                                <Grid item xs={12} sm={6} md={6}>
-                                    <Autocomplete
-                                        disablePortal
-                                        id="supervisor"
-                                        name="supervisor"
-                                        options={supervisores}
-                                        getOptionLabel={(option) =>
-                                            option.nombres !== undefined ? `${option.nombre_completo}` : ''
-                                        }
-                                        value={supervisores.find((p) => p.id === formik.values.supervisor_id) || null}
-                                        onChange={(event, newValue) => {
-                                            formik.setFieldValue('supervisor', newValue || {});
-                                            formik.setFieldValue('supervisor_id', newValue ? newValue.id : null);
-                                        }}
-                                        isOptionEqualToValue={(option, value) => option.id === value.id}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="Supervisor"
-                                                error={formik.touched.supervisor_id && Boolean(formik.errors.supervisor_id)}
-                                                helperText={formik.touched.supervisor_id && formik.errors.supervisor_id}
-                                                variant="standard"
-                                            />
-                                        )}
-                                    />
-                                </Grid>
-
-                                <Grid item xs={12} sm={12} md={12}>
-                                    <TextField
-                                        id="detalle_atencion"
-                                        label="Resultado de la atención"
-                                        multiline
-                                        maxRows={4}
-                                        fullWidth
-                                        variant="standard"
-                                        value={formik.values.detalle_atencion}
-                                        onChange={(event) => {
-                                            formik.handleChange(event);
-                                        }}
-                                        onBlur={formik.handleBlur}
-                                    />
-                                </Grid>
-
+                                    </Stack>
+                                </LocalizationProvider>
                             </Grid>
-                        </form>
-                    </DialogContent>
-                    <Divider />
-                    <DialogActions>
-                        <Button onClick={handleClose} endIcon={<CancelIcon />} variant="contained">
-                            Cerrar
-                        </Button>
-                        <Button
-                            color="primary"
-                            startIcon={<SaveIcon />}
-                            variant="contained"
-                            onClick={formik.submitForm}
-                        >
-                            Guardar
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-            )}
-        </>
+
+                            <Grid item xs={12} sm={6} md={3}>
+                                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={locale}>
+                                    <TimePicker
+                                        label="Hora"
+                                        value={formik.values.hora_llamada}
+                                        onChange={(newValue) => {
+                                            formik.setFieldValue('hora_llamada', newValue);
+                                        }}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                error={formik.touched.hora_llamada && Boolean(formik.errors.hora_llamada)}
+                                                helperText={formik.touched.hora_llamada && formik.errors.hora_llamada}
+                                                variant="standard"
+                                            />
+                                        )}
+                                    />
+                                </LocalizationProvider>
+                            </Grid>
+
+                            <Grid item xs={12} sm={6} md={6}>
+                                <Autocomplete
+                                    disablePortal
+                                    id="tipo_comunicacion"
+                                    name="tipo_comunicacion"
+                                    options={tiposComunicacion}
+
+                                    getOptionLabel={(option) =>
+                                        option.nombre !== undefined ? `${option.nombre}` : ''
+                                    }
+                                    value={tiposComunicacion.find((p) => p.id === formik.values.tipo_comunicacion_id) || null}
+                                    onChange={(event, newValue) => {
+                                        formik.setFieldValue('tipo_comunicacion', newValue || {});
+                                        formik.setFieldValue('tipo_comunicacion_id', newValue ? newValue.id : null);
+                                    }}
+                                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Tipo comunicación"
+                                            error={formik.touched.tipo_comunicacion_id && Boolean(formik.errors.tipo_comunicacion_id)}
+                                            helperText={formik.touched.tipo_comunicacion_id && formik.errors.tipo_comunicacion_id}
+                                            variant="standard"
+                                        />
+                                    )}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} sm={6} md={3}>
+                                <FormControl fullWidth variant="standard">
+                                    <InputLabel id="turno-select-label">Turno</InputLabel>
+                                    <Select
+                                        labelId="turno-select-label"
+                                        id="turno-select"
+                                        value={formik.values.turno || 'TARDE'}
+                                        label="Turno"
+                                        // error={formik.touched.turno && Boolean(formik.errors.turno)}
+                                        // helperText={formik.touched.turno && formik.errors.turno}
+                                        onChange={(event) => {
+                                            const selectedValue = event.target.value ?? '';
+                                            const isValidValue = ['DÍA', 'TARDE', 'NOCHE'].includes(selectedValue);
+
+                                            if (isValidValue) {
+                                                formik.setFieldValue('turno', selectedValue);
+                                            }
+                                        }}
+                                    >
+                                        <MenuItem value={"DÍA"}>DÍA</MenuItem>
+                                        <MenuItem value={"TARDE"}>TARDE</MenuItem>
+                                        <MenuItem value={"NOCHE"}>NOCHE</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+
+                            <Grid item xs={12} sm={6} md={9}>
+                                <TextField
+                                    id="descripcion_llamada"
+                                    label="Descripción de la llamada"
+                                    multiline
+                                    maxRows={4}
+                                    fullWidth
+                                    variant="standard"
+                                    value={formik.values.descripcion_llamada}
+                                    onChange={(event) => {
+                                        formik.handleChange(event);
+                                    }}
+                                    onBlur={formik.handleBlur}
+                                    error={formik.touched.descripcion_llamada && Boolean(formik.errors.descripcion_llamada)}
+                                    helperText={formik.touched.descripcion_llamada && formik.errors.descripcion_llamada}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} sm={6} md={6}>
+                                <Autocomplete
+                                    disablePortal
+                                    id="zona_incidencia"
+                                    name="zona_incidencia"
+                                    options={zonasIncidencia}
+                                    getOptionLabel={(option) =>
+                                        option.nombre !== undefined ? `${option.nombre}` : ''
+                                    }
+                                    value={zonasIncidencia.find((p) => p.id === formik.values.zona_incidencia_id) || null}
+                                    onChange={(event, newValue) => {
+                                        formik.setFieldValue('zona_incidencia', newValue || {});
+                                        formik.setFieldValue('zona_incidencia_id', newValue ? newValue.id : null);
+                                    }}
+                                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Zona"
+                                            error={formik.touched.zona_incidencia_id && Boolean(formik.errors.zona_incidencia_id)}
+                                            helperText={formik.touched.zona_incidencia_id && formik.errors.zona_incidencia_id}
+                                            variant="standard"
+                                        />
+                                    )}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} sm={6} md={6}>
+                                <Autocomplete
+                                    disablePortal
+                                    id="operador"
+                                    name="operador"
+                                    options={operadores}
+                                    getOptionLabel={(option) =>
+                                        option.nombres !== undefined ? `${option.nombre_completo}` : ''
+                                    }
+                                    value={operadores.find((p) => p.id === formik.values.operador_id) || null}
+                                    onChange={(event, newValue) => {
+                                        formik.setFieldValue('operador', newValue || {});
+                                        formik.setFieldValue('operador_id', newValue ? newValue.id : null);
+                                    }}
+                                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Operador"
+                                            error={formik.touched.operador_id && Boolean(formik.errors.operador_id)}
+                                            helperText={formik.touched.operador_id && formik.errors.operador_id}
+                                            variant="standard"
+                                        />
+                                    )}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} sm={6} md={6}>
+                                <Autocomplete
+                                    disablePortal
+                                    id="tipo_apoyo_incidencia"
+                                    name="tipo_apoyo_incidencia"
+                                    options={tiposIncidencia}
+                                    getOptionLabel={(option) =>
+                                        option.nombre !== undefined ? `${option.nombre}` : ''
+                                    }
+                                    value={tiposIncidencia.find((p) => p.id === formik.values.tipo_apoyo_incidencia_id) || null}
+                                    onChange={(event, newValue) => {
+                                        formik.setFieldValue('tipo_apoyo_incidencia', newValue || {});
+                                        formik.setFieldValue('tipo_apoyo_incidencia_id', newValue ? newValue.id : null);
+                                    }}
+                                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Tipo Incidencia"
+                                            error={formik.touched.tipo_apoyo_incidencia_id && Boolean(formik.errors.tipo_apoyo_incidencia_id)}
+                                            helperText={formik.touched.tipo_apoyo_incidencia_id && formik.errors.tipo_apoyo_incidencia_id}
+                                            variant="standard"
+                                        />
+                                    )}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} sm={6} md={6}>
+                                <Autocomplete
+                                    disablePortal
+                                    id="personal_serenazgo"
+                                    name="personal_serenazgo"
+                                    options={personasSerenazgo}
+                                    getOptionLabel={(option) =>
+                                        option.nombres !== undefined ? `${option.nombre_completo}` : ''
+                                    }
+                                    value={personasSerenazgo.find((p) => p.id === formik.values.personal_serenazgo_id) || null}
+                                    onChange={(event, newValue) => {
+                                        formik.setFieldValue('personal_serenazgo', newValue || {});
+                                        formik.setFieldValue('personal_serenazgo_id', newValue ? newValue.id : null);
+                                    }}
+                                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Sereno"
+                                            error={formik.touched.personal_serenazgo_id && Boolean(formik.errors.personal_serenazgo_id)}
+                                            helperText={formik.touched.personal_serenazgo_id && formik.errors.personal_serenazgo_id}
+                                            variant="standard"
+                                        />
+                                    )}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} sm={6} md={6}>
+                                <Autocomplete
+                                    disablePortal
+                                    id="vehiculo"
+                                    name="vehiculo"
+                                    options={vehiculos}
+                                    getOptionLabel={(option) =>
+                                        option.placa !== undefined ? `${option.placa}` : ''
+                                    }
+                                    value={vehiculos.find((p) => p.id === formik.values.vehiculo_id) || null}
+                                    onChange={(event, newValue) => {
+                                        formik.setFieldValue('vehiculo', newValue || {});
+                                        formik.setFieldValue('vehiculo_id', newValue ? newValue.id : null);
+                                    }}
+                                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Vehículo"
+                                            error={formik.touched.vehiculo_id && Boolean(formik.errors.vehiculo_id)}
+                                            helperText={formik.touched.vehiculo_id && formik.errors.vehiculo_id}
+                                            variant="standard"
+                                        />
+                                    )}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} sm={6} md={6}>
+                                <Autocomplete
+                                    disablePortal
+                                    id="supervisor"
+                                    name="supervisor"
+                                    options={supervisores}
+                                    getOptionLabel={(option) =>
+                                        option.nombres !== undefined ? `${option.nombre_completo}` : ''
+                                    }
+                                    value={supervisores.find((p) => p.id === formik.values.supervisor_id) || null}
+                                    onChange={(event, newValue) => {
+                                        formik.setFieldValue('supervisor', newValue || {});
+                                        formik.setFieldValue('supervisor_id', newValue ? newValue.id : null);
+                                    }}
+                                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Supervisor"
+                                            error={formik.touched.supervisor_id && Boolean(formik.errors.supervisor_id)}
+                                            helperText={formik.touched.supervisor_id && formik.errors.supervisor_id}
+                                            variant="standard"
+                                        />
+                                    )}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} sm={12} md={12}>
+                                <TextField
+                                    id="detalle_atencion"
+                                    label="Resultado de la atención"
+                                    multiline
+                                    maxRows={4}
+                                    fullWidth
+                                    variant="standard"
+                                    value={formik.values.detalle_atencion}
+                                    onChange={(event) => {
+                                        formik.handleChange(event);
+                                    }}
+                                    onBlur={formik.handleBlur}
+                                    error={formik.touched.detalle_atencion && Boolean(formik.errors.detalle_atencion)}
+                                    helperText={formik.touched.detalle_atencion && formik.errors.detalle_atencion}
+                                />
+                            </Grid>
+
+                        </Grid>
+                    </form>
+                )}
+            </DialogContent>
+            <Divider />
+            <DialogActions>
+                <Button onClick={handleClose} endIcon={<CancelIcon />} variant="contained">
+                    Cerrar
+                </Button>
+                <Button
+                    color="primary"
+                    startIcon={<SaveIcon />}
+                    variant="contained"
+                    onClick={formik.submitForm}
+                >
+                    Guardar
+                </Button>
+            </DialogActions>
+        </Dialog>
     );
 };
 

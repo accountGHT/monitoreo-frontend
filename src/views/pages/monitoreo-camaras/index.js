@@ -57,11 +57,9 @@ const MonitoreoCamaras = () => {
     }, []);
 
     const handleItemCreated = async (values) => {
-        console.log(`handleItemCreated`, values);
         const resp = await createMonitoreoCamaras(values);
-        console.log(`resp`, resp);
         if (!resp.success) {
-            toast.error(resp.errorMessage);
+            toast.error(resp.responseData.message ?? resp.errorMessage);
             return { success: false, data: resp.responseData };
         }
 
@@ -104,7 +102,6 @@ const MonitoreoCamaras = () => {
     };
 
     const handleItemDelete = async (item) => {
-        console.log(`handleItemDelete`, item);
         setItemIdToDelete(item.id);
         setItemNameToDelete(" con id " + `${item.id}`);
         setIsDialogConfirmDeleteOpen(true);

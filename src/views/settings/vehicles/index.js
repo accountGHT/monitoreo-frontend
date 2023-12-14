@@ -1,23 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Grid,
-  Button,
-  Snackbar,
-  Alert,
-  Typography,
-} from '@mui/material';
+import { Grid, Button, Typography, CircularProgress, } from '@mui/material';
+
+// ui-component
 import MainCard from 'ui-component/cards/MainCard';
-import VehicleForm from './VehicleForm';
-import VehicleList from './ VehicleList';
-import { getVehiculos, createVehiculo, getVehicleById, updateVehicle, deleteVehicle } from 'api/vehiculos/vehiculosApi';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import { loadFromLocalStorage } from 'utils/localStorage';
+import VehicleList from './ VehicleList';
+import VehicleForm from './VehicleForm';
 import DeleteConfirmationDialog from 'components/DeleteConfirmationDialog';
+import { getVehiculos, createVehiculo, getVehicleById, updateVehicle, deleteVehicle } from 'api/vehiculos/vehiculosApi';
+
 
 const Vehicles = () => {
   const userLocalStorage = loadFromLocalStorage('user');
 
-  const [vehicles, setVehicles] = useState([]);
-  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [data, setData] = useState([]);
+  const [selectedItem, setSelectedItem] = useState(null);
   const [openForm, setOpenForm] = useState(false);
 
   // For option delete
@@ -25,25 +25,30 @@ const Vehicles = () => {
   const [itemIdToDelete, setItemIdToDelete] = useState(null);
   const [itemNameToDelete, setItemNameToDelete] = useState('');
 
-  // const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   // const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   // const [totalPages, setTotalPages] = useState(1);
-
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: '',
-    severity: 'success',
-  });
 
   const fetchData = async () => {
     setPerPage(10);
     try {
       let params = `?per_page=${perPage}`;
-      const response = await getVehiculos(params);
-      setVehicles(response.data.data);
+      const resp = await getVehiculos(params);
+      // console.log(resp);
+      console.log(resp.data);
+
+      if (!resp.success) {
+        console.error(resp);
+        toast.error(resp.responseData.message ?? resp.errorMessage);
+        return;
+      }
+
+      setData(resp.data);
     } catch (error) {
       console.error('Error al obtener los vehículos:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -51,77 +56,77 @@ const Vehicles = () => {
     fetchData();
   }, []);
 
-  const handleVehicleCreated = async (values) => {
+  const handleItemCreated = async (values) => {
     const resp = await createVehiculo(values);
 
     if (!resp.success) {
-      setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
+      toast.error(resp.responseData.message ?? resp.errorMessage);
       return { success: false, response: resp.responseData };
     }
 
     fetchData();
-    setSnackbar({ open: true, message: 'Vehículo creado con éxito', severity: 'success' });
+    toast.success(resp.message);
     return { success: true, response: resp };
   };
 
-  const handleEditVehicle = async (id) => {
+  const handleItemEdit = async (id) => {
     const resp = await getVehicleById(id);
     if (!resp.success) {
-      setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
+      toast.error(resp.responseData.message ?? resp.errorMessage);
       return;
     }
 
-    setSelectedVehicle(resp.data);
+    setSelectedItem(resp.data);
     setOpenForm(true);
   }
 
-  const handleVehicleUpdated = async (values) => {
+  const handleFormClose = () => {
+    setSelectedItem(null);
+    setOpenForm(false);
+  };
+
+  const handleItemUpdate = async (values) => {
     const resp = await updateVehicle(values.id, values);
 
     if (!resp.success) {
-      setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
+      toast.error(resp.responseData.message ?? resp.errorMessage);
       return { success: false, data: resp.responseData };
     }
 
-    setSnackbar({ open: true, message: resp.message, severity: 'success' });
-    // setSnackbar({ open: true, message: 'Vehículo actualizado con éxito', severity: 'success' });
     fetchData();
+    toast.success(resp.message);
     return { success: true, data: resp };
 
   };
 
-  const handleDeleteVehicle = async (vehicle) => {
-    setItemIdToDelete(vehicle.id);
-    setItemNameToDelete(`${vehicle.marca} ${vehicle.modelo}`);
+  const handleItemDelete = async (item) => {
+    setItemIdToDelete(item.id);
+    setItemNameToDelete(`${item.marca} ${item.modelo}`);
     setIsDialogConfirmDeleteOpen(true);
+  };
+
+  const handleDialogConfirmDelete = async () => {
+    const resp = await deleteVehicle(itemIdToDelete);
+    if (!(resp === '')) {
+      toast.error(resp.responseData.message ?? resp.errorMessage);
+      return;
+    }
+
+    fetchData();
+    // toast.success(resp.message);
+    toast.success(`Vehículo eliminado con éxito`);
+    handleCloseDialogConfirmDelete();
   };
 
   const handleCloseDialogConfirmDelete = () => {
     setIsDialogConfirmDeleteOpen(false);
     setItemIdToDelete(null);
     setItemNameToDelete('');
-  };
+};
 
-  const handleDialogConfirmDelete = async () => {
-    const resp = await deleteVehicle(itemIdToDelete);
-    if (!(resp === '')) {
-      setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
-      return;
-    }
-
-    fetchData();
-    setSnackbar({ open: true, message: `Vehículo eliminado con éxito`, severity: 'success' });
-    handleCloseDialogConfirmDelete();
-  };
-
-  const handleCloseSnackbar = () => {
-    setSnackbar({ ...snackbar, open: false });
-  };
-
-  const handleFormClose = () => {
-    setOpenForm(false);
-    setSelectedVehicle(null);
-  };
+  if (loading) {
+    return <CircularProgress />;
+  }
 
   return (
     <MainCard style={{ marginTop: '20px' }}>
@@ -141,18 +146,12 @@ const Vehicles = () => {
           )}
         </Grid>
         <Grid item xs={12}>
-          <VehicleList vehicles={vehicles} onEdit={(id) => handleEditVehicle(id)} onDelete={handleDeleteVehicle} />
+          <VehicleList vehicles={data} onEdit={(id) => handleItemEdit(id)} onDelete={handleItemDelete} />
         </Grid>
       </Grid>
-      <VehicleForm open={openForm} handleClose={handleFormClose} onSubmit={selectedVehicle ? handleVehicleUpdated : handleVehicleCreated} initialValues={selectedVehicle || {}} />
-      <Snackbar
-        open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} elevation={6} variant="filled">
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+
+      <VehicleForm open={openForm} handleClose={handleFormClose} onSubmit={selectedItem ? handleItemUpdate : handleItemCreated} initialValues={selectedItem || {}} />
+
       <DeleteConfirmationDialog
         open={isDialogConfirmDeleteOpen}
         onClose={handleCloseDialogConfirmDelete}

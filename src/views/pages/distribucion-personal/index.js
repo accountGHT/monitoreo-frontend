@@ -41,8 +41,7 @@ const DistribucionPersonal = () => {
 
             if (!resp.success) {
                 console.error(resp);
-                // setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
-                // setSnackbar({ open: true, message: 'Error al obtener los vehículos', severity: 'error' });
+                toast.error(resp.responseData.message ?? resp.errorMessage);
                 return;
             }
 
@@ -61,7 +60,7 @@ const DistribucionPersonal = () => {
     const handleItemCreated = async (values) => {
         const resp = await createDistribucionPersonal(values);
         if (!resp.success) {
-            toast.error(resp.errorMessage);
+            toast.error(resp.responseData.message ?? resp.errorMessage);
             return { success: false, data: resp.responseData };
         }
 
