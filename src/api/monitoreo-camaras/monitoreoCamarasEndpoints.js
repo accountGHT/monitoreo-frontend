@@ -1,6 +1,5 @@
 const monitoreoCamarasEndpoints = {
     list: '/monitoreo-camaras',
-    create: '/monitoreo-camaras',
     zonas: '/multi-table-autocomplete?nombre_lista=ZONA',
     tiposIncidencia: '/multi-table-autocomplete?nombre_lista=TIPO DE INCIDENCIA',
     camaras: '/multi-table-autocomplete?nombre_lista=CÁMARA',

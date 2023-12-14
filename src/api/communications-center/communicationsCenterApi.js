@@ -8,7 +8,7 @@ export const getCommunicationsCenter = async () => {
         return response.data;
     } catch (error) {
         console.log(error);
-        throw error;
+        return handleError(error);
     }
 };
 

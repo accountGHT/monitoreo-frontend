@@ -89,15 +89,12 @@ const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }
         initialValues: {},
         validationSchema,
         onSubmit: async (values, { resetForm }) => {
-            console.log(`onSubmit`);
-            console.log(values);
             const payload = {
                 id: values.id || null,
                 fecha: dayjs(values.fecha).format('YYYY-MM-DD'),
                 hora_llamada: dayjs(values.hora_llamada).format('HH:mm:ss'),
                 tipo_comunicacion_id: values.tipo_comunicacion_id,
-                // turno: values.turno,
-                turno: 'TARDE',
+                turno: values.turno,
                 descripcion_llamada: values.descripcion_llamada,
                 zona_incidencia_id: values.zona_incidencia_id,
                 operador_id: values.operador_id,
@@ -107,7 +104,6 @@ const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }
                 supervisor_id: values.supervisor_id,
                 detalle_atencion: values.detalle_atencion,
             }
-            console.log(`payload`, payload);
             const resp = await onSubmit(payload, resetForm);
             if (resp.success) {
                 resetForm();
@@ -124,8 +120,6 @@ const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }
     useEffect(() => {
         if (open) {
             loadAutocompletes();
-
-            console.log(`initialValues.hora_llamada`, initialValues.hora_llamada);
 
             formik.setValues({
                 id: initialValues.id || null,

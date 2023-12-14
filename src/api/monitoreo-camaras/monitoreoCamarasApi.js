@@ -1,26 +1,62 @@
+import { handleError } from 'api/apiHelpers';
 import apiAxios from '../apiAxios';
 import monitoreoCamarasEndpoints from './monitoreoCamarasEndpoints';
+import endpoints from './monitoreoCamarasEndpoints';
 
-export const list = async () => {
+export const getMonitoreoCamaras = async () => {
   try {
-    const response = await apiAxios.get(monitoreoCamarasEndpoints.list);
+    const response = await apiAxios.get(endpoints.list);
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error;
+    return handleError(error);
   }
 };
 
-export const postCreate = async (params) => {
+export const createMonitoreoCamaras = async (payload) => {
   try {
-    const response = await apiAxios.post(monitoreoCamarasEndpoints.create, params);
-    console.log(response);
+    const response = await apiAxios.post(endpoints.list, payload);
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error;
+    return handleError(error);
   }
 };
+
+export const getMonitoreoCamarasById = async (id) => {
+  try {
+    const response = await apiAxios.get(`${endpoints.list}/${id}`);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    return handleError(error);
+  }
+};
+
+export const updateMonitoreoCamaras = async (id, payload) => {
+  try {
+    const response = await apiAxios.put(`${endpoints.list}/${id}`, payload);
+    return response.data;
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+export const deleteMonitoreoCamaras = async (id) => {
+  try {
+      const response = await apiAxios.delete(`${endpoints.list}/${id}`);
+      return response.data;
+  } catch (error) {
+      console.log(error);
+      return handleError(error);
+  }
+};
+
+
+
+
+
+
 
 export const getZonas = async () => {
   try {
@@ -43,29 +79,10 @@ export const getTiposIncidencia = async () => {
   }
 };
 
-export const getCamaras = async () => {
-  try {
-    const response = await apiAxios.get(monitoreoCamarasEndpoints.camaras);
-    return response.data;
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-};
 
 export const getPersonas = async () => {
   try {
     const response = await apiAxios.get(monitoreoCamarasEndpoints.personas);
-    return response.data;
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-};
-
-export const getVehiculos = async () => {
-  try {
-    const response = await apiAxios.get(monitoreoCamarasEndpoints.vehiculos);
     return response.data;
   } catch (error) {
     console.log(error);

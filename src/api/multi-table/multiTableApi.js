@@ -101,3 +101,13 @@ export const getTiposIncidenciaForAutocomplete = async () => {
         return handleError(error);
     }
 };
+
+export const getCamarasForAutocomplete = async () => {
+    try {
+        const response = await apiAxios.get(endpoints.autocompleteCamaras);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        return handleError(error);
+    }
+};

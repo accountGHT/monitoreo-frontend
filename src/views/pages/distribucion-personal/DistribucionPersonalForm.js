@@ -41,8 +41,6 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
 
-// import { toast } from 'react-toastify';
-
 // APIs
 import { getVehiculosForAutocomplete } from 'api/vehiculos/vehiculosApi';
 import { getTiposPatrullajeForAutocomplete, getZonasForAutocomplete } from 'api/multi-table/multiTableApi';

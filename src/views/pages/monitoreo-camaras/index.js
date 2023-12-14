@@ -1,124 +1,166 @@
 import React, { useEffect, useState } from 'react';
-// import PropTypes from 'prop-types';
 
 // material-ui
-import { Grid, Button } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
+import { Grid, Button, Typography, CircularProgress } from '@mui/material';
 
 // ui-component
 import MainCard from 'ui-component/cards/MainCard';
-import SecondaryAction from 'ui-component/cards/CardSecondaryAction';
-
-import { ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+import { loadFromLocalStorage } from 'utils/localStorage';
+import MonitoreoCamarasList from './MonitoreoCamarasList';
 import MonitoreoCamaraForm from './MonitoreoCamaraForm';
-import { list } from 'api/monitoreo-camaras/monitoreoCamarasApi';
+import { createMonitoreoCamaras, deleteMonitoreoCamaras, getMonitoreoCamaras, getMonitoreoCamarasById, updateMonitoreoCamaras } from 'api/monitoreo-camaras/monitoreoCamarasApi';
+import DeleteConfirmationDialog from 'components/DeleteConfirmationDialog';
 
 const MonitoreoCamaras = () => {
-
-    const [openModalAdd, setOpenModalAdd] = useState(false);
-
-    // Functions
-    const handleOpenModalAdd = () => setOpenModalAdd(true);
-    const closeModalAdd = () => setOpenModalAdd(false);
-
+    const userLocalStorage = loadFromLocalStorage('user');
     const [data, setData] = useState([]);
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [openForm, setOpenForm] = useState(false);
 
-    const getList = async () => {
-        const response = await list();
-        console.log(response);
-        setData(response.data.data);
-    }
+    // For option delete
+    const [isDialogConfirmDeleteOpen, setIsDialogConfirmDeleteOpen] = useState(false);
+    const [itemIdToDelete, setItemIdToDelete] = useState(null);
+    const [itemNameToDelete, setItemNameToDelete] = useState('');
 
-    const refreshTable = () => {
-        // dispatch(getFixedAssetMovement(limit, page));
-        console.log(`refreshTable`);
-        getList();
+    const [loading, setLoading] = useState(true);
+    // const [page, setPage] = useState(1);
+    const [perPage, setPerPage] = useState(10);
+    // const [totalPages, setTotalPages] = useState(1);
+
+    const fetchData = async () => {
+        setPerPage(10);
+        try {
+            let params = `?per_page=${perPage}`;
+            const resp = await getMonitoreoCamaras(params);
+            console.log(resp);
+
+            if (!resp.success) {
+                console.error(resp);
+                toast.error(resp.errorMessage);
+                return;
+            }
+
+            setData(resp.data);
+        } catch (error) {
+            console.error("Error fetching data: ", error);
+            setLoading(false);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const columns = [
-        { field: 'id', headerName: 'Id', width: 30 },
-        { field: 'fecha', headerName: 'Fecha', width: 95 },
-        { field: 'hora_inicio', headerName: 'Hora inicio', width: 75 },
-        { field: 'hora_fin', headerName: 'Hora fin', width: 75 },
-        { field: 'turno', headerName: 'Turno', width: 70 },
-        { field: 'descripcion_incidencia', headerName: 'Descripción Incidencia', width: 200 },
-        {
-            field: 'zona',
-            headerName: 'Zona',
-            width: 100,
-            renderCell: (params) => {
-                return params.row.zona.nombre; // Accede a la propiedad 'nombre' de la propiedad 'zona' del objeto
-            }
-        },
-        { field: 'camara_nombre', headerName: 'Cámara', width: 100 },
-        {
-            field: 'operador_camaras',
-            headerName: 'Operador de cámaras',
-            width: 200,
-            renderCell: (params) => {
-                return params.row.operador_camaras.nombres + ' ' + params.row.personal_serenazgo.p_apellido;
-            }
-        },
-        {
-            field: 'tipo_incidencia',
-            headerName: 'Tipo de Incidencia',
-            width: 150,
-            renderCell: (params) => {
-                return params.row.tipo_incidencia.nombre; // Accede a la propiedad 'nombre' de la propiedad 'tipo_incidencia' del objeto
-            }
-        },
-        {
-            field: 'personal_serenazgo',
-            headerName: 'Personal de Serenazgo',
-            width: 200,
-            renderCell: (params) => {
-                return params.row.personal_serenazgo.nombres + ' ' + params.row.personal_serenazgo.p_apellido;
-            }
-        },
-        {
-            field: 'vehiculo_serenazgo',
-            headerName: 'Vehiculo de Serenazgo',
-            width: 200,
-            renderCell: (params) => {
-                return params.row.vehiculo_serenazgo.placa;
-            }
-        },
-
-        {
-            field: 'encargado',
-            headerName: 'Encargado',
-            width: 200,
-            renderCell: (params) => {
-                return params.row.encargado.nombres + ' ' + params.row.encargado.p_apellido;
-            }
-        },
-    ];
-
     useEffect(() => {
-        getList();
-        return () => {
-            setOpenModalAdd(false);
-        }
+        fetchData();
     }, []);
 
+    const handleItemCreated = async (values) => {
+        console.log(`handleItemCreated`, values);
+        const resp = await createMonitoreoCamaras(values);
+        console.log(`resp`, resp);
+        if (!resp.success) {
+            toast.error(resp.errorMessage);
+            return { success: false, data: resp.responseData };
+        }
+
+        fetchData();
+        toast.success(resp.message);
+        return { success: true, data: resp };
+    };
+
+    const handleItemEdit = async (id) => {
+        const resp = await getMonitoreoCamarasById(id);
+        if (!resp.success) {
+            toast.error(resp.errorMessage);
+            return;
+        }
+
+        if (Object.entries(resp.data).length > 0) {
+            setSelectedItem(resp.data);
+            setOpenForm(true);
+            return;
+        }
+
+        toast.warning(`No se encontró el registro`);
+    }
+
+    const handleFormClose = () => {
+        setOpenForm(false);
+        setSelectedItem(null);
+    };
+
+    const handleItemUpdate = async (values) => {
+        const resp = await updateMonitoreoCamaras(values.id, values);
+        if (!resp.success) {
+            toast.error(resp.errorMessage);
+            return { success: false, data: resp.responseData };
+        }
+
+        toast.success(resp.message);
+        fetchData();
+        return { success: true, data: resp };
+    };
+
+    const handleItemDelete = async (item) => {
+        console.log(`handleItemDelete`, item);
+        setItemIdToDelete(item.id);
+        setItemNameToDelete(" con id " + `${item.id}`);
+        setIsDialogConfirmDeleteOpen(true);
+    };
+
+    const handleDialogConfirmDelete = async () => {
+        const resp = await deleteMonitoreoCamaras(itemIdToDelete);
+        if (!(resp === '')) {
+            toast.error(resp.errorMessage);
+            return;
+        }
+
+        fetchData();
+        toast.success(`Registro eliminado con éxito`);
+        handleCloseDialogConfirmDelete();
+    };
+
+    const handleCloseDialogConfirmDelete = () => {
+        setIsDialogConfirmDeleteOpen(false);
+        setItemIdToDelete(null);
+        setItemNameToDelete('');
+    };
+
+    if (loading) {
+        return <CircularProgress />;
+    }
+
     return (
-        <MainCard title="Monitoreo Cámaras" secondary={<SecondaryAction link="https://next.material-ui.com/system/palette/" />}>
-            <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'end', marginBottom: '12px' }}>
-                <Button variant="contained" color="primary" onClick={handleOpenModalAdd}>
-                    Agregar Nuevo Registro
-                </Button>
-            </div>
-            <div style={{ height: 500, width: '100%' }}>
-                <DataGrid rows={data} columns={columns} pageSize={10} />
-            </div>
-            <Grid container justifyContent="flex-end">
-                {openModalAdd && (
-                    <MonitoreoCamaraForm open={openModalAdd} handleClose={closeModalAdd} refreshTable={refreshTable} />
-                )}
+        <MainCard style={{ marginTop: '20px' }}>
+            <Grid container spacing={2} sx={{ pt: 2 }}>
+                <Grid item xs={6}>
+                    <Typography variant="h2" gutterBottom>
+                        Monitoreo Cámaras
+                    </Typography>
+                </Grid>
+                <Grid item xs={6}>
+                    {userLocalStorage && (
+                        <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'end', marginBottom: '12px' }}>
+                            <Button variant="contained" onClick={() => setOpenForm(true)}>
+                                Nuevo registro
+                            </Button>
+                        </div>
+                    )}
+                </Grid>
+                <Grid item xs={12}>
+                    <MonitoreoCamarasList data={data} onEdit={(id) => handleItemEdit(id)} onDelete={handleItemDelete} />
+                </Grid>
             </Grid>
-            <ToastContainer />
+
+            <MonitoreoCamaraForm open={openForm} handleClose={handleFormClose} onSubmit={selectedItem ? handleItemUpdate : handleItemCreated} initialValues={selectedItem || {}} />
+            <DeleteConfirmationDialog
+                open={isDialogConfirmDeleteOpen}
+                onClose={handleCloseDialogConfirmDelete}
+                onConfirm={handleDialogConfirmDelete}
+                itemName={itemNameToDelete}
+            />
         </MainCard>
     )
 }
