@@ -18,7 +18,7 @@ import { createDistribucionPersonal, deleteDistribucionPersonal, getDistribucion
 const DistribucionPersonal = () => {
     const userLocalStorage = loadFromLocalStorage('user');
     const [data, setData] = useState([]);
-    const [selectedPerson, setSelectedItem] = useState(null);
+    const [selectedItem, setSelectedItem] = useState(null);
     const [openForm, setOpenForm] = useState(false);
 
     // For option delete
@@ -153,7 +153,7 @@ const DistribucionPersonal = () => {
                     <DistribucionPersonalList data={data} onEdit={(id) => handleItemEdit(id)} onDelete={handleItemDelete} />
                 </Grid>
             </Grid>
-            <DistribucionPersonalForm open={openForm} handleClose={handleFormClose} onSubmit={selectedPerson ? handleItemUpdate : handleItemCreated} initialValues={selectedPerson || {}} />
+            <DistribucionPersonalForm open={openForm} handleClose={handleFormClose} onSubmit={selectedItem ? handleItemUpdate : handleItemCreated} initialValues={selectedItem || {}} />
             <DeleteConfirmationDialog
                 open={isDialogConfirmDeleteOpen}
                 onClose={handleCloseDialogConfirmDelete}

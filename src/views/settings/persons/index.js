@@ -1,17 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Grid, Button, Snackbar, Alert, Typography } from '@mui/material';
-import PersonForm from './PersonForm';
-import PersonList from './PersonList';
-import { getPersonas, getPersonById, createPerson, updatePerson, deletePerson } from 'api/personas/personasApi';
+
+// material-ui
+import { Grid, Button, Snackbar, Alert, Typography, CircularProgress } from '@mui/material';
+
+// ui-component
 import MainCard from 'ui-component/cards/MainCard';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import { loadFromLocalStorage } from 'utils/localStorage';
+import PersonList from './PersonList';
+import PersonForm from './PersonForm';
 import DeleteConfirmationDialog from 'components/DeleteConfirmationDialog';
+import { getPersonas, getPersonById, createPerson, updatePerson, deletePerson } from 'api/personas/personasApi';
+
 
 const Persons = () => {
     const userLocalStorage = loadFromLocalStorage('user');
-
-    const [persons, setPersons] = useState([]);
-    const [selectedPerson, setSelectedPerson] = useState(null);
+    const [data, setData] = useState([]);
+    const [selectedItem, setSelectedItem] = useState(null);
     const [openForm, setOpenForm] = useState(false);
 
     // For option delete
@@ -19,7 +26,7 @@ const Persons = () => {
     const [itemIdToDelete, setItemIdToDelete] = useState(null);
     const [itemNameToDelete, setItemNameToDelete] = useState('');
 
-    // const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
     // const [page, setPage] = useState(1);
     const [perPage, setPerPage] = useState(10);
     // const [totalPages, setTotalPages] = useState(1);
@@ -30,40 +37,44 @@ const Persons = () => {
         severity: 'success',
     });
 
-    const handleCloseDialogConfirmDelete = () => {
-        setIsDialogConfirmDeleteOpen(false);
-        setItemIdToDelete(null);
-        setItemNameToDelete('');
-    };
-
     const fetchData = async () => {
         setPerPage(10);
         try {
             let params = `?per_page=${perPage}`;
-            const response = await getPersonas(params);
-            console.log(response.data.data);
-            setPersons(response.data.data);
+            const resp = await getPersonas(params);
+            // console.log(resp);
+            console.log(resp.data);
+
+            if (!resp.success) {
+                console.error(resp);
+                toast.error(resp.responseData.message ?? resp.errorMessage);
+                return;
+            }
+
+            setData(resp.data);
         } catch (error) {
-            console.error('Error al obtener los vehículos:', error);
-            setSnackbar({ open: true, message: 'Error al obtener los vehículos', severity: 'error' });
+            console.error("Error fetching data: ", error);
+        } finally {
+            setLoading(false);
         }
     };
 
     useEffect(() => {
         fetchData();
     }, []);
-
-    const handlePersonCreated = async (values) => {
+    
+    const handleItemCreated = async (values) => {
         const resp = await createPerson(values);
         if (!resp.success) {
-            setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
+            toast.error(resp.responseData.message ?? resp.errorMessage);
             return { success: false, data: resp.responseData };
         }
 
         fetchData();
-        setSnackbar({ open: true, message: 'Persona creada con éxito', severity: 'success' });
+        toast.success(resp.message);
         return { success: true, data: resp };
     };
+
 
     const handlePersonEdit = async (id) => {
         const resp = await getPersonById(id);
@@ -72,7 +83,7 @@ const Persons = () => {
             return;
         }
 
-        setSelectedPerson(resp.data);
+        setSelectedItem(resp.data);
         setOpenForm(true);
     }
 
@@ -114,8 +125,18 @@ const Persons = () => {
 
     const handleFormClose = () => {
         setOpenForm(false);
-        setSelectedPerson(null);
+        setSelectedItem(null);
     };
+
+    const handleCloseDialogConfirmDelete = () => {
+        setIsDialogConfirmDeleteOpen(false);
+        setItemIdToDelete(null);
+        setItemNameToDelete('');
+    };
+
+    if (loading) {
+        return <CircularProgress />;
+    }
 
     return (
         <MainCard style={{ marginTop: '20px' }}>
@@ -135,10 +156,10 @@ const Persons = () => {
                     )}
                 </Grid>
                 <Grid item xs={12}>
-                    <PersonList persons={persons} onEdit={(id) => handlePersonEdit(id)} onDelete={handleDeletePerson} />
+                    <PersonList persons={data} onEdit={(id) => handlePersonEdit(id)} onDelete={handleDeletePerson} />
                 </Grid>
             </Grid>
-            <PersonForm open={openForm} handleClose={handleFormClose} onSubmit={selectedPerson ? handlePersonUpdate : handlePersonCreated} initialValues={selectedPerson || {}} />
+            <PersonForm open={openForm} handleClose={handleFormClose} onSubmit={selectedItem ? handlePersonUpdate : handleItemCreated} initialValues={selectedItem || {}} />
 
             <Snackbar
                 open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar}

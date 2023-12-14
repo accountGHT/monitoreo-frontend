@@ -7,13 +7,23 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogTitle,
   Grid,
   Slide,
   Switch,
   TextField,
   Stack,
+  AppBar,
+  Toolbar,
+  Typography,
+  IconButton,
 } from '@mui/material';
+
+// assets
+import CloseIcon from '@mui/icons-material/Close';
+import CancelIcon from '@mui/icons-material/Cancel';
+import SaveIcon from '@mui/icons-material/Save';
+
+// Formik
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 
@@ -28,10 +38,10 @@ const fullWidth = true;
 const Transition = React.forwardRef((props, ref) => <Slide direction="up" ref={ref} {...props} />);
 
 const validationSchema = Yup.object().shape({
-  nombres: Yup.string().required('Campo requerido'),
+  // nombres: Yup.string().required('Campo requerido'),
   p_apellido: Yup.string(),
   s_apellido: Yup.string(),
-  dni: Yup.string().required('Campo requerido'),
+  // dni: Yup.string().required('Campo requerido'),
   correo: Yup.string(),
   // fecha_nacimiento: Yup.string(),
   estado: Yup.boolean(),
@@ -78,15 +88,8 @@ const PersonForm = ({ open, handleClose, onSubmit, initialValues }) => {
   });
 
   useEffect(() => {
-    console.log(`initialValues`, initialValues);
-    if (open) {
-      // Formatear la fecha en el formato deseado
-      console.log(`initialValues.fecha_nacimiento`, initialValues.fecha_nacimiento);
-      const formattedFechaNacimiento = initialValues.fecha_nacimiento
-        ? dayjs(initialValues.fecha_nacimiento).format('YYYY-MM-DD')
-        : '';
-      console.log(`formattedFechaNacimiento`, formattedFechaNacimiento);
 
+    if (open) {
       formik.setValues({
         id: initialValues.id || null,
         nombres: initialValues.nombres || '',
@@ -95,7 +98,7 @@ const PersonForm = ({ open, handleClose, onSubmit, initialValues }) => {
         dni: initialValues.dni || '',
         placa: initialValues.placa || '',
         correo: initialValues.correo || '',
-        fecha_nacimiento: formattedFechaNacimiento,
+        fecha_nacimiento: initialValues.fecha || dayjs(),
         estado: (initialValues.estado === 1 ? true : false) || true,
       });
       setLoading(false);
@@ -107,138 +110,159 @@ const PersonForm = ({ open, handleClose, onSubmit, initialValues }) => {
 
 
   return (
-    <>
-      {loading ? (
-        <p>Cargando...</p>
-      ) : (
-        <Dialog
-          fullScreen={fullScreen}
-          fullWidth={fullWidth}
-          maxWidth={maxWidth}
-          open={open}
-          onClose={handleClose}
-          TransitionComponent={Transition}
-          aria-labelledby="responsive-dialog-depreciation"
-          className="lal-dialog"
-        >
-          <DialogTitle>NUEVO REGISTRO</DialogTitle>
-          <DialogContent>
-            <form onSubmit={formik.handleSubmit}>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6} md={3}>
-                  <TextField
-                    fullWidth
-                    id="nombres"
-                    name="nombres"
-                    label="Nombres"
-                    value={formik.values.nombres}
-                    onChange={formik.handleChange}
-                    variant="standard"
-                    error={formik.touched.nombres && Boolean(formik.errors.nombres)}
-                    helperText={formik.touched.nombres && formik.errors.nombres}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                  <TextField
-                    fullWidth
-                    id="p_apellido"
-                    name="p_apellido"
-                    label="P. apellido"
-                    value={formik.values.p_apellido}
-                    onChange={formik.handleChange}
-                    variant="standard"
-                    error={formik.touched.p_apellido && Boolean(formik.errors.p_apellido)}
-                    helperText={formik.touched.p_apellido && formik.errors.p_apellido}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                  <TextField
-                    fullWidth
-                    id="s_apellido"
-                    name="s_apellido"
-                    label="S. apellido"
-                    value={formik.values.s_apellido}
-                    onChange={formik.handleChange}
-                    variant="standard"
-                    error={formik.touched.s_apellido && Boolean(formik.errors.s_apellido)}
-                    helperText={formik.touched.s_apellido && formik.errors.s_apellido}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                  <TextField
-                    fullWidth
-                    id="dni"
-                    name="dni"
-                    label="DNI"
-                    // type="number"
-                    value={formik.values.dni}
-                    onChange={formik.handleChange}
-                    variant="standard"
-                    error={formik.touched.dni && Boolean(formik.errors.dni)}
-                    helperText={formik.touched.dni && formik.errors.dni}
-                  />
-                </Grid>
+    <Dialog
+      fullScreen={fullScreen}
+      fullWidth={fullWidth}
+      maxWidth={maxWidth}
+      open={open}
+      onClose={handleClose}
+      TransitionComponent={Transition}
+      aria-labelledby="responsive-dialog-depreciation"
+      className="lal-dialog"
+    >
+      <AppBar position="static">
+        <Toolbar>
+          <Typography sx={{ ml: 0, flexGrow: 1, color: '#ffffff' }} variant="h4" component="div">
+            {Object.entries(initialValues).length > 0 ? 'ACTUALIZAR REGISTRO' : 'NUEVO REGISTRO'}
+          </Typography>
 
-                <Grid item xs={12} sm={6} md={3}>
-                  <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={locale}>
-                    <Stack spacing={3}>
-                      <DatePicker
-                        id="fecha_nacimiento"
-                        name="fecha_nacimiento"
-                        views={['day', 'month', 'year']}
-                        inputFormat="DD/MM/YYYY"
-                        label="Fecha nac.*"
-                        value={formik.values.fecha_nacimiento}
-                        onChange={(newValue) => {
-                          formik.setFieldValue('fecha_nacimiento', newValue);
-                        }}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            error={formik.touched.fecha_nacimiento && Boolean(formik.errors.fecha_nacimiento)}
-                            helperText={formik.touched.fecha_nacimiento && formik.errors.fecha_nacimiento}
-                            variant="standard"
-                          />
-                        )}
-                      />
-                    </Stack>
-                  </LocalizationProvider>
-                </Grid>
+          <IconButton edge="end" color="inherit" onClick={handleClose} aria-label="close">
+            <CloseIcon />
+          </IconButton>
+        </Toolbar>
+      </AppBar>
 
-                <Grid item xs={12} sm={6} md={3}>
-                  <TextField
-                    fullWidth
-                    id="correo"
-                    name="correo"
-                    label="Correo Electrónico"
-                    value={formik.values.correo}
-                    onChange={formik.handleChange}
-                    variant="standard"
-                    error={formik.touched.correo && Boolean(formik.errors.correo)}
-                    helperText={formik.touched.correo && formik.errors.correo}
-                  />
-                </Grid>
-
-                <Grid item xs={12} sm={5} md={3}>
-                  <Switch
-                    id="estado"
-                    name="estado"
-                    checked={formik.values.estado}
-                    onChange={formik.handleChange}
-                    color="primary"
-                  />
-                  <label htmlFor="estado">Estado</label>
-                </Grid>
+      <DialogContent sx={{ pt: 3, pb: 1 }}>
+        {loading ? (
+          <p>Cargando...</p>
+        ) : (
+          <form onSubmit={formik.handleSubmit}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6} md={3}>
+                <TextField
+                  fullWidth
+                  id="nombres"
+                  name="nombres"
+                  label="Nombres"
+                  value={formik.values.nombres}
+                  onChange={formik.handleChange}
+                  variant="standard"
+                  error={formik.touched.nombres && Boolean(formik.errors.nombres)}
+                  helperText={formik.touched.nombres && formik.errors.nombres}
+                />
               </Grid>
-              <DialogActions>
-                <Button onClick={handleClose} color="primary">Cancelar</Button>
-                <Button type="submit" color="primary">Guardar</Button>
-              </DialogActions>
-            </form>
-          </DialogContent>
-        </Dialog>
-      )}
-    </>
+              <Grid item xs={12} sm={6} md={3}>
+                <TextField
+                  fullWidth
+                  id="p_apellido"
+                  name="p_apellido"
+                  label="P. apellido"
+                  value={formik.values.p_apellido}
+                  onChange={formik.handleChange}
+                  variant="standard"
+                  error={formik.touched.p_apellido && Boolean(formik.errors.p_apellido)}
+                  helperText={formik.touched.p_apellido && formik.errors.p_apellido}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <TextField
+                  fullWidth
+                  id="s_apellido"
+                  name="s_apellido"
+                  label="S. apellido"
+                  value={formik.values.s_apellido}
+                  onChange={formik.handleChange}
+                  variant="standard"
+                  error={formik.touched.s_apellido && Boolean(formik.errors.s_apellido)}
+                  helperText={formik.touched.s_apellido && formik.errors.s_apellido}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <TextField
+                  fullWidth
+                  id="dni"
+                  name="dni"
+                  label="DNI"
+                  // type="number"
+                  value={formik.values.dni}
+                  onChange={formik.handleChange}
+                  variant="standard"
+                  error={formik.touched.dni && Boolean(formik.errors.dni)}
+                  helperText={formik.touched.dni && formik.errors.dni}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={3}>
+                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={locale}>
+                  <Stack spacing={3}>
+                    <DatePicker
+                      id="fecha_nacimiento"
+                      name="fecha_nacimiento"
+                      views={['day', 'month', 'year']}
+                      inputFormat="DD/MM/YYYY"
+                      label="Fecha nac.*"
+                      value={formik.values.fecha_nacimiento}
+                      onChange={(newValue) => {
+                        formik.setFieldValue('fecha_nacimiento', newValue);
+                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          error={formik.touched.fecha_nacimiento && Boolean(formik.errors.fecha_nacimiento)}
+                          helperText={formik.touched.fecha_nacimiento && formik.errors.fecha_nacimiento}
+                          variant="standard"
+                        />
+                      )}
+                    />
+                  </Stack>
+                </LocalizationProvider>
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={3}>
+                <TextField
+                  fullWidth
+                  id="correo"
+                  name="correo"
+                  label="Correo Electrónico"
+                  value={formik.values.correo}
+                  onChange={formik.handleChange}
+                  variant="standard"
+                  error={formik.touched.correo && Boolean(formik.errors.correo)}
+                  helperText={formik.touched.correo && formik.errors.correo}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={5} md={3}>
+                <Switch
+                  id="estado"
+                  name="estado"
+                  checked={formik.values.estado}
+                  onChange={formik.handleChange}
+                  color="primary"
+                />
+                <label htmlFor="estado">Estado</label>
+              </Grid>
+
+            </Grid>
+            <DialogActions sx={{ pt: 5 }}>
+              <Button onClick={handleClose} endIcon={<CancelIcon />} variant="contained">
+                Cerrar
+              </Button>
+
+              <Button
+                type="submit"
+                // onClick={formik.submitForm}
+                color="primary"
+                startIcon={<SaveIcon />}
+                variant="contained"
+              >
+                Guardar
+              </Button>
+            </DialogActions>
+          </form>
+        )}
+      </DialogContent>
+    </Dialog>
   )
 }
 
