@@ -149,7 +149,7 @@ const Persons = () => {
                     )}
                 </Grid>
                 <Grid item xs={12}>
-                    <PersonList persons={data} onEdit={(id) => handleItemEdit(id)} onDelete={handleItemDelete} />
+                    <PersonList data={data} onEdit={(id) => handleItemEdit(id)} onDelete={handleItemDelete} />
                 </Grid>
             </Grid>
 

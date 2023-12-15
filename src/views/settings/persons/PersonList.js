@@ -35,10 +35,10 @@ const columnsWithActions = [
   },
 ];
 
-const PersonList = ({ persons, onEdit, onDelete }) => {
-  const rows = persons.map((person) => ({
-    ...person,
-    id: person.id,
+const PersonList = ({ data, onEdit, onDelete }) => {
+  const rows = data.map((row) => ({
+    ...row,
+    id: row.id,
     onEdit: onEdit,
     onDelete: onDelete,
   }));
