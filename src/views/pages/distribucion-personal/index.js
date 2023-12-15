@@ -95,7 +95,7 @@ const DistribucionPersonal = () => {
         const resp = await updateDistribucionPersonal(values.id, values);
         console.log(`resp`, resp);
         if (!resp.success) {
-            toast.error(resp.errorMessage);
+            toast.error(resp.responseData.message ?? resp.errorMessage);
             return { success: false, data: resp.responseData };
         }
 
@@ -113,7 +113,7 @@ const DistribucionPersonal = () => {
     const handleDialogConfirmDelete = async () => {
         const resp = await deleteDistribucionPersonal(itemIdToDelete);
         if (!(resp === '')) {
-            toast.error(resp.errorMessage);
+            toast.error(resp.responseData.message ?? resp.errorMessage);
             return;
         }
 

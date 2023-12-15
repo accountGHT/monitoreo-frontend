@@ -9,13 +9,16 @@ import {
   DialogContent,
   Grid,
   Slide,
-  Switch,
   TextField,
   Stack,
   AppBar,
   Toolbar,
   Typography,
   IconButton,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from '@mui/material';
 
 // assets
@@ -71,8 +74,7 @@ const PersonForm = ({ open, handleClose, onSubmit, initialValues }) => {
         dni: values.dni,
         correo: values.correo,
         fecha_nacimiento: dayjs(values.fecha_nacimiento).format('YYYY-MM-DD'),
-        // estado: (values.estado === 1 ? true : false) || true,
-        estado: values.estado,
+        genero: values.genero,
       }
       const resp = await onSubmit(payload, resetForm);
       if (resp.success) {
@@ -99,7 +101,7 @@ const PersonForm = ({ open, handleClose, onSubmit, initialValues }) => {
         placa: initialValues.placa || '',
         correo: initialValues.correo || '',
         fecha_nacimiento: initialValues.fecha || dayjs(),
-        estado: (initialValues.estado === 1 ? true : false) || true,
+        genero: initialValues.genero ?? 'MASCULINO',
       });
       setLoading(false);
     }
@@ -218,7 +220,7 @@ const PersonForm = ({ open, handleClose, onSubmit, initialValues }) => {
                 </LocalizationProvider>
               </Grid>
 
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid item xs={12} sm={6} md={6}>
                 <TextField
                   fullWidth
                   id="correo"
@@ -232,15 +234,27 @@ const PersonForm = ({ open, handleClose, onSubmit, initialValues }) => {
                 />
               </Grid>
 
-              <Grid item xs={12} sm={5} md={3}>
-                <Switch
-                  id="estado"
-                  name="estado"
-                  checked={formik.values.estado}
-                  onChange={formik.handleChange}
-                  color="primary"
-                />
-                <label htmlFor="estado">Estado</label>
+              <Grid item xs={12} sm={6} md={3}>
+                <FormControl fullWidth variant="standard">
+                  <InputLabel id="genero-select-label">Genero</InputLabel>
+                  <Select
+                    labelId="genero-select-label"
+                    id="genero-select"
+                    value={formik.values.genero || 'MASCULINO'}
+                    label="Genero"
+                    onChange={(event) => {
+                      const selectedValue = event.target.value ?? '';
+                      const isValidValue = ['MASCULINO', 'FEMENINO'].includes(selectedValue);
+
+                      if (isValidValue) {
+                        formik.setFieldValue('genero', selectedValue);
+                      }
+                    }}
+                  >
+                    <MenuItem value={"MASCULINO"}>MASCULINO</MenuItem>
+                    <MenuItem value={"FEMENINO"}>FEMENINO</MenuItem>
+                  </Select>
+                </FormControl>
               </Grid>
 
             </Grid>

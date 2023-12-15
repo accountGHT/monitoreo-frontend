@@ -146,7 +146,7 @@ const MonitoreoCamaraForm = ({ open, handleClose, onSubmit, initialValues }) => 
         fecha: initialValues.fecha || dayjs(),
         hora_inicio: initialValues.hora_inicio ? dayjs(initialValues.hora_inicio, 'HH:mm:ss').toDate() : dayjs(),
         hora_fin: initialValues.hora_fin ? dayjs(initialValues.hora_fin, 'HH:mm:ss').toDate() : dayjs(),
-        turno: initialValues.turno || 'TARDE',
+        turno: initialValues.turno ?? 'TARDE',
         descripcion_incidencia: initialValues.descripcion_incidencia,
         zona_id: initialValues.zona_id || '',
         zona: initialValues.zona || {},

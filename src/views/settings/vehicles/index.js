@@ -113,7 +113,6 @@ const Vehicles = () => {
     }
 
     fetchData();
-    // toast.success(resp.message);
     toast.success(`Vehículo eliminado con éxito`);
     handleCloseDialogConfirmDelete();
   };

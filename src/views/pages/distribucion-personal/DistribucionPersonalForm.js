@@ -131,7 +131,7 @@ const DistribucionPersonalForm = ({ open, handleClose, onSubmit, initialValues }
         id: initialValues.id || null,
         fecha: initialValues.fecha || dayjs(),
         hora: initialValues.hora ? dayjs(initialValues.hora, 'HH:mm:ss').toDate() : dayjs(),
-        turno: initialValues.turno || 'TARDE',
+        turno: initialValues.turno ?? 'TARDE',
         patrullero_id: initialValues.patrullero_id || '',
         patrullero: initialValues.patrullero || {},
         vehiculo_id: initialValues.vehiculo_id || '',

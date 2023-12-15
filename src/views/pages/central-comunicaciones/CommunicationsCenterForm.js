@@ -140,7 +140,7 @@ const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }
                 hora_llamada: initialValues.hora_llamada ? dayjs(initialValues.hora_llamada, 'HH:mm:ss').toDate() : dayjs(),
                 tipo_comunicacion_id: initialValues.tipo_comunicacion_id || '',
                 tipo_comunicacion: initialValues.tipo_comunicacion || {},
-                turno: initialValues.turno || '',
+                turno: initialValues.turno ?? 'TARDE',
                 descripcion_llamada: initialValues.descripcion_llamada || '',
                 zona_incidencia_id: initialValues.zona_incidencia_id || '',
                 zona_incidencia: initialValues.zona_incidencia || {},

@@ -60,6 +60,3 @@ export const getPersonasForAutocomplete = async () => {
         throw error;
     }
 };
-
-
-

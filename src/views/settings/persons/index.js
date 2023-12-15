@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 // material-ui
-import { Grid, Button, Snackbar, Alert, Typography, CircularProgress } from '@mui/material';
+import { Grid, Button, Typography, CircularProgress } from '@mui/material';
 
 // ui-component
 import MainCard from 'ui-component/cards/MainCard';
@@ -14,7 +14,7 @@ import PersonForm from './PersonForm';
 import DeleteConfirmationDialog from 'components/DeleteConfirmationDialog';
 import { getPersonas, getPersonById, createPerson, updatePerson, deletePerson } from 'api/personas/personasApi';
 
-
+// ==============================|| Persons Component ||============================== //
 const Persons = () => {
     const userLocalStorage = loadFromLocalStorage('user');
     const [data, setData] = useState([]);
@@ -30,13 +30,7 @@ const Persons = () => {
     // const [page, setPage] = useState(1);
     const [perPage, setPerPage] = useState(10);
     // const [totalPages, setTotalPages] = useState(1);
-
-    const [snackbar, setSnackbar] = useState({
-        open: false,
-        message: '',
-        severity: 'success',
-    });
-
+   
     const fetchData = async () => {
         setPerPage(10);
         try {
@@ -75,57 +69,56 @@ const Persons = () => {
         return { success: true, data: resp };
     };
 
-
-    const handlePersonEdit = async (id) => {
+    const handleItemEdit = async (id) => {
         const resp = await getPersonById(id);
         if (!resp.success) {
-            setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
+            toast.error(resp.responseData.message ?? resp.errorMessage);
             return;
         }
 
-        setSelectedItem(resp.data);
-        setOpenForm(true);
+        if (Object.entries(resp.data).length > 0) {
+            setSelectedItem(resp.data);
+            setOpenForm(true);
+            return;
+        }
+
+        toast.warning(`No se encontró el registro`);
     }
 
-    const handlePersonUpdate = async (values) => {
+    const handleFormClose = () => {
+        setSelectedItem(null);
+        setOpenForm(false);
+    };
+
+    const handleItemUpdate = async (values) => {
         const resp = await updatePerson(values.id, values);
 
         if (!resp.success) {
-            setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
+            toast.error(resp.responseData.message ?? resp.errorMessage);
             return { success: false, data: resp.responseData };
         }
 
-        setSnackbar({ open: true, message: resp.message, severity: 'success' });
+        toast.success(resp.message);
         fetchData();
         return { success: true, data: resp };
     };
 
-    const handleDeletePerson = async (person) => {
-        console.log(`handleDeletePerson`, person);
-        setItemIdToDelete(person.id);
-        setItemNameToDelete(`${person.nombres} ${person.p_apellido} ${person.s_apellido}`);
+    const handleItemDelete = async (item) => {
+        setItemIdToDelete(item.id);
+        setItemNameToDelete(`${item.nombre_completo}`);
         setIsDialogConfirmDeleteOpen(true);
     };
 
     const handleDialogConfirmDelete = async () => {
         const resp = await deletePerson(itemIdToDelete);
         if (!(resp === '')) {
-            setSnackbar({ open: true, message: resp.errorMessage, severity: 'error' });
+            toast.error(resp.responseData.message ?? resp.errorMessage);
             return;
         }
 
         fetchData();
-        setSnackbar({ open: true, message: `Persona eliminada con éxito`, severity: 'success' });
+        toast.success(`Persona eliminada con éxito`);
         handleCloseDialogConfirmDelete();
-    };
-
-    const handleCloseSnackbar = () => {
-        setSnackbar({ ...snackbar, open: false });
-    };
-
-    const handleFormClose = () => {
-        setOpenForm(false);
-        setSelectedItem(null);
     };
 
     const handleCloseDialogConfirmDelete = () => {
@@ -156,19 +149,12 @@ const Persons = () => {
                     )}
                 </Grid>
                 <Grid item xs={12}>
-                    <PersonList persons={data} onEdit={(id) => handlePersonEdit(id)} onDelete={handleDeletePerson} />
+                    <PersonList persons={data} onEdit={(id) => handleItemEdit(id)} onDelete={handleItemDelete} />
                 </Grid>
             </Grid>
-            <PersonForm open={openForm} handleClose={handleFormClose} onSubmit={selectedItem ? handlePersonUpdate : handleItemCreated} initialValues={selectedItem || {}} />
 
-            <Snackbar
-                open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-            >
-                <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} elevation={6} variant="filled">
-                    {snackbar.message}
-                </Alert>
-            </Snackbar>
+            <PersonForm open={openForm} handleClose={handleFormClose} onSubmit={selectedItem ? handleItemUpdate : handleItemCreated} initialValues={selectedItem || {}} />
+
             <DeleteConfirmationDialog
                 open={isDialogConfirmDeleteOpen}
                 onClose={handleCloseDialogConfirmDelete}

@@ -7,6 +7,7 @@ import { ButtonBase } from '@mui/material';
 // project imports
 import config from 'config';
 // import Logo from 'ui-component/Logo';
+import logo from 'assets/images/logo.jpg';
 import { MENU_OPEN } from 'store/actions';
 
 // ==============================|| MAIN LOGO ||============================== //
@@ -17,9 +18,10 @@ const LogoSection = () => {
   return (
     <ButtonBase disableRipple onClick={() => dispatch({ type: MENU_OPEN, id: defaultId })} component={Link} to={config.defaultPath}>
       {/* <Logo /> */}
-      {/* <img src='/logo.jpg' alt='' /> */}
-      {/* <img src='D:/www/monitoreo-frontend/public/logo.jpg' alt='' /> */}
-      <h5>CENTRAL DE MONITOREO SERENAZGO TALARA</h5>
+      <div style={{ display: 'flex' }}>
+        <img src={logo} alt="Logo" style={{ maxHeight: '60px' }} />
+        <h5>CENTRAL DE MONITOREO SERENAZGO TALARA</h5>
+      </div>
     </ButtonBase>
   );
 };
