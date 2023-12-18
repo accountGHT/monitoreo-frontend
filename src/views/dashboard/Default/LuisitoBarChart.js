@@ -2,10 +2,10 @@ import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
 
 // material-ui
-import { Grid, Autocomplete, TextField, Stack, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
+import { Grid, TextField, Stack, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
 
 // third-party
-import Chart from 'react-apexcharts';
+// import Chart from 'react-apexcharts';
 
 // project imports
 import SkeletonTotalGrowthBarChart from 'ui-component/cards/Skeleton/TotalGrowthBarChart';
@@ -21,7 +21,7 @@ import MonitoreoCamarasTable from './monitoreo-camaras/MonitoreoCamarasTable';
 
 
 // Get Data
-import { getDatosGrafico, getZonas } from 'api/monitoreo-camaras/monitoreoCamarasApi';
+import { getDatosGrafico } from 'api/monitoreo-camaras/monitoreoCamarasApi';
 
 const LuisitoBarChart = ({ isLoading }) => {
     // Fechas
@@ -33,21 +33,11 @@ const LuisitoBarChart = ({ isLoading }) => {
     // filters
     const [fechaInicio, setFechaInicio] = useState('2000-01-01');
     const [fechaFin, setFechaFin] = useState('2023-10-31');
-    const [zona, setzona] = useState({});
     const [turno, setTurno] = useState('');
 
-    // Combos
-    const [zonas, setzonas] = useState([]);
-
     // Chart
-    const [optionsChart, setOptionsChart] = useState({});
-    const [seriesChart, setSeriesChart] = useState([]);
-
-
-    const fillFilters = async () => {
-        const resZonas = await getZonas();
-        setzonas(resZonas.data);
-    }
+    // const [optionsChart, setOptionsChart] = useState({});
+    // const [seriesChart, setSeriesChart] = useState([]);
 
     const listDatosGrafico = async (fechaInicio, fechaFin, zona = null, turno = '') => {
         let params = `?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
@@ -61,34 +51,34 @@ const LuisitoBarChart = ({ isLoading }) => {
         }
 
         const respDatosGrafico = await getDatosGrafico(params);
+        console.log(`respDatosGrafico`, respDatosGrafico);
+        // let dataChartCategories = [];
+        // let dataChart = [];
 
-        let dataChartCategories = [];
-        let dataChart = [];
+        // respDatosGrafico.forEach((el) => {
+        //     dataChartCategories.push(el.tipo_incidencia.nombre);
+        //     dataChart.push(el.cantidad_incidencias);
+        // });
 
-        respDatosGrafico.forEach((el) => {
-            dataChartCategories.push(el.tipo_incidencia.nombre);
-            dataChart.push(el.cantidad_incidencias);
-        });
+        // setOptionsChart({
+        //     chart: {
+        //         id: "basic-bar"
+        //     },
+        //     xaxis: {
+        //         categories: dataChartCategories
+        //     }
+        // });
 
-        setOptionsChart({
-            chart: {
-                id: "basic-bar"
-            },
-            xaxis: {
-                categories: dataChartCategories
-            }
-        });
-
-        setSeriesChart([
-            {
-                name: "Incidencias",
-                data: dataChart
-            }
-        ]);
+        // setSeriesChart([
+        //     {
+        //         name: "Incidencias",
+        //         data: dataChart
+        //     }
+        // ]);
     }
 
     useEffect(() => {
-        fillFilters();
+        // fillFilters();
         listDatosGrafico(fechaInicio, fechaFin);
     }, []);
 
@@ -103,14 +93,6 @@ const LuisitoBarChart = ({ isLoading }) => {
         setDrawTable(false);
         setFechaFin(fecha.format('YYYY-MM-DD'));
         listDatosGrafico(fechaInicio, fecha.format('YYYY-MM-DD'), null, turno);
-        setDrawTable(true);
-    }
-
-    const onChangeZona = (value) => {
-        // setDrawTable(false);
-        console.log(value);
-        setzona(value ?? {});
-        // listDatosGrafico(fechaInicio, fecha.format('YYYY-MM-DD'));
         setDrawTable(true);
     }
 
@@ -174,25 +156,6 @@ const LuisitoBarChart = ({ isLoading }) => {
                                     </Stack>
                                 </LocalizationProvider>
                             </Grid>
-                            <Grid item xs={12} sm={6} md={3}>
-                                <Autocomplete
-                                    disablePortal
-                                    id="zona"
-                                    name="zona"
-                                    options={zonas}
-                                    getOptionLabel={(option) => (option.nombre !== undefined ? option.nombre : '')}
-                                    value={Object.entries(zona).length > 0 ? zona : null}
-                                    onChange={(event, newValue) => { onChangeZona(newValue); }}
-                                    isOptionEqualToValue={(option, value) => option.id === value.id}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            label="Zona"
-                                            variant="standard"
-                                        />
-                                    )}
-                                />
-                            </Grid>
 
                             <Grid item xs={12} sm={6} md={3}>
                                 <FormControl fullWidth variant="standard">
@@ -211,12 +174,11 @@ const LuisitoBarChart = ({ isLoading }) => {
                                 </FormControl>
                             </Grid>
                         </Grid>
-                        <Chart
+                        {/* <Chart
                             options={optionsChart}
                             series={seriesChart}
                             type="bar"
-                        // width="500"
-                        />
+                        /> */}
                     </Grid>
 
                     {drawTable && (

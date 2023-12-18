@@ -81,9 +81,9 @@ const MonitoreoCamarasTable = ({ fechaInicio, fechaFin, turno }) => {
             params = params + `&turno=${turno}`;
         }
 
-        if (zona !== null) {
-            // params = params + `&turno=${turno}`;
-        }
+        // if (zona !== null) {
+        //     // params = params + `&turno=${turno}`;
+        // }
 
         fillTable(params);
     }, [fechaInicio, fechaFin, turno]);

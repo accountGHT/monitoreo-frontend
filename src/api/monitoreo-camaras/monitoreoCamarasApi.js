@@ -1,6 +1,5 @@
 import { handleError } from 'api/apiHelpers';
 import apiAxios from '../apiAxios';
-import monitoreoCamarasEndpoints from './monitoreoCamarasEndpoints';
 import endpoints from './monitoreoCamarasEndpoints';
 
 export const getMonitoreoCamaras = async () => {
@@ -53,25 +52,35 @@ export const deleteMonitoreoCamaras = async (id) => {
 };
 
 
-
-
-
-
-
-export const getZonas = async () => {
+export const getDataForChartMonitoreoCamaras = async (payload) => {
   try {
-    const response = await apiAxios.get(monitoreoCamarasEndpoints.zonas);
+    const response = await apiAxios.post(endpoints.dataForChart, payload);
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error;
+    return handleError(error);
   }
 };
 
 
+
+
+
+
+
+// export const getZonas = async () => {
+//   try {
+//     const response = await apiAxios.get(endpoints.zonas);
+//     return response.data;
+//   } catch (error) {
+//     console.log(error);
+//     throw error;
+//   }
+// };
+
 export const getTiposIncidencia = async () => {
   try {
-    const response = await apiAxios.get(monitoreoCamarasEndpoints.tiposIncidencia);
+    const response = await apiAxios.get(endpoints.tiposIncidencia);
     return response.data;
   } catch (error) {
     console.log(error);
@@ -82,7 +91,7 @@ export const getTiposIncidencia = async () => {
 
 export const getPersonas = async () => {
   try {
-    const response = await apiAxios.get(monitoreoCamarasEndpoints.personas);
+    const response = await apiAxios.get(endpoints.personas);
     return response.data;
   } catch (error) {
     console.log(error);
@@ -92,7 +101,7 @@ export const getPersonas = async () => {
 
 export const getTiposComunicacion = async () => {
   try {
-    const response = await apiAxios.get(monitoreoCamarasEndpoints.tiposComunicacion);
+    const response = await apiAxios.get(endpoints.tiposComunicacion);
     return response.data;
   } catch (error) {
     console.log(error);
@@ -103,7 +112,7 @@ export const getTiposComunicacion = async () => {
 
 export const postCreateCentralComunicacion = async (params) => {
   try {
-    const response = await apiAxios.post(monitoreoCamarasEndpoints.createCentralComunicacion, params);
+    const response = await apiAxios.post(endpoints.createCentralComunicacion, params);
     console.log(response);
     return response.data;
   } catch (error) {
@@ -114,7 +123,7 @@ export const postCreateCentralComunicacion = async (params) => {
 
 export const getTiposPatrullaje = async () => {
   try {
-    const response = await apiAxios.get(monitoreoCamarasEndpoints.tiposPatrullaje);
+    const response = await apiAxios.get(endpoints.tiposPatrullaje);
     return response.data;
   } catch (error) {
     console.log(error);
@@ -124,7 +133,7 @@ export const getTiposPatrullaje = async () => {
 
 export const getDatosGrafico = async (params) => {
   try {
-    const response = await apiAxios.get(`${monitoreoCamarasEndpoints.datosGrafico}${params}`);
+    const response = await apiAxios.get(`${endpoints.datosGrafico}${params}`);
     return response.data;
   } catch (error) {
     console.log(error);
@@ -135,7 +144,7 @@ export const getDatosGrafico = async (params) => {
 export const getTablaGrafico = async (params) => {
   try {
     params = params ?? '';
-    const response = await apiAxios.get(`${monitoreoCamarasEndpoints.tablaGrafico}${params}`);
+    const response = await apiAxios.get(`${endpoints.tablaGrafico}${params}`);
     return response.data;
   } catch (error) {
     console.log(error);
@@ -146,7 +155,7 @@ export const getTablaGrafico = async (params) => {
 
 export const getDatosGraficoCentralComunicaciones = async (params) => {
   try {
-    const response = await apiAxios.get(`${monitoreoCamarasEndpoints.datosGraficoCentralComunicaciones}${params}`);
+    const response = await apiAxios.get(`${endpoints.datosGraficoCentralComunicaciones}${params}`);
     return response.data;
   } catch (error) {
     console.log(error);

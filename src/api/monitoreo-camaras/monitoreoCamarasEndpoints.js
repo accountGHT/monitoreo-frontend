@@ -9,6 +9,7 @@ const monitoreoCamarasEndpoints = {
     tiposPatrullaje: '/multi-table-autocomplete?nombre_lista=TIPO DE PATRULLAJE',
     createCentralComunicacion: '/central-comunicaciones',
     datosGrafico: '/monitoreo-camara/datos-grafico',
+    dataForChart: '/monitoreo-camara/data-for-chart',
     datosGraficoCentralComunicaciones: '/monitoreo-camara/datos-grafico',
     tablaGrafico: '/monitoreo-camara/tabla-grafico',
   };
