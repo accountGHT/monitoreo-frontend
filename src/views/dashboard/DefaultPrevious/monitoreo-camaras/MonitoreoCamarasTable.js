@@ -25,12 +25,11 @@ const MonitoreoCamarasTable = ({ fechaInicio, fechaFin, turno }) => {
             field: 'zona',
             headerName: 'Zona',
             width: 100,
-            renderCell: (params) => { return params.row.zona.nombre; }
+            renderCell: (params) => {
+                return params.row.zona.nombre; // Accede a la propiedad 'nombre' de la propiedad 'zona' del objeto
+            }
         },
-        // {
-        //     field: 'camara', headerName: 'Cámara', width: 100,
-        //     renderCell: (params) => { return params.row.camara.nombre; }
-        // },
+        { field: 'camara_nombre', headerName: 'Cámara', width: 100 },
         {
             field: 'operador_camaras',
             headerName: 'Operador de cámaras',

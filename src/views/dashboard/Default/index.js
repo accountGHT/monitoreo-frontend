@@ -1,63 +1,67 @@
 import { useEffect, useState } from 'react';
 
 // material-ui
-import { Grid } from '@mui/material';
+import { FormControl, Grid, InputLabel, MenuItem, Select, Typography } from '@mui/material';
 
 // project imports
-// import EarningCard from './EarningCard';
-// import PopularCard from './PopularCard';
-// import TotalOrderLineChartCard from './TotalOrderLineChartCard';
-// import TotalIncomeDarkCard from './TotalIncomeDarkCard';
-// import TotalIncomeLightCard from './TotalIncomeLightCard';
-// import TotalGrowthBarChart from './TotalGrowthBarChart';
+import MonitoreoCamarasBarChart from './monitoreo-camaras/MonitoreoCamarasBarChart';
+import BarChartFilters from './BarChartFilters';
 import { gridSpacing } from 'store/constant';
 
 import LuisitoBarChart from './LuisitoBarChart';
+import MainCard from 'ui-component/cards/MainCard';
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 
 const Dashboard = () => {
   const [isLoading, setLoading] = useState(true);
+  const [tipoReporte, setTipoReporte] = useState('Monitoreo Cámaras');
+
   useEffect(() => {
     setLoading(false);
   }, []);
 
+  const onChangeTipoReporte = (event) => {
+    console.log(event.target.value);
+    setTipoReporte(event.target.value);
+  }
+
   return (
-    <Grid container spacing={gridSpacing}>
-      {/* <Grid item xs={12}>
-        <Grid container spacing={gridSpacing}>
-          <Grid item lg={4} md={6} sm={6} xs={12}>
-            <EarningCard isLoading={isLoading} />
-          </Grid>
-          <Grid item lg={4} md={6} sm={6} xs={12}>
-            <TotalOrderLineChartCard isLoading={isLoading} />
-          </Grid>
-          <Grid item lg={4} md={12} sm={12} xs={12}>
-            <Grid container spacing={gridSpacing}>
-              <Grid item sm={6} xs={12} md={6} lg={12}>
-                <TotalIncomeDarkCard isLoading={isLoading} />
-              </Grid>
-              <Grid item sm={6} xs={12} md={6} lg={12}>
-                <TotalIncomeLightCard isLoading={isLoading} />
-              </Grid>
-            </Grid>
-          </Grid>
+    <MainCard sx={{ mt: 2 }}>
+      <Grid container spacing={gridSpacing}>
+
+        <Grid item xs={12}><Typography variant="h1">CENTRAL DE MONITOREO SERENAZGO TALARA</Typography></Grid>
+
+        <Grid item lg={9} md={9} sm={12} xs={12}>
+          <Typography variant="h3">{tipoReporte}</Typography>
+          <MonitoreoCamarasBarChart />
+          <LuisitoBarChart isLoading={isLoading} />
         </Grid>
-      </Grid> */}
-      {/* <Grid item xs={12}>
-        <Grid container spacing={gridSpacing}>
-          <Grid item xs={12} md={8}>
-            <TotalGrowthBarChart isLoading={isLoading} />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <PopularCard isLoading={isLoading} />
-          </Grid>
+
+        <Grid item lg={3} md={3} sm={12} xs={12}>
+          <div style={{ paddingBottom: '20px' }}>
+            <h3>Selecciona el tipo de reporte</h3>
+            <FormControl fullWidth variant="standard">
+              <InputLabel id="tipo-reporte-select-label">Tipo de reporte</InputLabel>
+              <Select
+                labelId="tipo-reporte-select-label"
+                id="tipo-reporte-select"
+                value={tipoReporte}
+                label="Tipo de reporte"
+                onChange={onChangeTipoReporte}
+              >
+                <MenuItem value={"Monitoreo Cámaras"}>Monitoreo Cámaras</MenuItem>
+                <MenuItem value={"CECOM"}>CECOM</MenuItem>
+                <MenuItem value={"Distribución del personal"}>Distribución del personal</MenuItem>
+              </Select>
+            </FormControl>
+          </div>
+          <BarChartFilters />
         </Grid>
-      </Grid> */}
-      <Grid item xs={12}>
-        <LuisitoBarChart isLoading={isLoading} />
+
       </Grid>
-    </Grid>
+    </MainCard>
+
   );
 };
 
