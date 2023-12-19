@@ -1,21 +1,17 @@
 import React, { useEffect, useState } from 'react';
 
-// third-party
-import Chart from 'react-apexcharts';
-// project imports
-import SkeletonTotalGrowthBarChart from 'ui-component/cards/Skeleton/TotalGrowthBarChart';
-
 import dayjs from 'dayjs';
 
+// third-party
+import Chart from 'react-apexcharts';
+
 // APIs
-import { getDataForChartMonitoreoCamaras } from 'api/monitoreo-camaras/monitoreoCamarasApi';
+import { getDataForChartCommunicationsCenter } from 'api/communications-center/communicationsCenterApi';
 
 
-// ==============================|| MonitoreoCamarasBarChart Component ||============================== //
-const MonitoreoCamarasBarChart = ({ filters }) => {
 
-    const [isLoading, setLoading] = useState(true);
-
+// ==============================|| CommunicationsCenterBarChart Component ||============================== //
+const CommunicationsCenterBarChart = ({ filters }) => {
     // Chart
     const [optionsChart, setOptionsChart] = useState({});
     const [seriesChart, setSeriesChart] = useState([]);
@@ -34,14 +30,14 @@ const MonitoreoCamarasBarChart = ({ filters }) => {
     useEffect(() => {
         const fetchData = async () => {
             const payload = payloadFormated(filters);
-            const respDatosGrafico = await getDataForChartMonitoreoCamaras(payload);
+            const respDatosGrafico = await getDataForChartCommunicationsCenter(payload);
             console.log(`respDatosGrafico`, respDatosGrafico);
 
             let dataChartCategories = [];
             let dataChart = [];
 
             respDatosGrafico.forEach((el) => {
-                dataChartCategories.push(el.tipo_incidencia.nombre);
+                dataChartCategories.push(el.tipo_apoyo_incidencia.nombre);
                 dataChart.push(el.cantidad_incidencias);
             });
 
@@ -60,32 +56,20 @@ const MonitoreoCamarasBarChart = ({ filters }) => {
                     data: dataChart
                 }
             ]);
-            setLoading(false);
         };
-
 
         fetchData();
     }, [filters]);
 
-
     return (
-        <>
-            {
-                isLoading ? (
-                    <SkeletonTotalGrowthBarChart />
-                ) : (
-                    <div style={{ paddingBottom: '20px' }}>
-                        <Chart
-                            options={optionsChart}
-                            series={seriesChart}
-                            type="bar"
-                        // width="500"
-                        />
-                    </div>
-                )
-            }
-        </>
+        <div style={{ paddingBottom: '20px' }}>
+            <Chart
+                options={optionsChart}
+                series={seriesChart}
+                type="bar"  // width="500"
+            />
+        </div>
     )
 }
 
-export default MonitoreoCamarasBarChart
+export default CommunicationsCenterBarChart

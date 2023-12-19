@@ -41,10 +41,29 @@ export const updateCommunicationsCenter = async (id, payload) => {
     }
 };
 
-
 export const deleteCommunicationsCenter = async (id) => {
     try {
         const response = await apiAxios.delete(`${endpoints.list}/${id}`);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        return handleError(error);
+    }
+};
+
+export const getDataForChartCommunicationsCenter = async (payload) => {
+    try {
+        const response = await apiAxios.post(endpoints.dataForChart, payload);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        return handleError(error);
+    }
+};
+
+export const getTableDashboardCommunicationsCenter = async (payload) => {
+    try {
+        const response = await apiAxios.post(endpoints.tableDashboar, payload);
         return response.data;
     } catch (error) {
         console.log(error);

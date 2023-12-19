@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 // material-ui
-// import { Grid, Autocomplete, TextField, Stack, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
-import { Grid, TextField, Stack, MenuItem, Select, InputLabel, FormControl, } from '@mui/material';
+import { Grid, TextField, Stack, MenuItem, Select, InputLabel, FormControl, Autocomplete, } from '@mui/material';
 
 // Formik
 import { useFormik } from 'formik';
@@ -13,15 +12,27 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
+import { getZonasForAutocomplete } from 'api/multi-table/multiTableApi';
 
 const validationSchema = Yup.object({
     fecha_inicio: Yup.date().required('La fecha es obligatoria'),
 });
 
+const turnosOptions = [
+    { value: 'TODOS', label: 'TODOS' },
+    { value: 'DÍA', label: 'DÍA' },
+    { value: 'TARDE', label: 'TARDE' },
+    { value: 'NOCHE', label: 'NOCHE' },
+];
+
 // ==============================|| BarChartFilters Component ||============================== //
 const BarChartFilters = ({ onSubmit, initialValues }) => {
+    console.log(`BarChartFilters`);
     // Fechas
     const locale = dayjs.locale('es');
+
+    // Combos
+    const [zonas, setZonas] = useState([]);
 
     const formik = useFormik({
         initialValues: {
@@ -31,45 +42,41 @@ const BarChartFilters = ({ onSubmit, initialValues }) => {
         },
         validationSchema,
         onSubmit: async (values) => {
-            console.log(`values`, values);
-            const resp = await onSubmit(values);
-            if (!resp.success) {
-                console.log(resp.data);
-                if (Object.entries(resp.data.errors).length > 0) {
-                    formik.setErrors(resp.data.errors);
-                }
-            }
+            onSubmit(values);
+            // const resp = await onSubmit(values);
+            // console.log(resp.data);
+            // if (resp.success) {
+            //     return;
+            // }
+
+            // if (resp.data.errors && Object.entries(resp.data.errors).length > 0) {
+            //     formik.setErrors(resp.data.errors);
+            // }
         }
     });
 
-
-    // const last28Days = dayjs().subtract(28, 'day');
-    // useEffect(() => {
-    //     formik.setValues({
-    //         fecha_inicio: initialValues.fecha_inicio || dayjs().subtract(28, 'day'),
-    //         fecha_fin: initialValues.fecha_fin || dayjs(),
-    //         turno: initialValues.turno ?? 'TODOS',
-    //     });
-
-    //     return () => {
-    //         formik.resetForm();
-    //     }
-    // }, []);
-
-    const onChangeTurno = (value) => {
-        console.log(`onChangeTurno`, value);
-        const selectedValue = value ?? '';
-        const isValidValue = ['TODOS', 'DÍA', 'TARDE', 'NOCHE'].includes(selectedValue);
-
-        if (isValidValue) {
-            formik.setFieldValue('turno', selectedValue);
+    const handleDateChange = (field, newValue) => {
+        let valueFormated = dayjs(newValue).format('YYYY-MM-DD');
+        if (valueFormated !== 'Invalid Date') {
+            formik.setFieldValue(field, newValue);
+            formik.submitForm();
         }
-        formik.submitForm();
-    }
+    };
+
+    useEffect(() => {
+        const fetchData = async () => {
+            console.log('loadDataForFilters');
+            const resZonas = await getZonasForAutocomplete();
+            console.log(resZonas.data);
+            setZonas(resZonas.data);
+        };
+
+        fetchData();
+    }, []);
 
     return (
-        <div>
-            <Grid item xs={12} sm={12} md={12} sx={{ pb: 3 }}>
+        <Grid container spacing={3}>
+            <Grid item xs={12} sm={12} md={12} lg={6}>
                 <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={locale}>
                     <Stack spacing={3}>
                         <DatePicker
@@ -79,13 +86,7 @@ const BarChartFilters = ({ onSubmit, initialValues }) => {
                             inputFormat="DD/MM/YYYY"
                             label="Desde *"
                             value={formik.values.fecha_inicio}
-                            onChange={(newValue) => {
-                                let valueFormated = dayjs(newValue).format('YYYY-MM-DD');
-                                if (valueFormated !== 'Invalid Date') {
-                                    formik.setFieldValue('fecha_inicio', newValue);
-                                    formik.submitForm();
-                                }
-                            }}
+                            onChange={(newValue) => handleDateChange('fecha_inicio', newValue)}
                             renderInput={(params) => (
                                 <TextField
                                     {...params}
@@ -98,7 +99,7 @@ const BarChartFilters = ({ onSubmit, initialValues }) => {
                     </Stack>
                 </LocalizationProvider>
             </Grid>
-            <Grid item xs={12} sm={12} md={12} sx={{ pb: 3 }}>
+            <Grid item xs={12} sm={12} md={12} lg={6}>
                 <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={locale}>
                     <Stack spacing={3}>
                         <DatePicker
@@ -108,13 +109,7 @@ const BarChartFilters = ({ onSubmit, initialValues }) => {
                             inputFormat="DD/MM/YYYY"
                             label="Hasta *"
                             value={formik.values.fecha_fin}
-                            onChange={(newValue) => {
-                                let valueFormated = dayjs(newValue).format('YYYY-MM-DD');
-                                if (valueFormated !== 'Invalid Date') {
-                                    formik.setFieldValue('fecha_fin', newValue);
-                                    formik.submitForm();
-                                }
-                            }}
+                            onChange={(newValue) => handleDateChange('fecha_fin', newValue)}
                             renderInput={(params) => (
                                 <TextField
                                     {...params}
@@ -136,16 +131,46 @@ const BarChartFilters = ({ onSubmit, initialValues }) => {
                         id="turno-select"
                         value={formik.values.turno || 'TARDE'}
                         label="Turno"
-                        onChange={(event) => { onChangeTurno(event.target.value) }}
+                        onChange={(event) => {
+                            const selectedValue = event.target.value ?? 'TODOS';
+                            const isValidValue = turnosOptions.some((option) => option.value === selectedValue);
+
+                            if (isValidValue) {
+                                formik.setFieldValue('turno', selectedValue);
+                                formik.submitForm();
+                            }
+                        }}
                     >
-                        <MenuItem value={"TODOS"}>TODOS</MenuItem>
-                        <MenuItem value={"DÍA"}>DÍA</MenuItem>
-                        <MenuItem value={"TARDE"}>TARDE</MenuItem>
-                        <MenuItem value={"NOCHE"}>NOCHE</MenuItem>
+                        {turnosOptions.map((option) => (
+                            <MenuItem key={option.value} value={option.value}>
+                                {option.label}
+                            </MenuItem>
+                        ))}
                     </Select>
                 </FormControl>
             </Grid>
-        </div>
+
+            {(zonas.length > 0) && (
+                <Grid item xs={12} sm={12} md={12} sx={{ pb: 3 }}>
+                    <Autocomplete
+                        multiple
+                        id="tags-outlined"
+                        options={zonas}
+                        getOptionLabel={(option) => option?.nombre || ''}
+                        defaultValue={[zonas[0]]}
+                        filterSelectedOptions
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                label="Zonas"
+                                placeholder="Favoritos"
+                                variant="standard"
+                            />
+                        )}
+                    />
+                </Grid>
+            )}
+        </Grid>
     )
 }
 

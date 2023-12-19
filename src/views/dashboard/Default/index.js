@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 // material-ui
 import { FormControl, Grid, InputLabel, MenuItem, Select, Typography } from '@mui/material';
@@ -7,24 +7,24 @@ import { FormControl, Grid, InputLabel, MenuItem, Select, Typography } from '@mu
 import BarChartFilters from './BarChartFilters';
 import { gridSpacing } from 'store/constant';
 
-// import LuisitoBarChart from './LuisitoBarChart';
 import MainCard from 'ui-component/cards/MainCard';
 import dayjs from 'dayjs';
 
-// Get Data
-import { getDataForChartMonitoreoCamaras } from 'api/monitoreo-camaras/monitoreoCamarasApi';
+// APIs
 import MonitoreoCamarasBarChart from './monitoreo-camaras/MonitoreoCamarasBarChart';
+import CommunicationsCenterBarChart from './central-comunicaciones/CommunicationsCenterBarChart';
+import DistribucionPersonalBarChart from './distribucion-personal/DistribucionPersonalBarChart';
+
+import MonitoreoCamarasTable from './monitoreo-camaras/MonitoreoCamarasTable';
+import CommunicationsCenterTable from './central-comunicaciones/CommunicationsCenterTable';
+import DistribucionPersonalTable from './distribucion-personal/DistribucionPersonalTable';
+
+const tiposReporte = ['Monitoreo Cámaras', 'CECOM', 'Distribución del personal'];
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
-
 const Dashboard = () => {
   // const [isLoading, setLoading] = useState(true);
   const [tipoReporte, setTipoReporte] = useState('Monitoreo Cámaras');
-  // const [zona, setzona] = useState({});
-
-  // Chart
-  const [optionsChart, setOptionsChart] = useState({});
-  const [seriesChart, setSeriesChart] = useState([]);
 
   // filters
   const initialValues = {
@@ -33,57 +33,20 @@ const Dashboard = () => {
     turno: 'TODOS',
   };
 
-  const setDataForAPI = async (values) => {
-    console.log(`setDataForAPI`, values);
+  const [filters, setFilters] = useState(initialValues);
 
-    const payload = {
-      fecha_inicio: dayjs(values.fecha_inicio).format('YYYY-MM-DD'),
-      fecha_fin: dayjs(values.fecha_fin).format('YYYY-MM-DD'),
-      zona: null,
-      turno: values.turno === 'TODOS' ? '' : values.turno,
-    }
-
-    const respDatosGrafico = await getDataForChartMonitoreoCamaras(payload);
-    console.log(`respDatosGrafico`, respDatosGrafico);
-
-
-    let dataChartCategories = [];
-    let dataChart = [];
-
-    respDatosGrafico.forEach((el) => {
-      dataChartCategories.push(el.tipo_incidencia.nombre);
-      dataChart.push(el.cantidad_incidencias);
-    });
-
-    setOptionsChart({
-      chart: {
-        id: "basic-bar"
-      },
-      xaxis: {
-        categories: dataChartCategories
-      }
-    });
-
-    setSeriesChart([
-      {
-        name: "Incidencias",
-        data: dataChart
-      }
-    ]);
-    return { success: true };
-  }
-
-  useEffect(() => {
-    setDataForAPI(initialValues);
-    // setLoading(false);
-  }, []);
+  // const setDataForAPI = async (values) => {
+  //   console.log(`setDataForAPI`, values);
+  //   setFilters(values);
+  // }
 
   const onChangeTipoReporte = (value) => {
-    console.log(value);
-    setTipoReporte(value);
+    const selectedValue = value ?? '';
+    const isValidValue = tiposReporte.includes(selectedValue);
+    if (isValidValue) {
+      setTipoReporte(value);
+    }
   }
-
-
 
   return (
     <MainCard sx={{ mt: 2 }}>
@@ -91,13 +54,14 @@ const Dashboard = () => {
 
         <Grid item xs={12}><Typography variant="h1">CENTRAL DE MONITOREO SERENAZGO TALARA</Typography></Grid>
 
-        <Grid item lg={9} md={9} sm={12} xs={12}>
-          <Typography variant="h3">{tipoReporte}</Typography>
-          <MonitoreoCamarasBarChart optionsChart={optionsChart} seriesChart={seriesChart} />
-          {/* <LuisitoBarChart isLoading={isLoading} /> */}
+        <Grid item lg={7} md={9} sm={12} xs={12}>
+          <Typography variant="h3" sx={{ mb: 2 }}>{tipoReporte}</Typography>
+          {(tipoReporte === 'Monitoreo Cámaras') && (<MonitoreoCamarasBarChart filters={filters} />)}
+          {(tipoReporte === 'CECOM') && (<CommunicationsCenterBarChart filters={filters} />)}
+          {(tipoReporte === 'Distribución del personal') && (<DistribucionPersonalBarChart filters={filters} />)}
         </Grid>
 
-        <Grid item lg={3} md={3} sm={12} xs={12}>
+        <Grid item lg={5} md={3} sm={12} xs={12}>
           <Grid sx={{ pb: 4 }}>
             <h3>Selecciona el tipo de reporte</h3>
             <FormControl fullWidth variant="standard">
@@ -117,7 +81,14 @@ const Dashboard = () => {
               </Select>
             </FormControl>
           </Grid>
-          <BarChartFilters onSubmit={setDataForAPI} initialValues={initialValues || {}} />
+          <BarChartFilters onSubmit={setFilters} initialValues={initialValues || {}} />
+          {/* <BarChartFilters onSubmit={setDataForAPI} initialValues={initialValues || {}} /> */}
+        </Grid>
+
+        <Grid item xs={12}>
+          {(tipoReporte === 'Monitoreo Cámaras') && (<MonitoreoCamarasTable filters={filters} />)}
+          {(tipoReporte === 'CECOM') && (<CommunicationsCenterTable filters={filters} />)}
+          {(tipoReporte === 'Distribución del personal') && (<DistribucionPersonalTable filters={filters} />)}
         </Grid>
 
       </Grid>

@@ -1,100 +1,78 @@
 import { DataGrid } from '@mui/x-data-grid';
-import { getTablaGrafico } from 'api/monitoreo-camaras/monitoreoCamarasApi';
 import React, { useEffect, useState } from 'react';
-// import PropTypes from 'prop-types'
+import dayjs from 'dayjs';
+import { getTableDashboardMonitoreoCamaras } from 'api/monitoreo-camaras/monitoreoCamarasApi';
 
-const MonitoreoCamarasTable = ({ fechaInicio, fechaFin, turno }) => {
+const columnsWithoutActions = [
+    { field: 'id', headerName: 'Id', flex: 0.5, minWidth: 50, maxWidth: 60 },
+    { field: 'fecha', headerName: 'Fecha', flex: 1, minWidth: 100, maxWidth: 120, renderCell: (params) => params.row.fecha },
+    { field: 'hora_inicio', headerName: 'Hora inicio', flex: 1, minWidth: 100, maxWidth: 120 },
+    { field: 'hora_fin', headerName: 'Hora fin', flex: 1, minWidth: 100, maxWidth: 120 },
+    { field: 'turno', headerName: 'Turno', flex: 1, minWidth: 100, maxWidth: 120 },
+    // { field: 'descripcion_incidencia', headerName: 'Desc. Incidencia', flex: 1, minWidth: 150, maxWidth: 200 },
+    // { field: 'zona_id', headerName: 'zona_id', flex: 1, minWidth: 150, maxWidth: 300 },
+    {
+        field: 'zona', headerName: 'Zona', flex: 1.5, minWidth: 120, maxWidth: 150,
+        renderCell: (params) => params.row.zona.nombre
+    },
+    {
+        field: 'camara', headerName: 'Cámara', flex: 1, minWidth: 150, maxWidth: 200,
+        renderCell: (params) => { return params.row.camara.nombre; }
+    },
+    // { field: 'operador_camaras_id', headerName: 'operador_camaras_id', flex: 0.5, minWidth: 100, maxWidth: 120 },
+    {
+        field: 'operador_camaras', headerName: 'Operador', flex: 1, minWidth: 120, maxWidth: 200,
+        renderCell: (params) => params.row.operador_camaras.nombre_completo
+    },
+    {
+        field: 'tipo_incidencia', headerName: 'Tipo de Incidencia', flex: 0.5, minWidth: 130, maxWidth: 150,
+        renderCell: (params) => { return params.row.tipo_incidencia.nombre; }
+    },
+    {
+        field: 'personal_serenazgo', headerName: 'Pers. Serenazgo', flex: 1, minWidth: 120, maxWidth: 200,
+        renderCell: (params) => { return params.row.personal_serenazgo.nombre_completo }
+    },
+    {
+        field: 'vehiculo_serenazgo', headerName: 'Vehiculo de Serenazgo', flex: 1.5, minWidth: 180, maxWidth: 200,
+        renderCell: (params) => { return params.row.vehiculo_serenazgo.placa; }
+    },
+    {
+        field: 'encargado', headerName: 'Encargado', flex: 2, minWidth: 200, maxWidth: 230,
+        renderCell: (params) => { return params.row.encargado.nombre_completo; }
+    },
+];
+
+const MonitoreoCamarasTable = ({ filters }) => {
 
     const [data, setData] = useState([]);
 
-
-    const fillTable = async (params) => {
-        const response = await getTablaGrafico(params);
-        console.log(response);
-        setData(response.data.data);
+    const payloadFormated = (values) => {
+        console.log(`setDataForAPI`, values);
+        const payload = {
+            fecha_inicio: dayjs(values.fecha_inicio).format('YYYY-MM-DD'),
+            fecha_fin: dayjs(values.fecha_fin).format('YYYY-MM-DD'),
+            zona: null,
+            turno: values.turno === 'TODOS' ? '' : values.turno,
+        }
+        return payload;
     }
 
-    const columns = [
-        { field: 'id', headerName: 'Id', width: 30 },
-        { field: 'fecha', headerName: 'Fecha', width: 95 },
-        { field: 'hora_inicio', headerName: 'Hora inicio', width: 75 },
-        { field: 'hora_fin', headerName: 'Hora fin', width: 75 },
-        // { field: 'turno', headerName: 'Turno', width: 70 },
-        { field: 'descripcion_incidencia', headerName: 'Descripción Incidencia', width: 200 },
-        {
-            field: 'zona',
-            headerName: 'Zona',
-            width: 100,
-            renderCell: (params) => { return params.row.zona.nombre; }
-        },
-        // {
-        //     field: 'camara', headerName: 'Cámara', width: 100,
-        //     renderCell: (params) => { return params.row.camara.nombre; }
-        // },
-        {
-            field: 'operador_camaras',
-            headerName: 'Operador de cámaras',
-            width: 200,
-            renderCell: (params) => {
-                return params.row.operador_camaras.nombres + ' ' + params.row.personal_serenazgo.p_apellido;
-            }
-        },
-        {
-            field: 'tipo_incidencia',
-            headerName: 'Tipo de Incidencia',
-            width: 150,
-            renderCell: (params) => {
-                return params.row.tipo_incidencia.nombre; // Accede a la propiedad 'nombre' de la propiedad 'tipo_incidencia' del objeto
-            }
-        },
-        {
-            field: 'personal_serenazgo',
-            headerName: 'Personal de Serenazgo',
-            width: 200,
-            renderCell: (params) => {
-                return params.row.personal_serenazgo.nombres + ' ' + params.row.personal_serenazgo.p_apellido;
-            }
-        },
-        {
-            field: 'vehiculo_serenazgo',
-            headerName: 'Vehiculo de Serenazgo',
-            width: 200,
-            renderCell: (params) => {
-                return params.row.vehiculo_serenazgo.placa;
-            }
-        },
-
-        {
-            field: 'encargado',
-            headerName: 'Encargado',
-            width: 200,
-            renderCell: (params) => {
-                return params.row.encargado.nombres + ' ' + params.row.encargado.p_apellido;
-            }
-        },
-    ];
-
     useEffect(() => {
-        let params = `?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
+        const fetchData = async () => {
+            const payload = payloadFormated(filters);
+            const response = await getTableDashboardMonitoreoCamaras(payload);
+            console.log(`response`, response);
+            setData(response.data);
+        };
 
-        if (turno !== '') {
-            params = params + `&turno=${turno}`;
-        }
-
-        // if (zona !== null) {
-        //     // params = params + `&turno=${turno}`;
-        // }
-
-        fillTable(params);
-    }, [fechaInicio, fechaFin, turno]);
+        fetchData();
+    }, [filters]);
 
     return (
         <div style={{ height: 500, width: '100%' }}>
-            <DataGrid rows={data} columns={columns} pageSize={10} />
+            <DataGrid rows={data} columns={columnsWithoutActions} pageSize={10} />
         </div>
     )
 }
-
-// MonitoreoCamarasTable.propTypes = {}
 
 export default MonitoreoCamarasTable;
