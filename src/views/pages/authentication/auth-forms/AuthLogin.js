@@ -29,9 +29,12 @@ import AnimateButton from 'ui-component/extended/AnimateButton';
 // assets
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { login } from 'api/auth/authApi';
+import { login, me } from 'api/auth/authApi';
 import { saveToLocalStorage } from 'utils/localStorage';
 import { useNavigate } from 'react-router-dom';
+
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // ============================|| FIREBASE - LOGIN ||============================ //
 
@@ -50,9 +53,11 @@ const AuthLogin = ({ ...others }) => {
     event.preventDefault();
   };
 
-  const afterLogin = (token, user) => {
+  const afterLogin = async (token, user) => {
     saveToLocalStorage("token", token);
     saveToLocalStorage("user", user);
+    const dddd = await me();
+    console.log('dddd', dddd);
     navigate('/dashboard/default')
   };
 
@@ -61,34 +66,36 @@ const AuthLogin = ({ ...others }) => {
       <Grid container direction="column" justifyContent="center" spacing={2}>
         <Grid item xs={12} container alignItems="center" justifyContent="center">
           <Box sx={{ mb: 2 }}>
-            <Typography variant="subtitle1">Sign in with Email address</Typography>
+            <Typography variant="subtitle1">Iniciar sesión con dirección de correo electrónico</Typography>
           </Box>
         </Grid>
       </Grid>
 
       <Formik
         initialValues={{
-          email: 'demarcus41@example.net',
-          password: 'password',
+          email: 'admin@monitoreo-talara.com',
+          password: '123456',
           submit: null
         }}
         validationSchema={Yup.object().shape({
-          email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
-          password: Yup.string().max(255).required('Password is required')
+          email: Yup.string().email('Debe ser un correo electrónico válido').max(255).required('Se requiere correo electrónico'),
+          password: Yup.string().max(255).required('Se requiere contraseña')
         })}
         onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
 
-          const response = await login({ email: values.email, password: values.password, name: 'Browser' });
-          if (response.message === "success") {
+          const resp = await login({ email: values.email, password: values.password, name: 'Browser' });
+          
+          if (resp.message === "success") {
             if (scriptedRef.current) {
               setStatus({ success: true });
               setSubmitting(false);
-              afterLogin(response.token, response.user);
+              afterLogin(resp.token, resp.user);
             }
           } else {
+            toast.error(resp.responseData.message ?? resp.errorMessage);
             if (scriptedRef.current) {
               setStatus({ success: false });
-              setErrors({ submit: response.message });
+              setErrors(resp.responseData.errors);
               setSubmitting(false);
             }
           }
@@ -98,7 +105,7 @@ const AuthLogin = ({ ...others }) => {
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
           <form noValidate onSubmit={handleSubmit} {...others}>
             <FormControl fullWidth error={Boolean(touched.email && errors.email)} sx={{ ...theme.typography.customInput }}>
-              <InputLabel htmlFor="outlined-adornment-email-login">Email Address / Username</InputLabel>
+              <InputLabel htmlFor="outlined-adornment-email-login">Correo electrónico / usuario</InputLabel>
               <OutlinedInput
                 id="outlined-adornment-email-login"
                 type="email"
@@ -106,7 +113,8 @@ const AuthLogin = ({ ...others }) => {
                 name="email"
                 onBlur={handleBlur}
                 onChange={handleChange}
-                label="Email Address / Username"
+                // label="Email Address / Username"
+                label="Correo electrónico / usuario"
                 inputProps={{}}
               />
               {touched.email && errors.email && (
@@ -117,7 +125,7 @@ const AuthLogin = ({ ...others }) => {
             </FormControl>
 
             <FormControl fullWidth error={Boolean(touched.password && errors.password)} sx={{ ...theme.typography.customInput }}>
-              <InputLabel htmlFor="outlined-adornment-password-login">Password</InputLabel>
+              <InputLabel htmlFor="outlined-adornment-password-login">Contraseña</InputLabel>
               <OutlinedInput
                 id="outlined-adornment-password-login"
                 type={showPassword ? 'text' : 'password'}
@@ -138,7 +146,7 @@ const AuthLogin = ({ ...others }) => {
                     </IconButton>
                   </InputAdornment>
                 }
-                label="Password"
+                label="Contraseña"
                 inputProps={{}}
               />
               {touched.password && errors.password && (
@@ -152,10 +160,10 @@ const AuthLogin = ({ ...others }) => {
                 control={
                   <Checkbox checked={checked} onChange={(event) => setChecked(event.target.checked)} name="checked" color="primary" />
                 }
-                label="Remember me"
+                label="Recuérdame"
               />
               <Typography variant="subtitle1" color="secondary" sx={{ textDecoration: 'none', cursor: 'pointer' }}>
-                Forgot Password?
+                ¿Has olvidado tu contraseña?
               </Typography>
             </Stack>
             {errors.submit && (
@@ -167,7 +175,7 @@ const AuthLogin = ({ ...others }) => {
             <Box sx={{ mt: 2 }}>
               <AnimateButton>
                 <Button disableElevation disabled={isSubmitting} fullWidth size="large" type="submit" variant="contained" color="secondary">
-                  Sign in
+                  Iniciar sesión
                 </Button>
               </AnimateButton>
             </Box>

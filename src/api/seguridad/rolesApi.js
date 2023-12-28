@@ -1,18 +1,18 @@
 import { handleError } from 'api/apiHelpers';
 import apiAxios from '../apiAxios';
-import endpoints from './distribucionPersonalEndPoints';
+import { rolesEndpoints as endpoints } from './seguridadEndpoints';
 
-export const getDistribucionPersonal = async () => {
+export const getRoles = async () => {
     try {
         const response = await apiAxios.get(endpoints.list);
         return response.data;
     } catch (error) {
         console.log(error);
-        return handleError(error);
+        throw error;
     }
 };
 
-export const createDistribucionPersonal = async (payload) => {
+export const createRol = async (payload) => {
     try {
         const response = await apiAxios.post(endpoints.list, payload);
         return response.data;
@@ -22,7 +22,7 @@ export const createDistribucionPersonal = async (payload) => {
     }
 };
 
-export const getDistribucionPersonalById = async (id) => {
+export const getRolById = async (id) => {
     try {
         const response = await apiAxios.get(`${endpoints.list}/${id}`);
         return response.data;
@@ -32,7 +32,7 @@ export const getDistribucionPersonalById = async (id) => {
     }
 };
 
-export const updateDistribucionPersonal = async (id, payload) => {
+export const updateRol = async (id, payload) => {
     try {
         const response = await apiAxios.put(`${endpoints.list}/${id}`, payload);
         return response.data;
@@ -41,7 +41,7 @@ export const updateDistribucionPersonal = async (id, payload) => {
     }
 };
 
-export const deleteDistribucionPersonal = async (id) => {
+export const deleteRol = async (id) => {
     try {
         const response = await apiAxios.delete(`${endpoints.list}/${id}`);
         return response.data;
@@ -51,23 +51,12 @@ export const deleteDistribucionPersonal = async (id) => {
     }
 };
 
-export const getDataForChartDistribucionPersonal = async (payload) => {
+export const getRolForAutocomplete = async () => {
     try {
-        const response = await apiAxios.post(endpoints.dataForChart, payload);
+        const response = await apiAxios.get(endpoints.autocomplete);
         return response.data;
     } catch (error) {
         console.log(error);
-        return handleError(error);
+        throw error;
     }
 };
-
-export const getTableDashboardDistribucionPersonal = async (payload) => {
-    try {
-        const response = await apiAxios.post(endpoints.tableDashboar, payload);
-        return response.data;
-    } catch (error) {
-        console.log(error);
-        return handleError(error);
-    }
-};
-

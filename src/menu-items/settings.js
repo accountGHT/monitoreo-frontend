@@ -83,6 +83,28 @@ const settings = {
         //   breadcrumbs: false
         // }
       ]
+    },
+    {
+      id: 'setting-security',
+      title: 'Seguridad',
+      type: 'collapse',
+      icon: icons.IconWindmill,
+      children: [
+        {
+          id: 'security-user',
+          title: 'Usuarios',
+          type: 'item',
+          url: '/configuraciones/seguridad/usuarios',
+          breadcrumbs: false
+        },
+        {
+          id: 'security-roles',
+          title: 'Roles',
+          type: 'item',
+          url: '/configuraciones/seguridad/roles',
+          breadcrumbs: false
+        },
+      ]
     }
   ]
 };

@@ -14,9 +14,6 @@ const UtilsShadow = Loadable(lazy(() => import('views/utilities/Shadow')));
 const UtilsMaterialIcons = Loadable(lazy(() => import('views/utilities/MaterialIcons')));
 const UtilsTablerIcons = Loadable(lazy(() => import('views/utilities/TablerIcons')));
 
-// sample page routing
-const SamplePage = Loadable(lazy(() => import('views/sample-page')));
-
 const PagesMonitoreoCamaras = Loadable(lazy(() => import('views/pages/monitoreo-camaras')));
 const PagesCentralComunicaciones = Loadable(lazy(() => import('views/pages/central-comunicaciones')));
 const PagesDistribucionPersonal = Loadable(lazy(() => import('views/pages/distribucion-personal')));
@@ -31,6 +28,9 @@ const SettingsTiposApoyo = Loadable(lazy(() => import('views/settings/multi-tabl
 const SettingsTiposIncidencia = Loadable(lazy(() => import('views/settings/multi-table/TiposIncidencia')));
 const SettingsTiposPatrullaje = Loadable(lazy(() => import('views/settings/multi-table/TiposPatrullaje')));
 const SettingsCamaras = Loadable(lazy(() => import('views/settings/multi-table/Camaras')));
+// seguridad routing
+const SeguridadUsers = Loadable(lazy(() => import('views/settings/seguridad/users')));
+const SeguridadRoles = Loadable(lazy(() => import('views/settings/seguridad/roles')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -107,6 +107,19 @@ const MainRoutes = {
               element: <SettingsCamaras />
             }
           ]
+        },
+        {
+          path: 'seguridad',
+          children: [
+            {
+              path: 'usuarios',
+              element: <SeguridadUsers />
+            },
+            {
+              path: 'roles',
+              element: <SeguridadRoles />
+            },
+          ]
         }
       ]
     },
@@ -154,10 +167,6 @@ const MainRoutes = {
           element: <UtilsMaterialIcons />
         }
       ]
-    },
-    {
-      path: 'sample-page',
-      element: <SamplePage />
     }
   ]
 };

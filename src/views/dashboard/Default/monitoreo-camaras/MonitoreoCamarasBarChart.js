@@ -4,69 +4,84 @@ import React, { useEffect, useState } from 'react';
 import Chart from 'react-apexcharts';
 // project imports
 import SkeletonTotalGrowthBarChart from 'ui-component/cards/Skeleton/TotalGrowthBarChart';
+// toast
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import dayjs from 'dayjs';
 
 // APIs
 import { getDataForChartMonitoreoCamaras } from 'api/monitoreo-camaras/monitoreoCamarasApi';
 
-
 // ==============================|| MonitoreoCamarasBarChart Component ||============================== //
+// const MonitoreoCamarasBarChart = ({ onSubmit, filters }) => {
 const MonitoreoCamarasBarChart = ({ filters }) => {
+    console.log(`MonitoreoCamarasBarChart filters`, filters);
 
     const [isLoading, setLoading] = useState(true);
-
     // Chart
     const [optionsChart, setOptionsChart] = useState({});
     const [seriesChart, setSeriesChart] = useState([]);
 
     const payloadFormated = (values) => {
-        console.log(`setDataForAPI`, values);
         const payload = {
             fecha_inicio: dayjs(values.fecha_inicio).format('YYYY-MM-DD'),
             fecha_fin: dayjs(values.fecha_fin).format('YYYY-MM-DD'),
-            zona: null,
+            zonas: values.zonas ?? [],
             turno: values.turno === 'TODOS' ? '' : values.turno,
         }
         return payload;
     }
 
+    const setDataDashboard = (dataChartCategories, dataChart) => {
+        setOptionsChart({
+            chart: {
+                id: "basic-bar"
+            },
+            xaxis: {
+                categories: dataChartCategories
+            }
+        });
+
+        setSeriesChart([
+            {
+                name: "Incidencias",
+                data: dataChart
+            }
+        ]);
+    }
+
     useEffect(() => {
         const fetchData = async () => {
-            const payload = payloadFormated(filters);
-            const respDatosGrafico = await getDataForChartMonitoreoCamaras(payload);
-            console.log(`respDatosGrafico`, respDatosGrafico);
-
             let dataChartCategories = [];
             let dataChart = [];
 
-            respDatosGrafico.forEach((el) => {
-                dataChartCategories.push(el.tipo_incidencia.nombre);
-                dataChart.push(el.cantidad_incidencias);
-            });
-
-            setOptionsChart({
-                chart: {
-                    id: "basic-bar"
-                },
-                xaxis: {
-                    categories: dataChartCategories
+            if (Object.entries(filters).length > 0) {
+                const payload = payloadFormated(filters);
+                if (payload.zonas.length > 0) {
+                    const idsArray = payload.zonas.map(item => item.id);
+                    payload.zonas = idsArray;
                 }
-            });
 
-            setSeriesChart([
-                {
-                    name: "Incidencias",
-                    data: dataChart
+                const resp = await getDataForChartMonitoreoCamaras(payload);
+                if (resp.success) {
+                    resp.data.forEach((el) => {
+                        dataChartCategories.push(el.tipo_incidencia.nombre);
+                        dataChart.push(el.cantidad_incidencias);
+                    });
+                } else {
+                    toast.error(resp.responseData.message ?? resp.errorMessage);
                 }
-            ]);
-            setLoading(false);
+                setDataDashboard(dataChartCategories, dataChart);
+                setLoading(false);
+            } else {
+                setDataDashboard(dataChartCategories, dataChart);
+                setLoading(false);
+            }
         };
-
 
         fetchData();
     }, [filters]);
-
 
     return (
         <>

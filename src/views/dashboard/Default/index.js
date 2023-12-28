@@ -8,7 +8,7 @@ import BarChartFilters from './BarChartFilters';
 import { gridSpacing } from 'store/constant';
 
 import MainCard from 'ui-component/cards/MainCard';
-import dayjs from 'dayjs';
+// import dayjs from 'dayjs';
 
 // APIs
 import MonitoreoCamarasBarChart from './monitoreo-camaras/MonitoreoCamarasBarChart';
@@ -26,19 +26,11 @@ const Dashboard = () => {
   // const [isLoading, setLoading] = useState(true);
   const [tipoReporte, setTipoReporte] = useState('Monitoreo Cámaras');
 
-  // filters
-  const initialValues = {
-    fecha_inicio: dayjs().subtract((365 * 40), 'day'),
-    fecha_fin: dayjs(),
-    turno: 'TODOS',
-  };
+  const [filters, setFilters] = useState({});
 
-  const [filters, setFilters] = useState(initialValues);
-
-  // const setDataForAPI = async (values) => {
-  //   console.log(`setDataForAPI`, values);
-  //   setFilters(values);
-  // }
+  const setDataForAPI = async (values) => {
+    setFilters(values);
+  }
 
   const onChangeTipoReporte = (value) => {
     const selectedValue = value ?? '';
@@ -56,7 +48,7 @@ const Dashboard = () => {
 
         <Grid item lg={7} md={9} sm={12} xs={12}>
           <Typography variant="h3" sx={{ mb: 2 }}>{tipoReporte}</Typography>
-          {(tipoReporte === 'Monitoreo Cámaras') && (<MonitoreoCamarasBarChart filters={filters} />)}
+          {(tipoReporte === 'Monitoreo Cámaras') && (<MonitoreoCamarasBarChart filters={filters}  />)}
           {(tipoReporte === 'CECOM') && (<CommunicationsCenterBarChart filters={filters} />)}
           {(tipoReporte === 'Distribución del personal') && (<DistribucionPersonalBarChart filters={filters} />)}
         </Grid>
@@ -81,8 +73,9 @@ const Dashboard = () => {
               </Select>
             </FormControl>
           </Grid>
-          <BarChartFilters onSubmit={setFilters} initialValues={initialValues || {}} />
+          {/* <BarChartFilters onSubmit={setFilters} initialValues={initialValues || {}} /> */}
           {/* <BarChartFilters onSubmit={setDataForAPI} initialValues={initialValues || {}} /> */}
+          <BarChartFilters onSubmit={setDataForAPI} />
         </Grid>
 
         <Grid item xs={12}>

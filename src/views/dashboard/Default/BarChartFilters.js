@@ -16,6 +16,7 @@ import { getZonasForAutocomplete } from 'api/multi-table/multiTableApi';
 
 const validationSchema = Yup.object({
     fecha_inicio: Yup.date().required('La fecha es obligatoria'),
+    fecha_fin: Yup.date().required('La fecha es obligatoria'),
 });
 
 const turnosOptions = [
@@ -26,22 +27,28 @@ const turnosOptions = [
 ];
 
 // ==============================|| BarChartFilters Component ||============================== //
-const BarChartFilters = ({ onSubmit, initialValues }) => {
-    console.log(`BarChartFilters`);
+// const BarChartFilters = ({ onSubmit, initialValues }) => {
+const BarChartFilters = ({ onSubmit }) => {
+    // console.log(`BarChartFilters initialValues`, initialValues);
     // Fechas
     const locale = dayjs.locale('es');
 
     // Combos
     const [zonas, setZonas] = useState([]);
+    const [zonasDefault, setZonasDefault] = useState([]);
+
+    const initialValues = {
+        fecha_inicio: dayjs().subtract((365 * 40), 'day'),
+        fecha_fin: dayjs(),
+        turno: 'TODOS',
+        zonas: [],
+    };
 
     const formik = useFormik({
-        initialValues: {
-            fecha_inicio: initialValues.fecha_inicio || dayjs().subtract(28, 'day'),
-            fecha_fin: initialValues.fecha_fin || dayjs(),
-            turno: initialValues.turno ?? 'TODOS',
-        },
+        initialValues: initialValues,
         validationSchema,
         onSubmit: async (values) => {
+            console.log(`onSubmit`, values);
             onSubmit(values);
             // const resp = await onSubmit(values);
             // console.log(resp.data);
@@ -63,12 +70,28 @@ const BarChartFilters = ({ onSubmit, initialValues }) => {
         }
     };
 
+    const handleZonasChange = (event, newValue) => {
+        formik.setFieldValue('zonas', newValue);
+        formik.submitForm();
+    };
+
+    const handleZonasClose = () => {
+        formik.setFieldTouched('zonas', true);
+    };
+
     useEffect(() => {
         const fetchData = async () => {
-            console.log('loadDataForFilters');
             const resZonas = await getZonasForAutocomplete();
-            console.log(resZonas.data);
-            setZonas(resZonas.data);
+            if (resZonas.success) {
+                setZonasDefault(resZonas.data);
+                setZonas(resZonas.data);
+                formik.setValues({
+                    ...initialValues,
+                    zonas: initialValues.zonas.length > 0 ? initialValues.zonas : resZonas.data,
+                });
+            }
+            console.log(`getZonasForAutocomplete`);
+            formik.submitForm();
         };
 
         fetchData();
@@ -156,8 +179,11 @@ const BarChartFilters = ({ onSubmit, initialValues }) => {
                         multiple
                         id="tags-outlined"
                         options={zonas}
+                        value={formik.values.zonas}
+                        defaultValue={zonasDefault}
+                        onChange={handleZonasChange}
+                        onClose={handleZonasClose}
                         getOptionLabel={(option) => option?.nombre || ''}
-                        defaultValue={[zonas[0]]}
                         filterSelectedOptions
                         renderInput={(params) => (
                             <TextField
@@ -165,6 +191,8 @@ const BarChartFilters = ({ onSubmit, initialValues }) => {
                                 label="Zonas"
                                 placeholder="Favoritos"
                                 variant="standard"
+                            // error={formik.touched.zonas && Boolean(formik.errors.zonas)}
+                            // helperText={formik.touched.zonas && formik.errors.zonas}
                             />
                         )}
                     />

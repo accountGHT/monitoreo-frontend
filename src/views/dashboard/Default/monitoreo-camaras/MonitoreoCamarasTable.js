@@ -47,7 +47,7 @@ const MonitoreoCamarasTable = ({ filters }) => {
     const [data, setData] = useState([]);
 
     const payloadFormated = (values) => {
-        console.log(`setDataForAPI`, values);
+        // console.log(`setDataForAPI`, values);
         const payload = {
             fecha_inicio: dayjs(values.fecha_inicio).format('YYYY-MM-DD'),
             fecha_fin: dayjs(values.fecha_fin).format('YYYY-MM-DD'),
@@ -61,7 +61,7 @@ const MonitoreoCamarasTable = ({ filters }) => {
         const fetchData = async () => {
             const payload = payloadFormated(filters);
             const response = await getTableDashboardMonitoreoCamaras(payload);
-            console.log(`response`, response);
+            // console.log(`response`, response);
             setData(response.data);
         };
 
