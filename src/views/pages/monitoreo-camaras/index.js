@@ -59,10 +59,10 @@ const MonitoreoCamaras = () => {
     const handleItemCreated = async (values) => {
         const resp = await createMonitoreoCamaras(values);
         if (!resp.success) {
-            toast.error(resp.responseData.message ?? resp.errorMessage);
+            const errorMessage = resp.responseData && resp.responseData.message ? resp.responseData.message : resp.errorMessage;
+            toast.error(errorMessage);
             return { success: false, data: resp.responseData };
         }
-
         fetchData();
         toast.success(resp.message);
         return { success: true, data: resp };
