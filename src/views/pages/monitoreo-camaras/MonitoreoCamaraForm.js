@@ -179,9 +179,10 @@ const MonitoreoCamaraForm = ({ open, handleClose, onSubmit, initialValues }) => 
         dni: initialValues.dni || '',
         nombres: initialValues.nombres || '',
         edad: initialValues.edad || '',
-        sexo: initialValues.sexo || '',
+        sexo: initialValues.sexo ?? 'M',
       });
       console.log(`formik.values`, formik.values);
+      console.log('sexo: ', initialValues.sexo);
       setLoading(false);
       return () => {
         formik.resetForm();
@@ -381,11 +382,15 @@ const MonitoreoCamaraForm = ({ open, handleClose, onSubmit, initialValues }) => 
                     <Select
                       labelId="sexo-label"
                       id="sexo"
-                      value={formik.values.sexo}
-                      onChange={(event) => formik.setFieldValue('sexo', event.target.value)}
+                      value={formik.values.sexo || ''}
+                      onChange={(event) => {
+                        const selectedValue = event.target.value;
+                        formik.setFieldValue('sexo', selectedValue);
+                      }}
                       onBlur={formik.handleBlur}
                       error={formik.touched.sexo && Boolean(formik.errors.sexo)}
                     >
+                      <MenuItem value="">Seleccione una opción</MenuItem>
                       <MenuItem value="M">Masculino</MenuItem>
                       <MenuItem value="F">Femenino</MenuItem>
                       <MenuItem value="O">Otro</MenuItem>
