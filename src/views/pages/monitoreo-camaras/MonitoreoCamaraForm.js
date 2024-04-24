@@ -179,7 +179,7 @@ const MonitoreoCamaraForm = ({ open, handleClose, onSubmit, initialValues }) => 
         dni: initialValues.dni || '',
         nombres: initialValues.nombres || '',
         edad: initialValues.edad || '',
-        sexo: initialValues.sexo ?? 'M',
+        sexo: initialValues.sexo ?? '',
       });
       console.log(`formik.values`, formik.values);
       console.log('sexo: ', initialValues.sexo);
