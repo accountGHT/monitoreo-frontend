@@ -41,6 +41,36 @@ export const updateCommunicationsCenter = async (id, payload) => {
     }
 };
 
+export const cancelCommunicationsCenter = async (id) => {
+    try {
+        const response = await apiAxios.put(`${endpoints.cancel}/${id}`);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        return handleError(error);
+    }
+}
+
+export const despacharCommunicationsCenter = async (id, payload) => {
+    try {
+        const response = await apiAxios.put(`${endpoints.despachar}/${id}`, payload);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        return handleError(error);
+    }
+};
+
+export const atenderCommunicationsCenter = async (id, payload) => {
+    try {
+        const response = await apiAxios.put(`${endpoints.atender}/${id}`, payload);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        return handleError(error);
+    }
+};
+
 export const deleteCommunicationsCenter = async (id) => {
     try {
         const response = await apiAxios.delete(`${endpoints.list}/${id}`);
