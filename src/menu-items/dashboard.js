@@ -1,10 +1,13 @@
-// assets
-import { IconDashboard } from '@tabler/icons';
+import React from 'react';
+import { ReactComponent as DashboardIcon } from './dashboard-02.svg';
 
-// constant
-const icons = { IconDashboard };
+const IconWrapper = ({ Icon, style }) => (
+  <Icon style={style} />
+);
 
-// ==============================|| DASHBOARD MENU ITEMS ||============================== //
+const icons = {
+  DashboardIcon
+};
 
 const dashboard = {
   id: 'dashboard',
@@ -16,7 +19,17 @@ const dashboard = {
       title: 'Dashboard',
       type: 'item',
       url: '/dashboard/default',
-      icon: icons.IconDashboard,
+      icon: (props) => (
+        <IconWrapper
+          Icon={icons.DashboardIcon}
+          style={{
+            width: '24px', // Reducir el tamaño del icono
+            height: '24px',
+            marginRight: '8px' // Agregar espacio a la derecha del icono
+          }}
+          {...props}
+        />
+      ),
       breadcrumbs: false
     }
   ]

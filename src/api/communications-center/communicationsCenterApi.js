@@ -32,6 +32,16 @@ export const getCommunicationsCenterById = async (id) => {
     }
 };
 
+export const getCommunicationsCenterView = async (id) => {
+    try {
+        const response = await apiAxios.get(`${endpoints.view}/${id}`);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        return handleError(error);
+    }
+};
+
 export const updateCommunicationsCenter = async (id, payload) => {
     try {
         const response = await apiAxios.put(`${endpoints.list}/${id}`, payload);

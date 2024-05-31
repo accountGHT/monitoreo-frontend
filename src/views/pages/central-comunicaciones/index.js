@@ -15,8 +15,9 @@ import CommunicationsCenterForm from './CommunicationsCenterForm';
 import CommunicationsCancelForm from './CommunicationsCancelForm';
 import CommunicationsDespacharForm from './CommunicationsDespacharForm';
 import CommunicationsCenterAttendForm from './CommunicationsAtenderForm';
+import CommunicationsVerForm from './CommunicationsVerDetalleForm';
 import DeleteConfirmationDialog from 'components/DeleteConfirmationDialog';
-import { cancelCommunicationsCenter, createCommunicationsCenter, deleteCommunicationsCenter, getCommunicationsCenter, getCommunicationsCenterById, updateCommunicationsCenter } from 'api/communications-center/communicationsCenterApi';
+import { createCommunicationsCenter, deleteCommunicationsCenter, getCommunicationsCenter, getCommunicationsCenterById, updateCommunicationsCenter, getCommunicationsCenterView } from 'api/communications-center/communicationsCenterApi';
 import { get } from 'immutable';
 
 const CommunicationsCenter = () => {
@@ -24,6 +25,7 @@ const CommunicationsCenter = () => {
     const [data, setData] = useState([]);
     const [selectedItem, setSelectedItem] = useState(null);
     const [openForm, setOpenForm] = useState(false);
+    const [openVerForm, setOpenVerForm] = useState(false);
     const [openCancelForm, setOpenCancelForm] = useState(false);
     const [openDespacharForm, setOpenDespacharForm] = useState(false);
     const [openConfirmarForm, setOpenConfirmarForm] = useState(false);
@@ -102,8 +104,29 @@ const CommunicationsCenter = () => {
         toast.warning(`No se encontró el registro`);
     }
 
+    const handleItemVer = async (id) => {
+        console.log(`handleItemVer`, id);
+        const resp = await getCommunicationsCenterView(id);
+        console.log(`resp`, resp);
+        if (!resp.success) {
+            toast.error(resp.errorMessage);
+            return;
+        }
+
+        if (Object.entries(resp.data).length > 0) {
+            setSelectedItem(resp.data);
+            setOpenVerForm(true);
+            return;
+        }
+
+        toast.warning(`No se encontró el registro`);
+    }
     const handleFormClose = () => {
         setOpenForm(false);
+        setSelectedItem(null);
+    };
+    const handleFormVerClose = () => {
+        setOpenVerForm(false);
         setSelectedItem(null);
     };
 
@@ -235,6 +258,7 @@ const CommunicationsCenter = () => {
                         onCancel={(id) => handleCancel(id)}
                         onDespachar={(id) => handleDespachar(id)}
                         onConfirmar={(id) => handleConfirmar(id)}
+                        onVer={(id) => handleItemVer(id)}
                     />
                 </Grid>
             </Grid>
@@ -249,7 +273,7 @@ const CommunicationsCenter = () => {
                 onConfirm={handleDialogConfirmDelete}
                 itemName={itemNameToDelete}
             />
-
+            <CommunicationsVerForm open={openVerForm} handleClose={handleFormVerClose} onSubmit={handleItemVer} initialValues={selectedItem || {}} />
             {
                 /* <div>
                 <TablePagination

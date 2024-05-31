@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 // material-ui
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -15,36 +15,24 @@ import {
     TextField,
 } from '@mui/material';
 import { useFormik } from 'formik';
-import * as Yup from 'yup';
 import { getMultiTablesForAutocomplete } from 'api/multi-table/multiTableApi';
 
 const maxWidth = 'sm'; // xs, sm, md, lg, xl
 const fullWidth = true;
 const Transition = React.forwardRef((props, ref) => <Slide direction="up" ref={ref} {...props} />);
 
-const validationSchema = Yup.object().shape({
-    codigo: Yup.string().nullable(),
-    nombre: Yup.string().required('El nombre es obligatorio'),
-    nombre_plural: Yup.string().nullable(),
-    es_tabla: Yup.boolean(),
-    padre_id: Yup.number().nullable(),
-    estado: Yup.boolean().required('Este campo es obligatorio'),
-});
-
 const MultiTableForm = ({ open, handleClose, onSubmit, initialValues, setSnackbar }) => {
-    console.log(`open`, open);
-    console.log(`initialValues`, initialValues);
+    console.log(open, open);
+    console.log(initialValues, initialValues);
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-
     // Agrega un estado para controlar la carga de datos
-    const [loading, setLoading] = React.useState(true);
+    const [loading, setLoading] = useState(true);
     //
-    const [options, setOptions] = React.useState([]);
+    const [options, setOptions] = useState([]);
 
     const formik = useFormik({
-        initialValues: {},
-        validationSchema: validationSchema,
+        initialValues: initialValues || {},
         onSubmit: async (values, { resetForm }) => {
             const valuesAsParams = {
                 id: values.id || null,
@@ -54,7 +42,11 @@ const MultiTableForm = ({ open, handleClose, onSubmit, initialValues, setSnackba
                 padre_id: values.padre_id,
                 es_tabla: 0,
                 estado: values.estado ? 1 : 0,
-            }
+                latitud1: values.latitud1 || null,
+                longitud1: values.longitud1 || null,
+                latitud2: values.latitud2 || null,
+                longitud2: values.longitud2 || null,
+            };
             const resp = await onSubmit(valuesAsParams, resetForm);
             if (resp.success) {
                 resetForm();
@@ -83,6 +75,10 @@ const MultiTableForm = ({ open, handleClose, onSubmit, initialValues, setSnackba
                     padre_id: initialValues.padre_id || null,
                     es_tabla: initialValues.es_tabla || 0,
                     estado: (initialValues.estado === 1 ? true : false) || true,
+                    latitud1: initialValues.latitud1 || null,
+                    longitud1: initialValues.longitud1 || null,
+                    latitud2: initialValues.latitud2 || null,
+                    longitud2: initialValues.longitud2 || null,
                 }));
             }
             // Cambia el estado de carga después de cargar los datos
@@ -164,7 +160,62 @@ const MultiTableForm = ({ open, handleClose, onSubmit, initialValues, setSnackba
                                         renderInput={(params) => <TextField {...params} variant="standard" label="Padre" />}
                                     />
                                 </Grid>
-
+                                {formik.values.padre_id === 2 && (
+                                    <>
+                                        <Grid item xs={12} sm={6}>
+                                            <TextField
+                                                fullWidth
+                                                id="latitud1"
+                                                name="latitud1"
+                                                label="Latitud 1"
+                                                value={formik.values.latitud1}
+                                                onChange={formik.handleChange}
+                                                variant="standard"
+                                                error={formik.touched.latitud1 && Boolean(formik.errors.latitud1)}
+                                                helperText={formik.touched.latitud1 && formik.errors.latitud1}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} sm={6}>
+                                            <TextField
+                                                fullWidth
+                                                id="longitud1"
+                                                name="longitud1"
+                                                label="Longitud 1"
+                                                value={formik.values.longitud1}
+                                                onChange={formik.handleChange}
+                                                variant="standard"
+                                                error={formik.touched.longitud1 && Boolean(formik.errors.longitud1)}
+                                                helperText={formik.touched.longitud1 && formik.errors.longitud1}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} sm={6}>
+                                            <TextField
+                                                fullWidth
+                                                id="latitud2"
+                                                name="latitud2"
+                                                label="Latitud 2"
+                                                value={formik.values.latitud2}
+                                                onChange={formik.handleChange}
+                                                variant="standard"
+                                                error={formik.touched.latitud2 && Boolean(formik.errors.latitud2)}
+                                                helperText={formik.touched.latitud2 && formik.errors.latitud2}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} sm={6}>
+                                            <TextField
+                                                fullWidth
+                                                id="longitud2"
+                                                name="longitud2"
+                                                label="Longitud 2"
+                                                value={formik.values.longitud2}
+                                                onChange={formik.handleChange}
+                                                variant="standard"
+                                                error={formik.touched.longitud2 && Boolean(formik.errors.longitud2)}
+                                                helperText={formik.touched.longitud2 && formik.errors.longitud2}
+                                            />
+                                        </Grid>
+                                    </>
+                                )}
                                 <Grid item xs={12} sm={5} md={3}>
                                     <Switch
                                         id="estado"
@@ -190,6 +241,6 @@ const MultiTableForm = ({ open, handleClose, onSubmit, initialValues, setSnackba
             )}
         </>
     );
-};
 
+};
 export default MultiTableForm;
