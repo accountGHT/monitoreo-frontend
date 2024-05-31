@@ -20,3 +20,13 @@ export const login = async (credentials) => {
     throw error;
   }
 };
+
+export const register = async (credentials) => {
+  try {
+    const response = await api.post(authEndpoints.register, credentials);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};

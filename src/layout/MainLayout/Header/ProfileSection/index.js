@@ -165,12 +165,12 @@ const ProfileSection = () => {
                       <Box sx={{ p: 2 }}>
                         <Stack>
                           <Stack direction="row" spacing={0.5} alignItems="center">
-                            <Typography variant="h4">Good Morning,</Typography>
+                            <Typography variant="h4">Bienvenido,</Typography>
                             <Typography component="span" variant="h4" sx={{ fontWeight: 400 }}>
                               {userLocalStorage.name}
                             </Typography>
                           </Stack>
-                          <Typography variant="subtitle2">Project Admin</Typography>
+                          <Typography variant="subtitle2">Operador</Typography>
                         </Stack>
                         {/* <OutlinedInput
               sx={{ width: '100%', pr: 1, pl: 2, my: 2 }}
@@ -251,7 +251,7 @@ const ProfileSection = () => {
                               <ListItemIcon>
                                 <IconLogout stroke={1.5} size="1.3rem" />
                               </ListItemIcon>
-                              <ListItemText primary={<Typography variant="body2">Logout</Typography>} />
+                              <ListItemText primary={<Typography variant="body2">Salir</Typography>} />
                             </ListItemButton>
                           </List>
                         </Box>
