@@ -1,3 +1,4 @@
+// googleMapsLoader.js
 import { Loader } from "@googlemaps/js-api-loader";
 
 const googleMapsApiKey = 'AIzaSyBYje8EnD-SsvR-MMMb2sO_PCR6TwBIP7s';
@@ -7,6 +8,9 @@ const loader = new Loader({
     version: "weekly",
     libraries: ["places"]
 });
+
+export default loader;
+
 
 export const searchPlaces = async (searchText) => {
     try {

@@ -19,12 +19,12 @@ import MonitoreoCamarasTable from './monitoreo-camaras/MonitoreoCamarasTable';
 import CommunicationsCenterTable from './central-comunicaciones/CommunicationsCenterTable';
 import DistribucionPersonalTable from './distribucion-personal/DistribucionPersonalTable';
 
-const tiposReporte = ['Monitoreo Cámaras', 'CECOM', 'Distribución del personal'];
+const tiposReporte = ['CECOM', 'Distribución del personal']; // 'Monitoreo Cámaras',
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 const Dashboard = () => {
   // const [isLoading, setLoading] = useState(true);
-  const [tipoReporte, setTipoReporte] = useState('Monitoreo Cámaras');
+  const [tipoReporte, setTipoReporte] = useState('CECOM');
 
   // filters
   const initialValues = {
@@ -75,7 +75,7 @@ const Dashboard = () => {
                   onChangeTipoReporte(event.target.value);
                 }}
               >
-                <MenuItem value={"Monitoreo Cámaras"}>Monitoreo Cámaras</MenuItem>
+                {/*<MenuItem value={"Monitoreo Cámaras"}>Monitoreo Cámaras</MenuItem>*/}
                 <MenuItem value={"CECOM"}>CECOM</MenuItem>
                 <MenuItem value={"Distribución del personal"}>Distribución del personal</MenuItem>
               </Select>

@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from 'react';
 // material-ui
 import { searchPlaces, getPlaceInfo } from 'api/google-maps/googleMapsApi';
+import loader from 'api/google-maps/googleMapsApi';
+import { GoogleMap, Marker, useLoadScript } from '@react-google-maps/api';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import {
@@ -25,13 +27,16 @@ import {
     MenuItem,
     FormControl,
     FormHelperText,
-    Select
+    Select,
+    Modal,
+    Box
 } from '@mui/material';
 
 // assets
 import CloseIcon from '@mui/icons-material/Close';
 import CancelIcon from '@mui/icons-material/Cancel';
 import SaveIcon from '@mui/icons-material/Save';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
 
 // Formik
 import { Form, useFormik } from 'formik';
@@ -93,6 +98,71 @@ const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }
     // integracion google maps
     const [predictions, setPredictions] = useState([]);
     const [selectedPlace, setSelectedPlace] = useState(null);
+    const [mapCenter, setMapCenter] = useState({ lat: -4.5762, lng: -81.2712 });
+    const [clickedLocation, setClickedLocation] = useState(null);
+    const [openMapModal, setOpenMapModal] = useState(false);
+    const [isLoaded, setIsLoaded] = useState(false);
+    const [direccion, setDireccion] = useState('');
+
+    useEffect(() => {
+        loader.load().then(() => {
+            setIsLoaded(true);
+            setDireccion(initialValues.direccion_cc || '');
+        }).catch(error => {
+            console.error('Error al cargar Google Maps API:', error);
+        });
+    }, []);
+
+    const handleOpenMapModal = () => {
+        setOpenMapModal(true);
+    };
+
+    const handleCloseMapModal = () => {
+        setOpenMapModal(false);
+    };
+
+    const handleMapClick = async (event) => {
+        const { latLng } = event;
+        const latitude = latLng.lat();
+        const longitude = latLng.lng();
+
+        try {
+            const geocoder = new google.maps.Geocoder();
+            const response = await geocoder.geocode({ location: { lat: latitude, lng: longitude } });
+
+            if (response.results.length > 0) {
+                const formattedAddress = response.results[0].formatted_address;
+                setClickedLocation({ address: formattedAddress, lat: latitude, lng: longitude });
+                setDireccion(formattedAddress); // Actualiza el estado local
+                formik.setFieldValue('direccion', formattedAddress); // Actualiza formik
+                console.log('Direccion actualizada', formattedAddress); // Confirmación de la actualización
+
+                // Determinar si las coordenadas están dentro de alguna zona
+                const selectedZone = zonasIncidencia.find((zone) => isInsideZone({ lat: latitude, lng: longitude }, zone));
+
+                if (selectedZone) {
+                    console.log('Las coordenadas se encuentran dentro de la zona:', selectedZone);
+                    formik.setFieldValue('zona_incidencia', selectedZone);
+                    formik.setFieldValue('zona_incidencia_id', selectedZone.id);
+                } else {
+                    console.log('Las coordenadas no se encuentran dentro de ninguna zona.');
+                    formik.setFieldValue('zona_incidencia', null);
+                    formik.setFieldValue('zona_incidencia_id', null);
+                }
+
+                handleCloseMapModal();
+            } else {
+                console.log('No se encontraron resultados');
+            }
+        } catch (error) {
+            console.error('Error al obtener la dirección:', error);
+        }
+    };
+
+    useEffect(() => {
+        formik.setFieldValue('direccion', direccion);
+    }, [direccion]);
+
     // campos para nombres
     const [nombres, setNombres] = useState('');
     const loadAutocompletes = async () => {
@@ -193,7 +263,7 @@ const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }
                 tipo_comunicacion_id: values.tipo_comunicacion_id,
                 turno: values.turno,
                 descripcion_llamada: values.descripcion_llamada,
-                direccion_cc: selectedPlace ? selectedPlace.formatted_address : values.direccion_cc || '',
+                direccion_cc: direccion,
                 zona_incidencia_id: values.zona_incidencia_id,
                 operador_id: userLocalStorage.operador_id,
                 tipo_apoyo_incidencia_id: values.tipo_apoyo_incidencia_id,
@@ -435,25 +505,78 @@ const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }
                             </Grid>
 
                             <Grid item xs={12} sm={6} md={6}>
-                                <Autocomplete
-                                    freeSolo
-                                    options={predictions}
-                                    getOptionLabel={(option) => option.description}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            label="Dirección"
-                                            variant="standard"
-                                            onChange={(event) => {
-                                                formik.setFieldValue('direccion_cc', event.target.value);
-                                                handleAddressSearch(event.target.value);
+                                <Box display="flex" alignItems="center">
+                                    <Box flexGrow={1} mr={1}>
+                                        <Autocomplete
+                                            freeSolo
+                                            options={predictions}
+                                            getOptionLabel={(option) => option.description || ''}
+                                            value={{ description: direccion }} // Set value as an object with description
+                                            renderInput={(params) => (
+                                                <TextField
+                                                    {...params}
+                                                    label="Dirección"
+                                                    variant="standard"
+                                                    value={direccion} // Usa el estado `direccion`
+                                                    onChange={(event) => {
+                                                        setDireccion(event.target.value);
+                                                        formik.setFieldValue('direccion', event.target.value);
+                                                        handleAddressSearch(event.target.value);
+                                                    }}
+                                                />
+                                            )}
+                                            onInputChange={(event, value) => handleAddressSearch(value)}
+                                            onChange={(event, value) => {
+                                                if (value && value.place_id) {
+                                                    handleSelectPlace(value.place_id);
+                                                }
                                             }}
                                         />
-                                    )}
-                                    onInputChange={(event, value) => handleAddressSearch(value)}
-                                    onChange={(event, value) => handleSelectPlace(value.place_id)}
-                                />
+
+                                    </Box>
+                                    <IconButton onClick={handleOpenMapModal} aria-label="Abrir mapa">
+                                        <LocationOnIcon />
+                                    </IconButton>
+                                </Box>
+
                             </Grid>
+
+                            {isLoaded && (
+                                <Modal
+                                    open={openMapModal}
+                                    onClose={handleCloseMapModal}
+                                    aria-labelledby="modal-map-title"
+                                    aria-describedby="modal-map-description"
+                                >
+                                    <Box
+                                        sx={{
+                                            position: 'absolute',
+                                            top: '50%',
+                                            left: '50%',
+                                            transform: 'translate(-50%, -50%)',
+                                            bgcolor: 'background.paper',
+                                            boxShadow: 24,
+                                            p: 4,
+                                        }}
+                                    >
+                                        <GoogleMap
+                                            zoom={15}
+                                            center={mapCenter}
+                                            mapContainerStyle={{ height: '400px', width: '600px' }}
+                                            onClick={handleMapClick}
+                                        >
+                                            {selectedPlace && (
+                                                <Marker
+                                                    position={{
+                                                        lat: selectedPlace.geometry.location.lat(),
+                                                        lng: selectedPlace.geometry.location.lng(),
+                                                    }}
+                                                />
+                                            )}
+                                        </GoogleMap>
+                                    </Box>
+                                </Modal>
+                            )}
 
 
                             <Grid item xs={12} sm={6} md={6}>
@@ -463,7 +586,10 @@ const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }
                                     name="zona_incidencia"
                                     options={zonasIncidencia}
                                     getOptionLabel={(option) => option.nombre || 'Sin zona'}
-                                    value={selectedPlace && zonasIncidencia.find((p) => p.id === formik.values.zona_incidencia_id) || { nombre: 'Sin zona' }}
+                                    value={
+                                        selectedPlace &&
+                                        zonasIncidencia.find((p) => p.id === formik.values.zona_incidencia_id)
+                                    }
                                     onChange={(event, newValue) => {
                                         formik.setFieldValue('zona_incidencia', newValue || {});
                                         formik.setFieldValue('zona_incidencia_id', newValue ? newValue.id : null);

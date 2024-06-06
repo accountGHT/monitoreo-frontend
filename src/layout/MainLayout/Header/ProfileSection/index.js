@@ -66,6 +66,7 @@ const ProfileSection = () => {
       setSelectedIndex(0);
     }
     navigate('/');
+    window.location.reload();
   };
 
   const handleClose = (event) => {

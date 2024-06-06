@@ -53,7 +53,8 @@ const AuthLogin = ({ ...others }) => {
   const afterLogin = (token, user) => {
     saveToLocalStorage("token", token);
     saveToLocalStorage("user", user);
-    navigate('/dashboard/default')
+    navigate('/dashboard/default');
+    window.location.reload();
   };
 
   return (

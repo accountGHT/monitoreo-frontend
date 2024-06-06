@@ -288,7 +288,7 @@ const FirebaseRegister = ({ ...others }) => {
                   }
                   label={
                     <Typography variant="subtitle1">
-                      Aceptos los &nbsp;
+                      Acepto los &nbsp;
                       <Typography variant="subtitle1" component={Link} to="#">
                         Términos & Condiciones.
                       </Typography>
