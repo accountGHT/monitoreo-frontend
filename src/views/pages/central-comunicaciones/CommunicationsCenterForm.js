@@ -137,18 +137,7 @@ const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }
                 formik.setFieldValue('direccion', formattedAddress); // Actualiza formik
                 console.log('Direccion actualizada', formattedAddress); // Confirmación de la actualización
 
-                // Determinar si las coordenadas están dentro de alguna zona
-                const selectedZone = zonasIncidencia.find((zone) => isInsideZone({ lat: latitude, lng: longitude }, zone));
-
-                if (selectedZone) {
-                    console.log('Las coordenadas se encuentran dentro de la zona:', selectedZone);
-                    formik.setFieldValue('zona_incidencia', selectedZone);
-                    formik.setFieldValue('zona_incidencia_id', selectedZone.id);
-                } else {
-                    console.log('Las coordenadas no se encuentran dentro de ninguna zona.');
-                    formik.setFieldValue('zona_incidencia', null);
-                    formik.setFieldValue('zona_incidencia_id', null);
-                }
+                handleSelectPlace(response.results[0].place_id);
 
                 handleCloseMapModal();
             } else {
@@ -169,16 +158,14 @@ const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }
         const resTiposComunicacion = await getTiposComunicacionForAutocomplete();
         const respZonas = await getZonasForAutocomplete();
         const resTiposIncidencia = await getTiposIncidenciaForAutocomplete();
-        //const resPersonas = await getPersonasForAutocomplete();
-        const resVehiculos = await getVehiculosForAutocomplete();
         setTiposComunicacion(resTiposComunicacion.data);
         setZonasIncidencia(respZonas.data);
         setTiposIncidencia(resTiposIncidencia.data);
-        //setOperadores(resPersonas.data);
-        //setPersonasSerenazgo(resPersonas.data);
-        //setVehiculos(resVehiculos.data);
-        //setSupervisores(resPersonas.data);
     }
+
+    const isOptionEqualToValue = (option, value) => {
+        return option && value && option.id === value.id;
+    };    
 
     // integracion google maps
 
@@ -230,6 +217,7 @@ const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }
             formik.setFieldValue('zona_incidencia_id', null);
         }
     };
+
 
     const isInsideZone = (coordinates, zone) => {
         const { lat, lng } = coordinates;
@@ -447,7 +435,7 @@ const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }
                                         formik.setFieldValue('tipo_comunicacion', newValue || {});
                                         formik.setFieldValue('tipo_comunicacion_id', newValue ? newValue.id : null);
                                     }}
-                                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                                    isOptionEqualToValue={isOptionEqualToValue}
                                     renderInput={(params) => (
                                         <TextField
                                             {...params}
@@ -594,7 +582,7 @@ const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }
                                         formik.setFieldValue('zona_incidencia', newValue || {});
                                         formik.setFieldValue('zona_incidencia_id', newValue ? newValue.id : null);
                                     }}
-                                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                                    isOptionEqualToValue={isOptionEqualToValue}
                                     renderInput={(params) => (
                                         <TextField
                                             {...params}
@@ -621,7 +609,7 @@ const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }
                                         formik.setFieldValue('tipo_apoyo_incidencia', newValue || {});
                                         formik.setFieldValue('tipo_apoyo_incidencia_id', newValue ? newValue.id : null);
                                     }}
-                                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                                    isOptionEqualToValue={isOptionEqualToValue}
                                     renderInput={(params) => (
                                         <TextField
                                             {...params}
@@ -774,119 +762,6 @@ const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }
                                     </Grid>
                                 </Grid>
                             </Paper>
-                            {
-                                /*
-                                <Grid item xs={12} sm={6} md={6}>
-                                    <Autocomplete
-                                        disablePortal
-                                        id="personal_serenazgo"
-                                        name="personal_serenazgo"
-                                        options={personasSerenazgo}
-                                        getOptionLabel={(option) =>
-                                            option.nombres !== undefined ? `${option.nombre_completo}` : ''
-                                        }
-                                        value={personasSerenazgo.find((p) => p.id === formik.values.personal_serenazgo_id) || null}
-                                        onChange={(event, newValue) => {
-                                            formik.setFieldValue('personal_serenazgo', newValue || {});
-                                            formik.setFieldValue('personal_serenazgo_id', newValue ? newValue.id : null);
-                                        }}
-                                        isOptionEqualToValue={(option, value) => option.id === value.id}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="Sereno"
-                                                error={formik.touched.personal_serenazgo_id && Boolean(formik.errors.personal_serenazgo_id)}
-                                                helperText={formik.touched.personal_serenazgo_id && formik.errors.personal_serenazgo_id}
-                                                variant="standard"
-                                            />
-                                        )}
-                                    />
-                                </Grid>
-                                */
-                            }
-                            {
-                                /*
-                                <Grid item xs={12} sm={6} md={6}>
-                                    <Autocomplete
-                                        disablePortal
-                                        id="vehiculo"
-                                        name="vehiculo"
-                                        options={vehiculos}
-                                        getOptionLabel={(option) =>
-                                            option.placa !== undefined ? `${option.placa}` : ''
-                                        }
-                                        value={vehiculos.find((p) => p.id === formik.values.vehiculo_id) || null}
-                                        onChange={(event, newValue) => {
-                                            formik.setFieldValue('vehiculo', newValue || {});
-                                            formik.setFieldValue('vehiculo_id', newValue ? newValue.id : null);
-                                        }}
-                                        isOptionEqualToValue={(option, value) => option.id === value.id}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="Vehículo"
-                                                error={formik.touched.vehiculo_id && Boolean(formik.errors.vehiculo_id)}
-                                                helperText={formik.touched.vehiculo_id && formik.errors.vehiculo_id}
-                                                variant="standard"
-                                            />
-                                        )}
-                                    />
-                                </Grid>
-                                */
-                            }
-                            {
-                                /*
-                            <Grid item xs={12} sm={6} md={6}>
-                                <Autocomplete
-                                    disablePortal
-                                    id="supervisor"
-                                    name="supervisor"
-                                    options={supervisores}
-                                    getOptionLabel={(option) =>
-                                        option.nombres !== undefined ? `${option.nombre_completo}` : ''
-                                    }
-                                    value={supervisores.find((p) => p.id === formik.values.supervisor_id) || null}
-                                    onChange={(event, newValue) => {
-                                        formik.setFieldValue('supervisor', newValue || {});
-                                        formik.setFieldValue('supervisor_id', newValue ? newValue.id : null);
-                                    }}
-                                    isOptionEqualToValue={(option, value) => option.id === value.id}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            label="Supervisor"
-                                            error={formik.touched.supervisor_id && Boolean(formik.errors.supervisor_id)}
-                                            helperText={formik.touched.supervisor_id && formik.errors.supervisor_id}
-                                            variant="standard"
-                                        />
-                                    )}
-                                />
-                            </Grid>
-                            */
-                            }
-
-                            {
-                                /*
-                            <Grid item xs={12} sm={12} md={12}>
-                                <TextField
-                                    id="detalle_atencion"
-                                    label="Resultado de la atención"
-                                    multiline
-                                    maxRows={4}
-                                    fullWidth
-                                    variant="standard"
-                                    value={formik.values.detalle_atencion}
-                                    onChange={(event) => {
-                                        formik.handleChange(event);
-                                    }}
-                                    onBlur={formik.handleBlur}
-                                    error={formik.touched.detalle_atencion && Boolean(formik.errors.detalle_atencion)}
-                                    helperText={formik.touched.detalle_atencion && formik.errors.detalle_atencion}
-                                />
-                            </Grid>
-                            */
-                            }
-
                         </Grid>
                     </form>
                 )}

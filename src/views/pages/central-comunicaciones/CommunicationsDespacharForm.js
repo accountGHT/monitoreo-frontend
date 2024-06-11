@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
+import { toast } from 'react-toastify';
 import { Autocomplete, Button, Dialog, DialogActions, DialogContent, Divider, Grid, TextField, Toolbar, Typography } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import SaveIcon from '@mui/icons-material/Save';
@@ -36,13 +37,16 @@ const CommunicationsCenterDispatchForm = ({ open, handleClose, id, llenarDatos }
                 if (response.success) {
                     handleClose();
                     llenarDatos();
+                    toast.success('Incidencia despachada exitosamente');
                     // Realiza cualquier otra acción necesaria después del despacho exitoso
                 } else {
                     console.log(response.message);
                     // Maneja el caso de error en el despacho
+                    toast.error('Ocurrió un error al despachar la incidencia: '+response.message);
                 }
             } catch (error) {
                 console.log(error);
+                toast.error('Ocurrió un error al despachar la incidencia'+error.message);
                 // Maneja el caso de error en la solicitud
             }
         },

@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 
 // assets
-import { IconAccessPoint, IconCamera, IconUsers, IconCameraPlus, IconActivityHeartbeat, IconZoomIn, IconAppWindow } from '@tabler/icons';
+import { IconAccessPoint, IconCamera, IconUsers, IconCameraPlus, IconActivityHeartbeat, IconZoomIn, IconAppWindow, IconSos, IconSquare } from '@tabler/icons';
 import { ReactComponent as canalesIcon } from './canales-02.svg';
 import { ReactComponent as distribucionPersonalIcon } from './distrib-pers-02.svg';
 import { ReactComponent as ISOLOGO } from './ISOLOGO STP-02.svg';
@@ -32,6 +32,8 @@ const icons = {
   IconAccessPoint,
   IconActivityHeartbeat,
   IconAppWindow,
+  IconSos,
+  IconSquare
 };
 
 const userLocalStorage = loadFromLocalStorage('user');
@@ -65,6 +67,7 @@ if (userLocalStorage && userLocalStorage.id) {
         ),
         breadcrumbs: false
       },
+      /*
       {
         id: 'setting-camaras',
         title: 'Cámaras',
@@ -93,6 +96,7 @@ if (userLocalStorage && userLocalStorage.id) {
           },
         ]
       },
+      */
       {
         id: 'setting-personas',
         title: 'Personas',
@@ -171,20 +175,76 @@ if (userLocalStorage && userLocalStorage.id) {
       {
         id: 'setting-tipos-incidencia',
         title: 'Tipos de Incidencia',
-        type: 'item',
+        type: 'collapse', // Cambiado a 'collapse' para que pueda tener hijos
         url: '/configuraciones/otros/tipos-incidencia',
         breadcrumbs: false,
         icon: (props) => (
           <IconWrapper
             Icon={icons.TiposIncideciaIcon}
             style={{
-              width: '24px', // Reducir el tamaño del icono
+              width: '24px',
               height: '24px',
-              marginRight: '8px' // Agregar espacio a la derecha del icono
+              marginRight: '8px'
             }}
             {...props}
           />
         ),
+        children: [
+          {
+            id: 'setting-tipos-incidencia2',
+            title: 'Mantenedor Tipos de Incidencia',
+            type: 'item',
+            url: '/configuraciones/otros/tipos-incidencia',
+            breadcrumbs: false,
+            icon: (props) => (
+              <IconWrapper
+                Icon={icons.TiposIncideciaIcon}
+                style={{
+                  width: '24px',
+                  height: '24px',
+                  marginRight: '8px'
+                }}
+                {...props}
+              />
+            )
+          },
+          {
+            id: 'setting-instituciones',
+            title: 'Instituciones',
+            type: 'item',
+            url: '/configuraciones/otros/instituciones',
+            breadcrumbs: false,
+            icon: (props) => (
+              <IconWrapper
+                Icon={icons.IconSos}
+                style={{
+                  width: '30px',
+                  height: '30px',
+                  marginRight: '8px'
+                }}
+                {...props}
+              />
+            )
+          },
+          {
+            id: 'setting-areas',
+            title: 'Áreas',
+            type: 'item',
+            url: '/configuraciones/otros/areas',
+            breadcrumbs: false,
+            icon: (props) => (
+              <IconWrapper
+                Icon={icons.IconSquare}
+                style={{
+                  width: '30px',
+                  height: '30px',
+                  marginRight: '8px'
+                }}
+                {...props}
+              />
+            )
+          }
+        ]
       },
       {
         id: 'setting-tipos-patrullaje',

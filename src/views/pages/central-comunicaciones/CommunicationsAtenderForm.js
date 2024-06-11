@@ -1,6 +1,8 @@
+/*eslint-disable*/
 import React, { useEffect, useState } from 'react';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
+import { toast } from 'react-toastify';
 import { Autocomplete, Button, Dialog, DialogActions, DialogContent, Divider, Grid, TextField, Toolbar, Typography, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import SaveIcon from '@mui/icons-material/Save';
@@ -11,21 +13,23 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from 'dayjs';
+import { getClasificadoresForAutocomplete } from 'api/multi-table/multiTableApi';
 
 const CommunicationsCenterAttendForm = ({ open, handleClose, id, llenarDatos }) => {
     const [supervisores, setSupervisores] = useState([]);
+    const [clasificadores, setClasificadores] = useState([]);
 
     const formik = useFormik({
         initialValues: {
             supervisor_id: null,
             comentario_atendido: '',
-            conflicto_mitigado: false,
+            clasificador_id: null,
             fecha_hora_manual_atendido: dayjs(),
         },
 
         validationSchema: yup.object({
             supervisor_id: yup.number().required('El supervisor es requerido'),
-            conflicto_mitigado: yup.boolean().required('El campo conflicto mitigado es requerido'),
+            clasificador_id: yup.number().required('El clasificador es requerido'),
             fecha_hora_manual_atendido: yup.date().required('La fecha y hora de atención es requerida'),
         }),
 
@@ -41,14 +45,17 @@ const CommunicationsCenterAttendForm = ({ open, handleClose, id, llenarDatos }) 
                 if (response.success) {
                     handleClose();
                     llenarDatos();
+                    toast.success('Incidencia atendida exitosamente');
                     // Realiza cualquier otra acción necesaria después de la atención exitosa
                 } else {
                     console.log(response.message);
+                    toast.error('Ocurrió un error al atender la incidencia: '+response.message);
                     // Maneja el caso de error en la atención
                 }
             } catch (error) {
                 console.log(error);
                 // Maneja el caso de error en la solicitud
+                    toast.error('Error al atender la incidencia. Por favor, inténtalo de nuevo.', { autoClose: 5000 })
             }
         },
     });
@@ -59,7 +66,9 @@ const CommunicationsCenterAttendForm = ({ open, handleClose, id, llenarDatos }) 
         const fetchData = async () => {
             try {
                 const supervisoresResponse = await getPersonasForAutocomplete();
+                const clasificadoresResponse = await getClasificadoresForAutocomplete();
                 setSupervisores(supervisoresResponse.data);
+                setClasificadores(clasificadoresResponse.data);
             } catch (error) {
                 console.log(error);
                 // Maneja el caso de error al obtener los datos de supervisores
@@ -106,21 +115,31 @@ const CommunicationsCenterAttendForm = ({ open, handleClose, id, llenarDatos }) 
                             />
                         </Grid>
                         <Grid item xs={12} sm={6} md={6}>
-                            <FormControl fullWidth variant="standard">
-                                <InputLabel id="conflicto-mitigado-label">Conflicto Mitigado</InputLabel>
-                                <Select
-                                    labelId="conflicto-mitigado-label"
-                                    id="conflicto-mitigado"
-                                    name="conflicto_mitigado"
-                                    value={formik.values.conflicto_mitigado}
-                                    onChange={formik.handleChange}
-                                    onBlur={formik.handleBlur}
-                                    error={formik.touched.conflicto_mitigado && Boolean(formik.errors.conflicto_mitigado)}
-                                >
-                                    <MenuItem value={true}>Sí</MenuItem>
-                                    <MenuItem value={false}>No</MenuItem>
-                                </Select>
-                            </FormControl>
+                            <Autocomplete
+                                disablePortal
+                                id="clasificador"
+                                name="clasificador"
+                                options={clasificadores}
+
+                                getOptionLabel={(option) =>
+                                    option.nombre !== undefined ? `${option.nombre}` : ''
+                                }
+                                value={clasificadores.find((p) => p.id === formik.values.clasificador_id) || null}
+                                onChange={(event, newValue) => {
+                                    formik.setFieldValue('clasificador', newValue || {});
+                                    formik.setFieldValue('clasificador_id', newValue ? newValue.id : null);
+                                }}
+                                isOptionEqualToValue={(option, value) => option.id === value.id}
+                                renderInput={(params) => (
+                                    <TextField
+                                        {...params}
+                                        label="Clasificador"
+                                        error={formik.touched.clasificador_id && Boolean(formik.errors.clasificador_id)}
+                                        helperText={formik.touched.clasificador_id && formik.errors.clasificador_id}
+                                        variant="standard"
+                                    />
+                                )}
+                            />
                         </Grid>
                         <Grid item xs={12}>
                             <LocalizationProvider dateAdapter={AdapterDayjs}>

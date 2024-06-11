@@ -109,7 +109,7 @@ const CommunicationsVerForm = ({ open, handleClose, initialValues }) => {
                                 <Typography variant="body1">{initialValues.direccion_cc}</Typography>
                             </Grid>
                             <Grid item xs={12} sm={6} md={3}>
-                                <Typography variant="body2">Tipo apoyo incidencia:</Typography>
+                                <Typography variant="body2">Tipo Incidencia:</Typography>
                                 <Typography variant="body1">{initialValues.tipo_apoyo_incidencia?.nombre || ''}</Typography>
                             </Grid>
                             {initialValues.tipo_delito && (

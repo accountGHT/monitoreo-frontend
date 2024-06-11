@@ -155,7 +155,7 @@ const Zonas = () => {
       </Grid>
 
       {userLocalStorage && (
-        <MultiTableForm open={openForm} handleClose={handleFormClose} onSubmit={selectedItem ? handleItemUpdate : handleItemCreated} initialValues={selectedItem || {}} />
+        <MultiTableForm tablaActual={'ZONA'} open={openForm} handleClose={handleFormClose} onSubmit={selectedItem ? handleItemUpdate : handleItemCreated} initialValues={selectedItem || {}} />
       )}
 
       <DeleteConfirmationDialog

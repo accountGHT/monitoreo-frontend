@@ -111,3 +111,32 @@ export const getCamarasForAutocomplete = async () => {
         return handleError(error);
     }
 };
+
+export const getClasificadoresForAutocomplete = async () => {
+    try {
+        const response = await apiAxios.get(endpoints.autoCompleteClasificadores);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        return handleError(error);
+    }
+}
+
+export const getInstitucionesForAutocomplete = async () => {
+    try {
+        const response = await apiAxios.get(endpoints.autoCompleteInstituciones);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        return handleError(error);
+    }
+}
+export const getAreasForAutocomplete = async () => {
+    try {
+        const response = await apiAxios.get(endpoints.autoCompleteAreas);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        return handleError(error);
+    }
+}

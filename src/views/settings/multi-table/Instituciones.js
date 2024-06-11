@@ -13,8 +13,8 @@ import MultiTableForm from './MultiTableForm';
 import DeleteConfirmationDialog from 'components/DeleteConfirmationDialog';
 import { getMultiTables, createMultiTable, deleteMultiTable, getMultiTableById, updateMultiTable } from 'api/multi-table/multiTableApi';
 
-// ==============================|| TiposIncidencia Component ||============================== //
-const TiposIncidencia = () => {
+// ==============================|| Institucion Component ||============================== //
+const Institucion = () => {
   const userLocalStorage = loadFromLocalStorage('user');
   const [data, setData] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -33,7 +33,7 @@ const TiposIncidencia = () => {
   const fetchData = async () => {
     setPerPage(10);
     try {
-      let params = `?nombre_lista=TIPO DE INCIDENCIA&per_page=${perPage}`;
+      let params = `?nombre_lista=INSTITUCION&per_page=${perPage}`;
       const resp = await getMultiTables(params);
       // console.log(resp);
       console.log(resp.data);
@@ -135,7 +135,7 @@ const TiposIncidencia = () => {
       <Grid container spacing={2} sx={{ p: 2 }}>
         <Grid item xs={6}>
           <Typography variant="h2" gutterBottom>
-            TIPOS DE INCIDENCIA
+            INSTITUCIONES
           </Typography>
         </Grid>
 
@@ -155,7 +155,7 @@ const TiposIncidencia = () => {
       </Grid>
 
       {userLocalStorage && (
-        <MultiTableForm tablaActual={'TIPO DE INCIDENCIA'} open={openForm} handleClose={handleFormClose} onSubmit={selectedItem ? handleItemUpdate : handleItemCreated} initialValues={selectedItem || {}} />
+        <MultiTableForm tablaActual={'INSTITUCION'} open={openForm} handleClose={handleFormClose} onSubmit={selectedItem ? handleItemUpdate : handleItemCreated} initialValues={selectedItem || {}} />
       )}
 
       <DeleteConfirmationDialog
@@ -168,4 +168,4 @@ const TiposIncidencia = () => {
   );
 };
 
-export default TiposIncidencia;
+export default Institucion;

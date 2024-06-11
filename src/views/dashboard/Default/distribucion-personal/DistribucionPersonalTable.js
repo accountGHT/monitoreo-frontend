@@ -13,7 +13,7 @@ const columnsWithoutActions = [
     {
         field: 'patrullero', headerName: 'Patrullero', flex: 1, minWidth: 120, maxWidth: 200,
         renderCell: (params) => {
-            return params.row.patrullero.nombre_completo;
+            return params.row.patrullero?.nombre_completo||'Sin asignar';
         }
     },
     // { field: 'vehiculo_id', headerName: 'vehiculo_id', flex: 2, minWidth: 150, maxWidth: 300 },
@@ -45,7 +45,7 @@ const columnsWithoutActions = [
     // { field: 'supervisor_id', headerName: 'supervisor_id', flex: 0.5, minWidth: 100, maxWidth: 120 },
     {
         field: 'supervisor', headerName: 'Supervisor', flex: 1, minWidth: 180, maxWidth: 200,
-        renderCell: (params) => params.row.supervisor.nombre_completo
+        renderCell: (params) => params.row.supervisor?.nombre_completo||'Sin asignar'
     },
     {
         field: 'estado', headerName: 'estado', flex: 0.5, minWidth: 120, maxWidth: 130,

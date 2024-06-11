@@ -20,7 +20,7 @@ const columnsWithoutActions = [
   // { field: 'tipo_comunicacion_id', headerName: 'tipo_comunicacion_id', flex: 0.5, minWidth: 100, maxWidth: 120 },
   {
     field: 'tipo_comunicacion', headerName: 'Tipo comunicación', flex: 0.5, minWidth: 100, maxWidth: 120,
-    renderCell: (params) => params.row.tipo_comunicacion.nombre
+    renderCell: (params) => params.row.tipo_comunicacion?.nombre  || 'Sin tipo'
   },
   //{ field: 'turno', headerName: 'Turno', flex: 1, minWidth: 100, maxWidth: 120 },
   // { field: 'descripcion_llamada', headerName: 'Desc. llamada', flex: 1, minWidth: 150, maxWidth: 200 },
@@ -44,7 +44,7 @@ const columnsWithoutActions = [
   // { field: 'tipo_apoyo_incidencia_id', headerName: 'tipo_apoyo_incidencia_id', flex: 0.5, minWidth: 100, maxWidth: 120 },
   {
     field: 'tipo_apoyo_incidencia', headerName: 'Tipo Incidencia', flex: 1, minWidth: 130, maxWidth: 150,
-    renderCell: (params) => params.row.tipo_apoyo_incidencia.nombre
+    renderCell: (params) => params.row.tipo_apoyo_incidencia?.nombre || 'Sin tipo'
   },
   // { field: 'vehiculo_id', headerName: 'vehiculo_id', flex: 2, minWidth: 150, maxWidth: 300 },
   /*
