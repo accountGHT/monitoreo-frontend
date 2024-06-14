@@ -37,7 +37,7 @@ const CommunicationsCenterBarChart = ({ filters }) => {
             let dataChart = [];
 
             respDatosGrafico.forEach((el) => {
-                dataChartCategories.push(el.tipo_apoyo_incidencia.nombre);
+                dataChartCategories.push(el.tipo_apoyo_incidencia?.nombre || '');
                 dataChart.push(el.cantidad_incidencias);
             });
 
