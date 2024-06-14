@@ -32,6 +32,16 @@ export const getCommunicationsCenterById = async (id) => {
     }
 };
 
+export const getCommunicationsCenterView = async (id) => {
+    try {
+        const response = await apiAxios.get(`${endpoints.view}/${id}`);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        return handleError(error);
+    }
+};
+
 export const updateCommunicationsCenter = async (id, payload) => {
     try {
         const response = await apiAxios.put(`${endpoints.list}/${id}`, payload);
@@ -41,10 +51,59 @@ export const updateCommunicationsCenter = async (id, payload) => {
     }
 };
 
+export const cancelCommunicationsCenter = async (id) => {
+    try {
+        const response = await apiAxios.put(`${endpoints.cancel}/${id}`);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        return handleError(error);
+    }
+}
+
+export const despacharCommunicationsCenter = async (id, payload) => {
+    try {
+        const response = await apiAxios.put(`${endpoints.despachar}/${id}`, payload);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        return handleError(error);
+    }
+};
+
+export const atenderCommunicationsCenter = async (id, payload) => {
+    try {
+        const response = await apiAxios.put(`${endpoints.atender}/${id}`, payload);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        return handleError(error);
+    }
+};
 
 export const deleteCommunicationsCenter = async (id) => {
     try {
         const response = await apiAxios.delete(`${endpoints.list}/${id}`);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        return handleError(error);
+    }
+};
+
+export const getDataForChartCommunicationsCenter = async (payload) => {
+    try {
+        const response = await apiAxios.post(endpoints.dataForChart, payload);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        return handleError(error);
+    }
+};
+
+export const getTableDashboardCommunicationsCenter = async (payload) => {
+    try {
+        const response = await apiAxios.post(endpoints.tableDashboar, payload);
         return response.data;
     } catch (error) {
         console.log(error);

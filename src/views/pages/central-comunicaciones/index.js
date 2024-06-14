@@ -1,7 +1,8 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 
 // material-ui
-import { Grid, Button, TablePagination, CircularProgress, Typography } from '@mui/material';
+import { Grid, Button, TablePagination, CircularProgress, Typography, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 
 // ui-component
 import MainCard from 'ui-component/cards/MainCard';
@@ -11,14 +12,23 @@ import 'react-toastify/dist/ReactToastify.css';
 import { loadFromLocalStorage } from 'utils/localStorage';
 import CommunicationsCenterList from './CommunicationsCenterList';
 import CommunicationsCenterForm from './CommunicationsCenterForm';
+import CommunicationsCancelForm from './CommunicationsCancelForm';
+import CommunicationsDespacharForm from './CommunicationsDespacharForm';
+import CommunicationsCenterAttendForm from './CommunicationsAtenderForm';
+import CommunicationsVerForm from './CommunicationsVerDetalleForm';
 import DeleteConfirmationDialog from 'components/DeleteConfirmationDialog';
-import { createCommunicationsCenter, deleteCommunicationsCenter, getCommunicationsCenter, getCommunicationsCenterById, updateCommunicationsCenter } from 'api/communications-center/communicationsCenterApi';
+import { createCommunicationsCenter, deleteCommunicationsCenter, getCommunicationsCenter, getCommunicationsCenterById, updateCommunicationsCenter, getCommunicationsCenterView } from 'api/communications-center/communicationsCenterApi';
+import { get } from 'immutable';
 
 const CommunicationsCenter = () => {
     const userLocalStorage = loadFromLocalStorage('user');
     const [data, setData] = useState([]);
     const [selectedItem, setSelectedItem] = useState(null);
     const [openForm, setOpenForm] = useState(false);
+    const [openVerForm, setOpenVerForm] = useState(false);
+    const [openCancelForm, setOpenCancelForm] = useState(false);
+    const [openDespacharForm, setOpenDespacharForm] = useState(false);
+    const [openConfirmarForm, setOpenConfirmarForm] = useState(false);
 
     // For option delete
     const [isDialogConfirmDeleteOpen, setIsDialogConfirmDeleteOpen] = useState(false);
@@ -29,6 +39,12 @@ const CommunicationsCenter = () => {
     const [page, setPage] = useState(1);
     const [perPage, setPerPage] = useState(10);
     const [totalPages, setTotalPages] = useState(1);
+
+    const [selectedStatus, setSelectedStatus] = useState('');
+
+    const handleStatusChange = (event) => {
+        setSelectedStatus(event.target.value);
+    };
 
     const fetchData = async () => {
         setPerPage(10);
@@ -88,8 +104,44 @@ const CommunicationsCenter = () => {
         toast.warning(`No se encontró el registro`);
     }
 
+    const handleItemVer = async (id) => {
+        console.log(`handleItemVer`, id);
+        const resp = await getCommunicationsCenterView(id);
+        console.log(`resp`, resp);
+        if (!resp.success) {
+            toast.error(resp.errorMessage);
+            return;
+        }
+
+        if (Object.entries(resp.data).length > 0) {
+            setSelectedItem(resp.data);
+            setOpenVerForm(true);
+            return;
+        }
+
+        toast.warning(`No se encontró el registro`);
+    }
     const handleFormClose = () => {
         setOpenForm(false);
+        setSelectedItem(null);
+    };
+    const handleFormVerClose = () => {
+        setOpenVerForm(false);
+        setSelectedItem(null);
+    };
+
+    const handleCancelFormClose = () => {
+        setOpenCancelForm(false);
+        setSelectedItem(null);
+    };
+
+    const handleDespacharFormClose = () => {
+        setOpenDespacharForm(false);
+        setSelectedItem(null);
+    };
+
+    const handleConfirmarFormClose = () => {
+        setOpenConfirmarForm(false);
         setSelectedItem(null);
     };
 
@@ -105,6 +157,24 @@ const CommunicationsCenter = () => {
         toast.success(resp.message);
         fetchData();
         return { success: true, data: resp };
+    };
+
+    const handleCancel = async (id) => {
+        console.log(`handleCancel`, id);
+        setSelectedItem({ id });
+        setOpenCancelForm(true);
+    };
+
+    const handleDespachar = async (id) => {
+        console.log(`handleDespachar`, id);
+        setSelectedItem({ id });
+        setOpenDespacharForm(true);
+    };
+
+    const handleConfirmar = async (id) => {
+        console.log(`handleConfirmar`, id);
+        setSelectedItem({ id });
+        setOpenConfirmarForm(true);
     };
 
     const handleItemDelete = async (item) => {
@@ -162,19 +232,50 @@ const CommunicationsCenter = () => {
                     )}
                 </Grid>
                 <Grid item xs={12}>
-                    <CommunicationsCenterList data={data} onEdit={(id) => handleItemEdit(id)} onDelete={handleItemDelete} />
+                    <FormControl variant="outlined" fullWidth>
+                        <InputLabel id="status-select-label">Filtros</InputLabel>
+                        <Select
+                            labelId="status-select-label"
+                            id="status-select"
+                            value={selectedStatus}
+                            onChange={handleStatusChange}
+                            label="Filtros"
+                        >
+                            <MenuItem value="">Todos los estados</MenuItem>
+                            <MenuItem value="cancelado">Cancelado</MenuItem>
+                            <MenuItem value="abierto">Abierto</MenuItem>
+                            <MenuItem value="despachado">Despachado</MenuItem>
+                            <MenuItem value="atendido">Atendido</MenuItem>
+                        </Select>
+                    </FormControl>
+                </Grid>
+                <Grid item xs={12}>
+                    <CommunicationsCenterList
+                        selectedStatus={selectedStatus}
+                        data={data}
+                        onEdit={(id) => handleItemEdit(id)}
+                        onDelete={handleItemDelete}
+                        onCancel={(id) => handleCancel(id)}
+                        onDespachar={(id) => handleDespachar(id)}
+                        onConfirmar={(id) => handleConfirmar(id)}
+                        onVer={(id) => handleItemVer(id)}
+                    />
                 </Grid>
             </Grid>
 
             <CommunicationsCenterForm open={openForm} handleClose={handleFormClose} onSubmit={selectedItem ? handleItemUpdate : handleItemCreated} initialValues={selectedItem || {}} />
+            <CommunicationsCancelForm open={openCancelForm} handleClose={handleCancelFormClose} communicationId={selectedItem?.id} fetchData={fetchData} />
+            <CommunicationsDespacharForm open={openDespacharForm} handleClose={handleDespacharFormClose} id={selectedItem?.id} llenarDatos={fetchData} />
+            <CommunicationsCenterAttendForm open={openConfirmarForm} handleClose={handleConfirmarFormClose} id={selectedItem?.id} llenarDatos={fetchData} />
             <DeleteConfirmationDialog
                 open={isDialogConfirmDeleteOpen}
                 onClose={handleCloseDialogConfirmDelete}
                 onConfirm={handleDialogConfirmDelete}
                 itemName={itemNameToDelete}
             />
-
-            <div>
+            <CommunicationsVerForm open={openVerForm} handleClose={handleFormVerClose} onSubmit={handleItemVer} initialValues={selectedItem || {}} />
+            {
+                /* <div>
                 <TablePagination
                     component="div"
                     count={perPage * totalPages}
@@ -184,6 +285,9 @@ const CommunicationsCenter = () => {
                     onRowsPerPageChange={handleChangeRowsPerPage}
                 />
             </div>
+            */
+            }
+
         </MainCard>
     )
 }

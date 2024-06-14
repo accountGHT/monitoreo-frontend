@@ -155,7 +155,7 @@ const TiposIncidencia = () => {
       </Grid>
 
       {userLocalStorage && (
-        <MultiTableForm open={openForm} handleClose={handleFormClose} onSubmit={selectedItem ? handleItemUpdate : handleItemCreated} initialValues={selectedItem || {}} />
+        <MultiTableForm tablaActual={'TIPO DE INCIDENCIA'} open={openForm} handleClose={handleFormClose} onSubmit={selectedItem ? handleItemUpdate : handleItemCreated} initialValues={selectedItem || {}} />
       )}
 
       <DeleteConfirmationDialog

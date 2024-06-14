@@ -1,6 +1,7 @@
 const distribucionPersonalEndPoints = {
   list: 'distribucion-personal',
-  autocomplete: 'personas-autocomplete',
+  dataForChart: 'distribucion-personas/data-for-chart',
+  tableDashboar: 'distribucion-personas/table-for-dashboard',
 };
 
 export default distribucionPersonalEndPoints;

@@ -21,6 +21,7 @@ import {
   InputLabel,
   MenuItem,
   FormControl,
+  FormHelperText,
   Select
 } from '@mui/material';
 
@@ -40,6 +41,7 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/es';
 
 // APIs
+import axios from 'axios'; // para autocompletar dni
 import { getVehiculosForAutocomplete } from 'api/vehiculos/vehiculosApi';
 import { getPersonasForAutocomplete } from 'api/personas/personasApi';
 import { getCamarasForAutocomplete, getTiposIncidenciaForAutocomplete, getZonasForAutocomplete } from 'api/multi-table/multiTableApi';
@@ -82,6 +84,8 @@ const MonitoreoCamaraForm = ({ open, handleClose, onSubmit, initialValues }) => 
   const [personas, setPersonas] = useState([]);
   const [personasSerenazgo, setPersonasSerenazgo] = useState([]);
   const [vehiculos, setVehiculos] = useState([]);
+  // campos para nombres
+  const [nombres, setNombres] = useState('');
 
   const loadAutocompletes = async () => {
     const resZonas = await getZonasForAutocomplete();
@@ -119,6 +123,11 @@ const MonitoreoCamaraForm = ({ open, handleClose, onSubmit, initialValues }) => 
         personal_serenazgo_id: values.personal_serenazgo_id,
         vehiculo_serenazgo_id: values.vehiculo_serenazgo_id,
         encargado_id: values.encargado_id,
+        //campos opcionales
+        dni: values.dni,
+        nombres: nombres,
+        edad: values.edad,
+        sexo: values.sexo,
       }
 
       console.log(`payload`, payload);
@@ -129,6 +138,9 @@ const MonitoreoCamaraForm = ({ open, handleClose, onSubmit, initialValues }) => 
         handleClose();
       } else {
         console.log(resp.data);
+        if (resp.data && resp.data.message) {
+          console.log(resp.data.message);
+        }
         if (Object.entries(resp.data.errors).length > 0) {
           formik.setErrors(resp.data.errors);
         }
@@ -163,7 +175,14 @@ const MonitoreoCamaraForm = ({ open, handleClose, onSubmit, initialValues }) => 
         vehiculo_serenazgo: initialValues.vehiculo_serenazgo || {},
         encargado_id: initialValues.encargado_id || '',
         encargado: initialValues.encargado || {},
+        //campos opcionales
+        dni: initialValues.dni || '',
+        nombres: initialValues.nombres || '',
+        edad: initialValues.edad || '',
+        sexo: initialValues.sexo ?? '',
       });
+      console.log(`formik.values`, formik.values);
+      console.log('sexo: ', initialValues.sexo);
       setLoading(false);
       return () => {
         formik.resetForm();
@@ -171,6 +190,24 @@ const MonitoreoCamaraForm = ({ open, handleClose, onSubmit, initialValues }) => 
 
     }
   }, [open]);
+
+  useEffect(() => {
+    const fetchNombre = async () => {
+      if (formik.values.dni.length === 8) {
+        try {
+          const response = await axios.get(`https://api-test.altoqueparking.com/api/consultar-dni-ruc/${formik.values.dni}`);
+          const { nombre } = response.data;
+          setNombres(nombre);
+        } catch (error) {
+          setNombres('Indeterminado')
+        }
+      } else {
+        setNombres('');
+      }
+    };
+
+    fetchNombre();
+  }, [formik.values.dni]);
 
   return (
     <Dialog
@@ -293,6 +330,76 @@ const MonitoreoCamaraForm = ({ open, handleClose, onSubmit, initialValues }) => 
                   error={formik.touched.descripcion_incidencia && Boolean(formik.errors.descripcion_incidencia)}
                   helperText={formik.touched.descripcion_incidencia && formik.errors.descripcion_incidencia}
                 />
+              </Grid>
+
+              <Grid container spacing={6}>
+                <Grid item xs={12} sm={6} md={3}>
+                  <TextField
+                    id="dni"
+                    label="DNI (Opcional)"
+                    fullWidth
+                    variant="standard"
+                    value={formik.values.dni}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.dni && Boolean(formik.errors.dni)}
+                    helperText={formik.touched.dni && formik.errors.dni}
+                    size='small'
+                    style={{ marginLeft: "25px" }}
+                    inputProps={{ maxLength: 8 }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={4}>
+                  <TextField
+                    id="nombres"
+                    label="Nombres (Opcional)"
+                    fullWidth
+                    variant="standard"
+                    value={nombres}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={2}>
+                  <TextField
+                    id="edad"
+                    label="Edad (Opcional)"
+                    type="number"
+                    fullWidth
+                    variant="standard"
+                    value={formik.values.edad}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.edad && Boolean(formik.errors.edad)}
+                    helperText={formik.touched.edad && formik.errors.edad}
+                    style={{ width: "100%" }}
+
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                  <FormControl variant="standard" fullWidth>
+                    <InputLabel id="sexo-label">Sexo (Opcional)</InputLabel>
+                    <Select
+                      labelId="sexo-label"
+                      id="sexo"
+                      value={formik.values.sexo || ''}
+                      onChange={(event) => {
+                        const selectedValue = event.target.value;
+                        formik.setFieldValue('sexo', selectedValue);
+                      }}
+                      onBlur={formik.handleBlur}
+                      error={formik.touched.sexo && Boolean(formik.errors.sexo)}
+                    >
+                      <MenuItem value="">Seleccione una opción</MenuItem>
+                      <MenuItem value="M">Masculino</MenuItem>
+                      <MenuItem value="F">Femenino</MenuItem>
+                      <MenuItem value="O">Otro</MenuItem>
+                    </Select>
+                    {formik.touched.sexo && formik.errors.sexo && (
+                      <FormHelperText error>{formik.errors.sexo}</FormHelperText>
+                    )}
+                  </FormControl>
+                </Grid>
               </Grid>
 
               <Grid item xs={12} sm={6} md={3}>
@@ -483,6 +590,8 @@ const MonitoreoCamaraForm = ({ open, handleClose, onSubmit, initialValues }) => 
                   )}
                 />
               </Grid>
+
+
 
             </Grid>
           </form>

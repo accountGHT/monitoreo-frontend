@@ -1,10 +1,16 @@
 // assets
 import { IconKey, IconBrandChrome } from '@tabler/icons';
+import { ReactComponent as IncidenciasIcon } from './central-telf-02.svg';
+
+const IconWrapper = ({ Icon, style }) => (
+  <Icon style={style} />
+);
 
 // constant
 const icons = {
   IconBrandChrome,
-  IconKey
+  IconKey,
+  IncidenciasIcon
 };
 
 // const PagesMonitoreoCamaras = Loadable(lazy(() => import('views/pages/MonitoreoCamaras')));
@@ -12,33 +18,26 @@ const icons = {
 
 const pages = {
   id: 'pages',
-  title: 'Principal',
-  caption: 'Páginas Principales',
+  title: 'Incidencias',
+  caption: 'Registro y seguimiento de incidencias',
   type: 'group',
   children: [
     {
-      id: 'pages-monitoreo-camaras',
-      title: 'Monitoreo Cámaras',
-      type: 'item',
-      url: '/pages/monitoreo-camaras',
-      icon: icons.IconBrandChrome,
-      breadcrumbs: false
-      
-    },
-    {
       id: 'pages-central-comunicaciones',
-      title: 'Central de comunicaciones',
+      title: 'Registro de incidencias',
       type: 'item',
       url: '/pages/central-comunicaciones',
-      icon: icons.IconBrandChrome,
-      breadcrumbs: false
-    },
-    {
-      id: 'pages-distribucion-personal',
-      title: 'Distribución del personal',
-      type: 'item',
-      url: '/pages/distribucion-personal',
-      icon: icons.IconBrandChrome,
+      icon: (props) => (
+        <IconWrapper
+          Icon={icons.IncidenciasIcon}
+          style={{
+            width: '24px', // Reducir el tamaño del icono
+            height: '24px',
+            marginRight: '8px' // Agregar espacio a la derecha del icono
+          }}
+          {...props}
+        />
+      ),
       breadcrumbs: false
     },
     // {

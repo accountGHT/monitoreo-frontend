@@ -51,25 +51,23 @@ export const deleteDistribucionPersonal = async (id) => {
     }
 };
 
-// export const deletePerson = async (id) => {
-//     try {
-//         const response = await apiAxios.delete(`${endpoints.list}/${id}`);
-//         return response.data;
-//     } catch (error) {
-//         console.log(error);
-//         return handleError(error);
-//     }
-// };
-
-export const getPersonasForAutocomplete = async () => {
+export const getDataForChartDistribucionPersonal = async (payload) => {
     try {
-        const response = await apiAxios.get(endpoints.autocomplete);
+        const response = await apiAxios.post(endpoints.dataForChart, payload);
         return response.data;
     } catch (error) {
         console.log(error);
-        throw error;
+        return handleError(error);
     }
 };
 
-
+export const getTableDashboardDistribucionPersonal = async (payload) => {
+    try {
+        const response = await apiAxios.post(endpoints.tableDashboar, payload);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        return handleError(error);
+    }
+};
 

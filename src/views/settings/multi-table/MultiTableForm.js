@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+/*eslint-disable*/
+import React, { useEffect, useState } from 'react';
 // material-ui
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -15,46 +16,66 @@ import {
     TextField,
 } from '@mui/material';
 import { useFormik } from 'formik';
-import * as Yup from 'yup';
-import { getMultiTablesForAutocomplete } from 'api/multi-table/multiTableApi';
+import { getMultiTablesForAutocomplete, getInstitucionesForAutocomplete, getAreasForAutocomplete } from 'api/multi-table/multiTableApi';
+import es from 'dayjs/locale/es';
 
 const maxWidth = 'sm'; // xs, sm, md, lg, xl
 const fullWidth = true;
 const Transition = React.forwardRef((props, ref) => <Slide direction="up" ref={ref} {...props} />);
 
-const validationSchema = Yup.object().shape({
-    codigo: Yup.string().nullable(),
-    nombre: Yup.string().required('El nombre es obligatorio'),
-    nombre_plural: Yup.string().nullable(),
-    es_tabla: Yup.boolean(),
-    padre_id: Yup.number().nullable(),
-    estado: Yup.boolean().required('Este campo es obligatorio'),
-});
-
-const MultiTableForm = ({ open, handleClose, onSubmit, initialValues, setSnackbar }) => {
-    console.log(`open`, open);
-    console.log(`initialValues`, initialValues);
+const MultiTableForm = ({ tablaActual, open, handleClose, onSubmit, initialValues, setSnackbar }) => {
+    console.log(open, open);
+    console.log(initialValues, initialValues);
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-
     // Agrega un estado para controlar la carga de datos
-    const [loading, setLoading] = React.useState(true);
+    const [loading, setLoading] = useState(true);
+    const [esZona, setEsZona] = useState(false);
+    const [esArea, setEsArea] = useState(false);
+    const [esTipoIncidencia, setEsTipoIndicencia] = useState(false);
     //
-    const [options, setOptions] = React.useState([]);
+    const [options, setOptions] = useState([]);
+
+    // Instituciones
+
+    const [optionsInstituciones, setOptionsInstituciones] = useState([])
+
+    // Areas
+
+    const [optionsAreas, setOptionsAreas] = useState([])
+
+    // area filtradas
+    const [filteredAreas, setFilteredAreas] = useState([]);
+
 
     const formik = useFormik({
-        initialValues: {},
-        validationSchema: validationSchema,
+        initialValues: initialValues || {},
         onSubmit: async (values, { resetForm }) => {
+            console.log('payload', values);
             const valuesAsParams = {
+
                 id: values.id || null,
                 codigo: values.codigo,
                 nombre: values.nombre,
                 nombre_plural: values.nombre_plural,
                 padre_id: values.padre_id,
-                es_tabla: 0,
                 estado: values.estado ? 1 : 0,
-            }
+                ...esZona && {
+                    latitud1: values.latitud1 || null,
+                    longitud1: values.longitud1 || null,
+                    latitud2: values.latitud2 || null,
+                    longitud2: values.longitud2 || null,
+                },
+                ...(esTipoIncidencia && {
+                    es_violento: values.es_violento ? 1 : 0,
+                    es_transito: values.es_transito ? 1 : 0,
+                    institucion_id: values.institucion_id,
+                    area_id: values.area_id,
+                }),
+                ...(esArea && {
+                    institucion_id: values.institucion_id,
+                }),
+            };
             const resp = await onSubmit(valuesAsParams, resetForm);
             if (resp.success) {
                 resetForm();
@@ -81,8 +102,15 @@ const MultiTableForm = ({ open, handleClose, onSubmit, initialValues, setSnackba
                     nombre: initialValues.nombre || '',
                     nombre_plural: initialValues.nombre_plural || '',
                     padre_id: initialValues.padre_id || null,
-                    es_tabla: initialValues.es_tabla || 0,
                     estado: (initialValues.estado === 1 ? true : false) || true,
+                    latitud1: initialValues.latitud1 || null,
+                    longitud1: initialValues.longitud1 || null,
+                    latitud2: initialValues.latitud2 || null,
+                    longitud2: initialValues.longitud2 || null,
+                    es_violento: (initialValues.es_violento === 1 ? true : false) || true,
+                    es_transito: (initialValues.es_transito === 1 ? true : false) || true,
+                    institucion_id: initialValues.institucion_id || null,
+                    area_id: initialValues.area_id || null,
                 }));
             }
             // Cambia el estado de carga después de cargar los datos
@@ -91,6 +119,61 @@ const MultiTableForm = ({ open, handleClose, onSubmit, initialValues, setSnackba
 
         fetchParent();
     }, [open]); // Agrega initialValues como dependencia
+
+    useEffect(() => {
+        const defaultOption = options.find(option => option.nombre === tablaActual);
+        if (defaultOption) {
+            formik.setFieldValue('padre_id', defaultOption.id);
+        }
+    }, [options]);
+
+    useEffect(() => {
+        if (formik.values.institucion_id) {
+            const newFilteredAreas = optionsAreas.filter(area => area.institucion_id === formik.values.institucion_id);
+            setFilteredAreas(newFilteredAreas);
+        } else {
+            setFilteredAreas([]);
+        }
+    }, [formik.values.institucion_id, optionsAreas]);
+
+
+    useEffect(() => {
+        if (tablaActual === 'ZONA') {
+            setEsZona(true);
+            console.log('es zona');
+        }
+        if (tablaActual === 'TIPO DE INCIDENCIA') {
+            setEsTipoIndicencia(true);
+            fetchAreas();
+            fetchInstituciones();
+            console.log('es tipo incidencia');
+        }
+        if (tablaActual === 'AREA') {
+            setEsArea(true);
+            fetchInstituciones();
+            console.log('es area');
+        }
+    }, [tablaActual]);
+
+    const fetchInstituciones = async () => {
+        const resp = await getInstitucionesForAutocomplete();
+        console.log('Instituciones', resp.data);
+        if (resp.error) {
+            setSnackbar({ open: true, message: resp.responseData.message, severity: 'error' });
+        } else {
+            setOptionsInstituciones(resp.data || []);
+        }
+    }
+
+    const fetchAreas = async () => {
+        const resp = await getAreasForAutocomplete();
+        console.log('Areas', resp.data);
+        if (resp.error) {
+            setSnackbar({ open: true, message: resp.responseData.message, severity: 'error' });
+        } else {
+            setOptionsAreas(resp.data || []);
+        }
+    }
 
     return (
         <>
@@ -150,7 +233,7 @@ const MultiTableForm = ({ open, handleClose, onSubmit, initialValues, setSnackba
                                         helperText={formik.touched.nombre_plural && formik.errors.nombre_plural}
                                     />
                                 </Grid>
-                                <Grid item xs={12} sm={6} md={7}>
+                                <Grid item xs={10} sm={6} md={5}>
                                     <Autocomplete
                                         fullWidth
                                         id="padre_id"
@@ -164,6 +247,116 @@ const MultiTableForm = ({ open, handleClose, onSubmit, initialValues, setSnackba
                                         renderInput={(params) => <TextField {...params} variant="standard" label="Padre" />}
                                     />
                                 </Grid>
+                                {esZona && (
+                                    <>
+                                        <Grid item xs={12} sm={6}>
+                                            <TextField
+                                                fullWidth
+                                                id="latitud1"
+                                                name="latitud1"
+                                                label="Latitud 1"
+                                                value={formik.values.latitud1}
+                                                onChange={formik.handleChange}
+                                                variant="standard"
+                                                error={formik.touched.latitud1 && Boolean(formik.errors.latitud1)}
+                                                helperText={formik.touched.latitud1 && formik.errors.latitud1}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} sm={6}>
+                                            <TextField
+                                                fullWidth
+                                                id="longitud1"
+                                                name="longitud1"
+                                                label="Longitud 1"
+                                                value={formik.values.longitud1}
+                                                onChange={formik.handleChange}
+                                                variant="standard"
+                                                error={formik.touched.longitud1 && Boolean(formik.errors.longitud1)}
+                                                helperText={formik.touched.longitud1 && formik.errors.longitud1}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} sm={6}>
+                                            <TextField
+                                                fullWidth
+                                                id="latitud2"
+                                                name="latitud2"
+                                                label="Latitud 2"
+                                                value={formik.values.latitud2}
+                                                onChange={formik.handleChange}
+                                                variant="standard"
+                                                error={formik.touched.latitud2 && Boolean(formik.errors.latitud2)}
+                                                helperText={formik.touched.latitud2 && formik.errors.latitud2}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} sm={6}>
+                                            <TextField
+                                                fullWidth
+                                                id="longitud2"
+                                                name="longitud2"
+                                                label="Longitud 2"
+                                                value={formik.values.longitud2}
+                                                onChange={formik.handleChange}
+                                                variant="standard"
+                                                error={formik.touched.longitud2 && Boolean(formik.errors.longitud2)}
+                                                helperText={formik.touched.longitud2 && formik.errors.longitud2}
+                                            />
+                                        </Grid>
+                                    </>
+                                )}
+                                {esTipoIncidencia && (
+
+                                    <>
+                                        <Grid item xs={12} sm={6} md={3}>
+                                            <Autocomplete
+                                                fullWidth
+                                                id="institucion_id"
+                                                name="institucion_id"
+                                                options={optionsInstituciones}
+                                                getOptionLabel={(option) => option.nombre}
+                                                value={optionsInstituciones.find((option) => option.id === formik.values.institucion_id) || null}
+                                                onChange={(event, newValue) => {
+                                                    formik.setFieldValue('institucion_id', newValue ? newValue.id : null);
+                                                }}
+                                                renderInput={(params) => <TextField {...params} variant="standard" label="Institución" />}
+                                            />
+                                        </Grid>
+
+                                        <Grid item xs={12} sm={6} md={3}>
+                                            <Autocomplete
+                                                fullWidth
+                                                id="area_id"
+                                                name="area_id"
+                                                options={filteredAreas}
+                                                getOptionLabel={(option) => option.nombre}
+                                                value={filteredAreas.find((option) => option.id === formik.values.area_id) || null}
+                                                onChange={(event, newValue) => {
+                                                    formik.setFieldValue('area_id', newValue ? newValue.id : null);
+                                                }}
+                                                renderInput={(params) => <TextField {...params} variant="standard" label="Área" />}
+                                            />
+
+                                        </Grid>
+                                    </>
+                                )}
+
+                                {esArea && (
+
+                                    <Grid item xs={12} sm={6} md={3}>
+                                        <Autocomplete
+                                            fullWidth
+                                            id="institucion_id"
+                                            name="institucion_id"
+                                            options={optionsInstituciones}
+                                            getOptionLabel={(option) => option.nombre}
+                                            value={optionsInstituciones.find((option) => option.id === formik.values.institucion_id) || null}
+                                            onChange={(event, newValue) => {
+                                                formik.setFieldValue('institucion_id', newValue ? newValue.id : null);
+                                            }}
+                                            renderInput={(params) => <TextField {...params} variant="standard" label="Institución" />}
+                                        />
+                                    </Grid>
+                                )
+                                }
 
                                 <Grid item xs={12} sm={5} md={3}>
                                     <Switch
@@ -175,6 +368,33 @@ const MultiTableForm = ({ open, handleClose, onSubmit, initialValues, setSnackba
                                     />
                                     <label htmlFor="estado">Habilitado</label>
                                 </Grid>
+
+                                {esTipoIncidencia && (
+                                    <>
+                                        <Grid item xs={12} sm={5} md={3}>
+                                            <Switch
+                                                id="es_violento"
+                                                name="es_violento"
+                                                checked={formik.values.es_violento}
+                                                onChange={formik.handleChange}
+                                                color="primary"
+                                            />
+                                            <label htmlFor="es_violento">Es violento</label>
+                                        </Grid>
+                                        <Grid item xs={12} sm={5} md={3}>
+                                            <Switch
+                                                id="es_transito"
+                                                name="es_transito"
+                                                checked={formik.values.es_transito}
+                                                onChange={formik.handleChange}
+                                                color="primary"
+                                            />
+                                            <label htmlFor="es_transito">Es tránsito</label>
+                                        </Grid>
+
+                                    </>
+                                )}
+
                             </Grid>
                             <DialogActions>
                                 <Button onClick={handleClose} color="primary">
@@ -190,6 +410,6 @@ const MultiTableForm = ({ open, handleClose, onSubmit, initialValues, setSnackba
             )}
         </>
     );
-};
 
+};
 export default MultiTableForm;

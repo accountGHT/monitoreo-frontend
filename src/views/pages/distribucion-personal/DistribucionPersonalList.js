@@ -16,7 +16,7 @@ const columnsWithoutActions = [
     {
         field: 'patrullero', headerName: 'Patrullero', flex: 1, minWidth: 120, maxWidth: 200,
         renderCell: (params) => {
-            return params.row.patrullero.nombre_completo;
+            return params.row.patrullero?.nombre_completo || 'Sin asignar'
         }
     },
     // { field: 'vehiculo_id', headerName: 'vehiculo_id', flex: 2, minWidth: 150, maxWidth: 300 },

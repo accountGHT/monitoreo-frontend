@@ -31,7 +31,8 @@ const SettingsTiposApoyo = Loadable(lazy(() => import('views/settings/multi-tabl
 const SettingsTiposIncidencia = Loadable(lazy(() => import('views/settings/multi-table/TiposIncidencia')));
 const SettingsTiposPatrullaje = Loadable(lazy(() => import('views/settings/multi-table/TiposPatrullaje')));
 const SettingsCamaras = Loadable(lazy(() => import('views/settings/multi-table/Camaras')));
-
+const SettingsInstituciones = Loadable(lazy(() => import('views/settings/multi-table/Instituciones')));
+const SettingsAreas = Loadable(lazy(() => import('views/settings/multi-table/Areas')));
 // ==============================|| MAIN ROUTING ||============================== //
 
 const MainRoutes = {
@@ -105,6 +106,14 @@ const MainRoutes = {
             {
               path: 'camaras',
               element: <SettingsCamaras />
+            },
+            {
+              path: 'instituciones',
+              element: <SettingsInstituciones />
+            },
+            {
+                path: 'areas',
+                element: <SettingsAreas />
             }
           ]
         }
