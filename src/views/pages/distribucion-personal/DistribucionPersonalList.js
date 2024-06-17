@@ -48,7 +48,7 @@ const columnsWithoutActions = [
     // { field: 'supervisor_id', headerName: 'supervisor_id', flex: 0.5, minWidth: 100, maxWidth: 120 },
     {
         field: 'supervisor', headerName: 'Supervisor', flex: 1, minWidth: 150, maxWidth: 200,
-        renderCell: (params) => params.row.supervisor.nombre_completo
+        renderCell: (params) => params.row.supervisor?.nombre_completo || 'Sin asignar'
     },
     {
         field: 'estado', headerName: 'estado', flex: 0.5, minWidth: 120, maxWidth: 130,
