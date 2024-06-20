@@ -18,6 +18,10 @@ import {
 import { useFormik } from 'formik';
 import { getMultiTablesForAutocomplete, getInstitucionesForAutocomplete, getAreasForAutocomplete } from 'api/multi-table/multiTableApi';
 import es from 'dayjs/locale/es';
+// assets
+import CloseIcon from '@mui/icons-material/Close';
+import CancelIcon from '@mui/icons-material/Cancel';
+import SaveIcon from '@mui/icons-material/Save';
 
 const maxWidth = 'sm'; // xs, sm, md, lg, xl
 const fullWidth = true;
@@ -103,10 +107,10 @@ const MultiTableForm = ({ tablaActual, open, handleClose, onSubmit, initialValue
                     nombre_plural: initialValues.nombre_plural || '',
                     padre_id: initialValues.padre_id || null,
                     estado: (initialValues.estado === 1 ? true : false) || true,
-                    latitud1: initialValues.latitud1 || null,
-                    longitud1: initialValues.longitud1 || null,
-                    latitud2: initialValues.latitud2 || null,
-                    longitud2: initialValues.longitud2 || null,
+                    latitud1: initialValues.latitud1 ?? '',
+                    longitud1: initialValues.longitud1 ?? '',
+                    latitud2: initialValues.latitud2 ?? '',
+                    longitud2: initialValues.longitud2 ?? '',
                     es_violento: (initialValues.es_violento === 1 ? true : false) || true,
                     es_transito: (initialValues.es_transito === 1 ? true : false) || true,
                     institucion_id: initialValues.institucion_id || null,
@@ -396,11 +400,18 @@ const MultiTableForm = ({ tablaActual, open, handleClose, onSubmit, initialValue
                                 )}
 
                             </Grid>
-                            <DialogActions>
-                                <Button onClick={handleClose} color="primary">
-                                    Cancelar
+                            <DialogActions sx={{ pt: 5 }}>
+                                <Button onClick={handleClose} endIcon={<CancelIcon />} variant="contained">
+                                    Cerrar
                                 </Button>
-                                <Button type="submit" color="primary">
+
+                                <Button
+                                    type="submit"
+                                    // onClick={formik.submitForm}
+                                    color="primary"
+                                    startIcon={<SaveIcon />}
+                                    variant="contained"
+                                >
                                     Guardar
                                 </Button>
                             </DialogActions>
