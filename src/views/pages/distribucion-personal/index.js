@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 // material-ui
-import { Grid, Button, Typography, CircularProgress } from '@mui/material';
+import { Grid, Button, Typography, CircularProgress, Tabs, Tab } from '@mui/material';
 
 // ui-component
 import MainCard from 'ui-component/cards/MainCard';
@@ -11,40 +11,46 @@ import 'react-toastify/dist/ReactToastify.css';
 import { loadFromLocalStorage } from 'utils/localStorage';
 import DistribucionPersonalList from './DistribucionPersonalList';
 import DistribucionPersonalForm from './DistribucionPersonalForm';
+import ManageTeamModal from './ManageTeamModal';
 import DeleteConfirmationDialog from 'components/DeleteConfirmationDialog';
 import { createDistribucionPersonal, deleteDistribucionPersonal, getDistribucionPersonal, getDistribucionPersonalById, updateDistribucionPersonal } from 'api/distribucion-personal/distribucionPersonalApi';
-
 
 const DistribucionPersonal = () => {
     const userLocalStorage = loadFromLocalStorage('user');
     const [data, setData] = useState([]);
     const [selectedItem, setSelectedItem] = useState(null);
     const [openForm, setOpenForm] = useState(false);
+    const [selectedTurno, setSelectedTurno] = useState('DÍA'); // Default turno
+    const [loading, setLoading] = useState(true);
 
     // For option delete
     const [isDialogConfirmDeleteOpen, setIsDialogConfirmDeleteOpen] = useState(false);
     const [itemIdToDelete, setItemIdToDelete] = useState(null);
     const [itemNameToDelete, setItemNameToDelete] = useState('');
 
-    const [loading, setLoading] = useState(true);
-    // const [page, setPage] = useState(1);
-    const [perPage, setPerPage] = useState(10);
-    // const [totalPages, setTotalPages] = useState(1);
+    const [isManageTeamModalOpen, setIsManageTeamModalOpen] = useState(false);
+    const [teamData, setTeamData] = useState(null);
+
+    const handleManageTeam = (item) => {
+        setTeamData(item);
+        console.log('item en index', item);
+        setIsManageTeamModalOpen(true);
+    };
+
+    const handleCloseManageTeamModal = () => {
+        setIsManageTeamModalOpen(false);
+        setTeamData(null);
+        setSelectedItem(null);
+    };
 
     const fetchData = async () => {
-        setPerPage(10);
         try {
-            let params = `?per_page=${perPage}`;
-            const resp = await getDistribucionPersonal(params);
-            // console.log(resp);
-            console.log(resp.data);
-
+            const resp = await getDistribucionPersonal();
             if (!resp.success) {
                 console.error(resp);
                 toast.error(resp.responseData.message ?? resp.errorMessage);
                 return;
             }
-
             setData(resp.data);
         } catch (error) {
             console.error("Error fetching data: ", error);
@@ -57,7 +63,13 @@ const DistribucionPersonal = () => {
         fetchData();
     }, []);
 
+    useEffect(() => {
+        // Reset team data when selectedTurno changes
+        setTeamData(null);
+    }, [selectedTurno]);
+
     const handleItemCreated = async (values) => {
+        values.turno = selectedTurno; // Set turno before creating
         const resp = await createDistribucionPersonal(values);
         if (!resp.success) {
             toast.error(resp.responseData.message ?? resp.errorMessage);
@@ -83,7 +95,7 @@ const DistribucionPersonal = () => {
         }
 
         toast.warning(`No se encontró el registro`);
-    }
+    };
 
     const handleFormClose = () => {
         setSelectedItem(null);
@@ -91,9 +103,7 @@ const DistribucionPersonal = () => {
     };
 
     const handleItemUpdate = async (values) => {
-        console.log(`handleItemUpdate`, values);
         const resp = await updateDistribucionPersonal(values.id, values);
-        console.log(`resp`, resp);
         if (!resp.success) {
             toast.error(resp.responseData.message ?? resp.errorMessage);
             return { success: false, data: resp.responseData };
@@ -128,6 +138,14 @@ const DistribucionPersonal = () => {
         setItemNameToDelete('');
     };
 
+    const handleTabChange = (event, newValue) => {
+        console.log('teamdata en index', teamData);
+        console.log('newValue en index', newValue);
+        setSelectedTurno(newValue);
+    };
+
+    const filteredData = data.filter(item => item.turno === selectedTurno);
+
     if (loading) {
         return <CircularProgress />;
     }
@@ -150,15 +168,27 @@ const DistribucionPersonal = () => {
                     )}
                 </Grid>
                 <Grid item xs={12}>
-                    <DistribucionPersonalList data={data} onEdit={(id) => handleItemEdit(id)} onDelete={handleItemDelete} />
+                    <Tabs value={selectedTurno} onChange={handleTabChange} aria-label="Turno Tabs">
+                        <Tab label="DÍA" value="DÍA" />
+                        <Tab label="TARDE" value="TARDE" />
+                        <Tab label="NOCHE" value="NOCHE" />
+                    </Tabs>
+                </Grid>
+                <Grid item xs={12}>
+                    <DistribucionPersonalList data={filteredData} onEdit={(id) => handleItemEdit(id)} onDelete={handleItemDelete} onManageTeam={handleManageTeam} />
                 </Grid>
             </Grid>
-            <DistribucionPersonalForm open={openForm} handleClose={handleFormClose} onSubmit={selectedItem ? handleItemUpdate : handleItemCreated} initialValues={selectedItem || {}} />
+            <DistribucionPersonalForm selectedTurno={selectedTurno} open={openForm} handleClose={handleFormClose} onSubmit={selectedItem ? handleItemUpdate : handleItemCreated} initialValues={selectedItem || {}} />
             <DeleteConfirmationDialog
                 open={isDialogConfirmDeleteOpen}
                 onClose={handleCloseDialogConfirmDelete}
                 onConfirm={handleDialogConfirmDelete}
                 itemName={itemNameToDelete}
+            />
+            <ManageTeamModal
+                open={isManageTeamModalOpen}
+                onClose={handleCloseManageTeamModal}
+                teamData={teamData}
             />
         </MainCard>
     );

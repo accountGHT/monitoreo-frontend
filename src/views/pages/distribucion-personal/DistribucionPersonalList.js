@@ -3,28 +3,39 @@ import { DataGrid } from '@mui/x-data-grid';
 import { IconButton } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import GroupIcon from '@mui/icons-material/Group';
 import { loadFromLocalStorage } from 'utils/localStorage';
 
 const userLocalStorage = loadFromLocalStorage('user');
 
 const columnsWithoutActions = [
+    /*
     { field: 'id', headerName: 'Id', flex: 0.5, minWidth: 50, maxWidth: 60 },
     { field: 'fecha', headerName: 'Fecha', flex: 1, minWidth: 100, maxWidth: 120 },
     { field: 'hora', headerName: 'Hora', flex: 1, minWidth: 100, maxWidth: 120, renderCell: (params) => params.row.hora },
     { field: 'turno', headerName: 'Turno', flex: 1, minWidth: 100, maxWidth: 120 },
+     */
     // { field: 'patrullero_id', headerName: 'patrullero_id', flex: 0.5, minWidth: 100, maxWidth: 160 },
+    /*
     {
         field: 'patrullero', headerName: 'Patrullero', flex: 1, minWidth: 120, maxWidth: 200,
         renderCell: (params) => {
             return params.row.patrullero?.nombre_completo || 'Sin asignar'
         }
     },
+    */
     // { field: 'vehiculo_id', headerName: 'vehiculo_id', flex: 2, minWidth: 150, maxWidth: 300 },
+    /*
     {
         field: 'vehiculo', headerName: 'Vehículo', flex: 2, minWidth: 120, maxWidth: 150,
         renderCell: (params) => params.row.vehiculo.placa
     },
+    */
     // { field: 'zona_id', headerName: 'zona_id', flex: 1, minWidth: 150, maxWidth: 300 },
+    {
+        field: 'nombre_equipo', headerName: 'Nombre del equipo', flex: 1, minWidth: 150, maxWidth: 200,
+        renderCell: (params) => params.row.nombre_equipo
+    },
     {
         field: 'zona', headerName: 'Zona', flex: 1.5, minWidth: 120, maxWidth: 150,
         renderCell: (params) => params.row.zona.nombre
@@ -35,15 +46,28 @@ const columnsWithoutActions = [
     // },
     // { field: 'ubicacion_persona', headerName: 'Ubicación', flex: 0.5, minWidth: 100, maxWidth: 120 },
     // { field: 'tipo_patrullaje_id', headerName: 'tipo_patrullaje_id', flex: 0.5, minWidth: 100, maxWidth: 120 },
+    /*
     {
         field: 'tipo_patrullaje', headerName: 'Tipo patrullaje', flex: 1, minWidth: 140, maxWidth: 150,
         renderCell: (params) => params.row.tipo_patrullaje.nombre
     },
+    */
     // { field: 'num_partes_ocurrencia', headerName: 'Num. Ocurrencia', flex: 0.5, minWidth: 100, maxWidth: 120 },
     {
-        field: 'entrega_hoja_ruta', headerName: 'Entregó hoja de ruta?', flex: 0.5, minWidth: 100, maxWidth: 120,
+        field: 'entrega_hoja_ruta', headerName: '¿Entregó hoja de ruta?', flex: 0.5, minWidth: 100, maxWidth: 120,
         renderCell: (params) => params.row.entrega_hoja_ruta ? `SI` : `NO`
     },
+    {
+        field: 'patrullaje_integrado', headerName: '¿Patrullaje Integrado?', flex: 0.5, minWidth: 100, maxWidth: 120,
+        renderCell: (params) => params.row.patrullaje_integrado ? `SI` : `NO`
+    },
+    /*
+    {
+        field: 'num_partes_ocurrencia', headerName: 'Num. P. Ocurrencia', flex: 0.5, minWidth: 100, maxWidth: 120,
+        renderCell: (params) => params.row.num_partes_ocurrencia
+
+    },
+    */
     // { field: 'codigo_radio', headerName: 'Cód. radio', flex: 0.5, minWidth: 100, maxWidth: 120 },
     // { field: 'supervisor_id', headerName: 'supervisor_id', flex: 0.5, minWidth: 100, maxWidth: 120 },
     {
@@ -52,7 +76,7 @@ const columnsWithoutActions = [
     },
     {
         field: 'estado', headerName: 'estado', flex: 0.5, minWidth: 120, maxWidth: 130,
-        renderCell: (params) => params.row.estado ? (<span className="status-success">Habilitado</span>) : 
+        renderCell: (params) => params.row.estado ? (<span className="status-success">Habilitado</span>) :
             (<span className="status-error">Deshabilitado</span>)
     },
 ];
@@ -69,17 +93,22 @@ const columnsWithActions = [
                 <IconButton color="secondary" aria-label="Eliminar" onClick={() => params.row.onDelete(params.row)}>
                     <DeleteIcon />
                 </IconButton>
+                <IconButton color="default" aria-label="Gestionar equipo" onClick={() => params.row.onManageTeam(params.row)}>
+                    <GroupIcon />
+                </IconButton>
             </>
         ),
     },
 ];
 
-const DistribucionPersonalList = ({ data, onEdit, onDelete }) => {
+
+const DistribucionPersonalList = ({ data, onEdit, onDelete, onManageTeam }) => {
     const rows = data.map((row) => ({
         ...row,
         id: row.id,
         onEdit: onEdit,
         onDelete: onDelete,
+        onManageTeam: onManageTeam,
     }));
 
     const columnsToDisplay = userLocalStorage ? columnsWithActions : columnsWithoutActions;

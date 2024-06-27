@@ -13,6 +13,9 @@ const columnsWithoutActions = [
   //{ field: 'id', headerName: 'Id', flex: 0.5, minWidth: 50, maxWidth: 60 },
   // estado
   { field: 'estado', headerName: 'Estado', flex: 0.5, minWidth: 80, maxWidth: 80 },
+  {
+    field: 'turno', headerName: 'Turno', flex: 0.5, minWidth: 80, maxWidth: 80
+  },
 
   // { field: 'fecha', headerName: 'Fecha', flex: 1, minWidth: 100, maxWidth: 120, renderCell: (params) => fnFormatDate(params.row.fecha) },
   { field: 'fecha', headerName: 'Fecha', flex: 1, minWidth: 100, maxWidth: 100, renderCell: (params) => params.row.fecha },
@@ -20,7 +23,7 @@ const columnsWithoutActions = [
   // { field: 'tipo_comunicacion_id', headerName: 'tipo_comunicacion_id', flex: 0.5, minWidth: 100, maxWidth: 120 },
   {
     field: 'tipo_comunicacion', headerName: 'Tipo comunicación', flex: 0.5, minWidth: 100, maxWidth: 120,
-    renderCell: (params) => params.row.tipo_comunicacion?.nombre  || 'Sin tipo'
+    renderCell: (params) => params.row.tipo_comunicacion?.nombre || 'Sin tipo'
   },
   //{ field: 'turno', headerName: 'Turno', flex: 1, minWidth: 100, maxWidth: 120 },
   // { field: 'descripcion_llamada', headerName: 'Desc. llamada', flex: 1, minWidth: 150, maxWidth: 200 },
@@ -101,7 +104,12 @@ const CommunicationsCenterList = ({ selectedStatus, data, onEdit, onDelete, onCa
   };
 
   const handleDespachar = () => {
-    onDespachar(selectedRow.id);
+    // crer un objeto con el turno e id y pasarselo a onDespachar
+    let object = {
+      turno: selectedRow.turno,
+      id: selectedRow.id
+    };
+    onDespachar(object);
     handleClosePopup();
   };
 

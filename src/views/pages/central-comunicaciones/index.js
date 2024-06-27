@@ -18,12 +18,13 @@ import CommunicationsCenterAttendForm from './CommunicationsAtenderForm';
 import CommunicationsVerForm from './CommunicationsVerDetalleForm';
 import DeleteConfirmationDialog from 'components/DeleteConfirmationDialog';
 import { createCommunicationsCenter, deleteCommunicationsCenter, getCommunicationsCenter, getCommunicationsCenterById, updateCommunicationsCenter, getCommunicationsCenterView } from 'api/communications-center/communicationsCenterApi';
-import { get } from 'immutable';
+import { get, set } from 'immutable';
 
 const CommunicationsCenter = () => {
     const userLocalStorage = loadFromLocalStorage('user');
     const [data, setData] = useState([]);
     const [selectedItem, setSelectedItem] = useState(null);
+    const [selectedTurno, setSelectedTurno] = useState(null);
     const [openForm, setOpenForm] = useState(false);
     const [openVerForm, setOpenVerForm] = useState(false);
     const [openCancelForm, setOpenCancelForm] = useState(false);
@@ -106,6 +107,7 @@ const CommunicationsCenter = () => {
 
     const handleItemVer = async (id) => {
         console.log(`handleItemVer`, id);
+        setOpenVerForm(true);
         const resp = await getCommunicationsCenterView(id);
         console.log(`resp`, resp);
         if (!resp.success) {
@@ -115,7 +117,6 @@ const CommunicationsCenter = () => {
 
         if (Object.entries(resp.data).length > 0) {
             setSelectedItem(resp.data);
-            setOpenVerForm(true);
             return;
         }
 
@@ -126,8 +127,8 @@ const CommunicationsCenter = () => {
         setSelectedItem(null);
     };
     const handleFormVerClose = () => {
-        setOpenVerForm(false);
         setSelectedItem(null);
+        setOpenVerForm(false);
     };
 
     const handleCancelFormClose = () => {
@@ -165,9 +166,10 @@ const CommunicationsCenter = () => {
         setOpenCancelForm(true);
     };
 
-    const handleDespachar = async (id) => {
-        console.log(`handleDespachar`, id);
-        setSelectedItem({ id });
+    const handleDespachar = async (item) => {
+        console.log(`handleDespachar`, item.id);
+        console.log(`item turno`, item.turno)
+        setSelectedItem(item);
         setOpenDespacharForm(true);
     };
 
@@ -256,7 +258,7 @@ const CommunicationsCenter = () => {
                         onEdit={(id) => handleItemEdit(id)}
                         onDelete={handleItemDelete}
                         onCancel={(id) => handleCancel(id)}
-                        onDespachar={(id) => handleDespachar(id)}
+                        onDespachar={(id, selectedTurno) => handleDespachar(id, selectedTurno)}
                         onConfirmar={(id) => handleConfirmar(id)}
                         onVer={(id) => handleItemVer(id)}
                     />
@@ -265,7 +267,7 @@ const CommunicationsCenter = () => {
 
             <CommunicationsCenterForm open={openForm} handleClose={handleFormClose} onSubmit={selectedItem ? handleItemUpdate : handleItemCreated} initialValues={selectedItem || {}} />
             <CommunicationsCancelForm open={openCancelForm} handleClose={handleCancelFormClose} communicationId={selectedItem?.id} fetchData={fetchData} />
-            <CommunicationsDespacharForm open={openDespacharForm} handleClose={handleDespacharFormClose} id={selectedItem?.id} llenarDatos={fetchData} />
+            <CommunicationsDespacharForm open={openDespacharForm} handleClose={handleDespacharFormClose} id={selectedItem?.id} turno={selectedItem?.turno} llenarDatos={fetchData} />
             <CommunicationsCenterAttendForm open={openConfirmarForm} handleClose={handleConfirmarFormClose} id={selectedItem?.id} llenarDatos={fetchData} />
             <DeleteConfirmationDialog
                 open={isDialogConfirmDeleteOpen}

@@ -71,3 +71,13 @@ export const getTableDashboardDistribucionPersonal = async (payload) => {
     }
 };
 
+export const getDistribucionPersonalForAllTurnos = async () => {
+    try {
+        const response = await apiAxios.get(`${endpoints.perTurn}`);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        return handleError(error);
+    }
+}
+

@@ -1,36 +1,29 @@
+/*eslint-disable*/
 import React, { useEffect, useState } from 'react';
 import { useFormik } from 'formik';
-import * as yup from 'yup';
 import { toast } from 'react-toastify';
-import { Autocomplete, Button, Dialog, DialogActions, DialogContent, Divider, Grid, TextField, Toolbar, Typography } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, Divider, Grid, TextField, Toolbar, Typography, List, ListItem, ListItemText, Checkbox, ListItemSecondaryAction } from '@mui/material';
 import AppBar from '@mui/material/AppBar';
+import CircularProgress from '@mui/material/CircularProgress';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { despacharCommunicationsCenter } from 'api/communications-center/communicationsCenterApi';
-import { getVehiculosForAutocomplete } from 'api/vehiculos/vehiculosApi';
-import { getPersonasForAutocomplete } from 'api/personas/personasApi';
+import { getPatrullajes } from 'api/patrullajes-modal/patrullajesApi';
 
-const CommunicationsCenterDispatchForm = ({ open, handleClose, id, llenarDatos }) => {
-    const [vehiculos, setVehiculos] = useState([]);
-    const [personasSerenazgo, setPersonasSerenazgo] = useState([]);
+const CommunicationsCenterDispatchForm = ({ open, handleClose, id, turno, llenarDatos }) => {
+    const [patrullajes, setPatrullajes] = useState([]);
+    const [selectedPatrullajes, setSelectedPatrullajes] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     const formik = useFormik({
         initialValues: {
-            vehiculo_id: null,
-            personal_serenazgo_id: null,
             comentario_despachado: '',
         },
-
-        validationSchema: yup.object({
-            vehiculo_id: yup.number().required('El vehículo es requerido'),
-            personal_serenazgo_id: yup.number().required('El serenazgo es requerido'),
-        }),
-
         onSubmit: async (values) => {
             try {
                 const payload = {
-                    ...values,
-                    id: id,
+                    comentario_despachado: values.comentario_despachado,
+                    patrullaje_distribucion_id: selectedPatrullajes,
                 };
                 console.log('payload: ', payload);
                 const response = await despacharCommunicationsCenter(id, payload);
@@ -38,37 +31,73 @@ const CommunicationsCenterDispatchForm = ({ open, handleClose, id, llenarDatos }
                     handleClose();
                     llenarDatos();
                     toast.success('Incidencia despachada exitosamente');
-                    // Realiza cualquier otra acción necesaria después del despacho exitoso
                 } else {
                     console.log(response.message);
-                    // Maneja el caso de error en el despacho
-                    toast.error('Ocurrió un error al despachar la incidencia: '+response.message);
+                    toast.error('Ocurrió un error al despachar la incidencia: ' + response.message);
                 }
             } catch (error) {
                 console.log(error);
-                toast.error('Ocurrió un error al despachar la incidencia'+error.message);
-                // Maneja el caso de error en la solicitud
+                toast.error('Ocurrió un error al despachar la incidencia: ' + error.message);
             }
         },
     });
 
     useEffect(() => {
-        console.log('id despacho: ', id);
-
         const fetchData = async () => {
+            setLoading(true);
             try {
-                const vehiculosResponse = await getVehiculosForAutocomplete();
-                const personasSerenazgoResponse = await getPersonasForAutocomplete();
-                setVehiculos(vehiculosResponse.data);
-                setPersonasSerenazgo(personasSerenazgoResponse.data);
+                const patrullajesData = await getPatrullajes();
+                console.log('patrullajesData: ', patrullajesData);
+                console.log('turno en despachar', turno);
+                setPatrullajes(patrullajesData);
             } catch (error) {
                 console.log(error);
-                // Maneja el caso de error al obtener los datos de vehículos y personas de serenazgo
+                toast.error('Error al obtener los patrullajes');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const patrullajesData = await getPatrullajes();
+                console.log('patrullajesData: ', patrullajesData);
+                console.log('turno en despachar', turno);
+
+                const filteredTurnos = patrullajesData.filter(patrullaje => patrullaje.distribucion_personal.turno === turno);
+                setPatrullajes(filteredTurnos);
+                console.log('turnos filtrados en mdl', filteredTurnos);
+            } catch (error) {
+                console.log(error);
+                toast.error('Error al obtener los patrullajes');
             }
         };
 
         fetchData();
-    }, []);
+    }, [turno]);
+
+    const handleTogglePatrullaje = (patrullajeId) => {
+        setSelectedPatrullajes(prev =>
+            prev.includes(patrullajeId)
+                ? prev.filter(id => id !== patrullajeId)
+                : [...prev, patrullajeId]
+        );
+    };
+
+    const resetForm = () => {
+        formik.resetForm();
+        setSelectedPatrullajes([]);
+    };
+
+    useEffect(() => {
+        if (!open) {
+            resetForm();
+        }
+    }, [open]);
+
 
     return (
         <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
@@ -79,75 +108,60 @@ const CommunicationsCenterDispatchForm = ({ open, handleClose, id, llenarDatos }
                     </Typography>
                 </Toolbar>
             </AppBar>
-            <DialogContent>
-                <form onSubmit={formik.handleSubmit}>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6} md={6}>
-                            <Autocomplete
-                                disablePortal
-                                id="vehiculo"
-                                name="vehiculo"
-                                options={vehiculos}
-                                getOptionLabel={(option) => (option.placa !== undefined ? `${option.placa}` : '')}
-                                value={vehiculos.find((v) => v.id === formik.values.vehiculo_id) || null}
-                                onChange={(event, newValue) => {
-                                    formik.setFieldValue('vehiculo', newValue || {});
-                                    formik.setFieldValue('vehiculo_id', newValue ? newValue.id : null);
-                                }}
-                                isOptionEqualToValue={(option, value) => option.id === value.id}
-                                renderInput={(params) => (
+
+            {
+                loading ? (
+                    <DialogContent style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '20px' }}>
+                        <CircularProgress />
+                    </DialogContent>
+                ) : (
+                    < DialogContent >
+                        <form onSubmit={formik.handleSubmit}>
+                            <Grid container spacing={2}>
+                                <Grid item xs={12}>
                                     <TextField
-                                        {...params}
-                                        label="Vehículo"
-                                        error={formik.touched.vehiculo_id && Boolean(formik.errors.vehiculo_id)}
-                                        helperText={formik.touched.vehiculo_id && formik.errors.vehiculo_id}
+                                        id="comentario_despachado"
+                                        label="Comentario Despacho (Opcional)"
+                                        multiline
+                                        maxRows={4}
+                                        fullWidth
                                         variant="standard"
+                                        value={formik.values.comentario_despachado}
+                                        onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
+                                        error={formik.touched.comentario_despachado && Boolean(formik.errors.comentario_despachado)}
+                                        helperText={formik.touched.comentario_despachado && formik.errors.comentario_despachado}
                                     />
-                                )}
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={6} md={6}>
-                            <Autocomplete
-                                disablePortal
-                                id="personal_serenazgo"
-                                name="personal_serenazgo"
-                                options={personasSerenazgo}
-                                getOptionLabel={(option) => (option.nombres !== undefined ? `${option.nombre_completo}` : '')}
-                                value={personasSerenazgo.find((p) => p.id === formik.values.personal_serenazgo_id) || null}
-                                onChange={(event, newValue) => {
-                                    formik.setFieldValue('personal_serenazgo', newValue || {});
-                                    formik.setFieldValue('personal_serenazgo_id', newValue ? newValue.id : null);
-                                }}
-                                isOptionEqualToValue={(option, value) => option.id === value.id}
-                                renderInput={(params) => (
-                                    <TextField
-                                        {...params}
-                                        label="Serenazgo"
-                                        error={formik.touched.personal_serenazgo_id && Boolean(formik.errors.personal_serenazgo_id)}
-                                        helperText={formik.touched.personal_serenazgo_id && formik.errors.personal_serenazgo_id}
-                                        variant="standard"
-                                    />
-                                )}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField
-                                id="comentario_despachado"
-                                label="Comentario Despacho"
-                                multiline
-                                maxRows={4}
-                                fullWidth
-                                variant="standard"
-                                value={formik.values.comentario_despachado}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                error={formik.touched.comentario_despachado && Boolean(formik.errors.comentario_despachado)}
-                                helperText={formik.touched.comentario_despachado && formik.errors.comentario_despachado}
-                            />
-                        </Grid>
-                    </Grid>
-                </form>
-            </DialogContent>
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <Typography variant="h6">Seleccionar Patrullajes</Typography>
+                                    <List>
+                                        {patrullajes.map((patrullaje) => (
+                                            <ListItem key={patrullaje.id} dense button onClick={() => handleTogglePatrullaje(patrullaje.id)}>
+                                                <Checkbox
+                                                    edge="start"
+                                                    checked={selectedPatrullajes.includes(patrullaje.id)}
+                                                    tabIndex={-1}
+                                                    disableRipple
+                                                />
+                                                <ListItemText
+                                                    primary={`${patrullaje.tipo_patrullaje.nombre} - ${patrullaje.distribucion_personal.nombre_equipo}`}
+                                                    secondary={`Acompañante: ${patrullaje.acompañante?.nombres} ${patrullaje.acompañante?.p_apellido}`}
+                                                />
+                                                <ListItemSecondaryAction>
+                                                    <Typography variant="caption">
+                                                        {patrullaje.distribucion_personal.turno}
+                                                    </Typography>
+                                                </ListItemSecondaryAction>
+                                            </ListItem>
+                                        ))}
+                                    </List>
+                                </Grid>
+                            </Grid>
+                        </form>
+                    </DialogContent>
+                )
+            }
             <Divider />
             <DialogActions>
                 <Button onClick={handleClose} endIcon={<CancelIcon />} variant="contained">
@@ -157,7 +171,7 @@ const CommunicationsCenterDispatchForm = ({ open, handleClose, id, llenarDatos }
                     Despachar
                 </Button>
             </DialogActions>
-        </Dialog>
+        </Dialog >
     );
 };
 

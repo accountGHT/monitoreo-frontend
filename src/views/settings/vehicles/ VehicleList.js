@@ -9,6 +9,25 @@ const userLocalStorage = loadFromLocalStorage('user');
 
 const columnsWithoutActions = [
   { field: 'id', headerName: 'Id', flex: 0.5, minWidth: 50, maxWidth: 60 },
+  {
+    field: 'tipo',
+    headerName: 'Tipo',
+    flex: 1,
+    minWidth: 100,
+    maxWidth: 120,
+    valueGetter: (params) => {
+      switch (params.row.tipo) {
+        case 1:
+          return 'AUTO';
+        case 2:
+          return 'MOTO';
+        case 3:
+          return 'CAMIONETA';
+        default:
+          return '';
+      }
+    }
+  },
   { field: 'codigo', headerName: 'Código', flex: 1, minWidth: 75, maxWidth: 100 },
   { field: 'marca', headerName: 'Marca', flex: 1, minWidth: 75, maxWidth: 100 },
   { field: 'modelo', headerName: 'Modelo', flex: 1, minWidth: 75, maxWidth: 100 },

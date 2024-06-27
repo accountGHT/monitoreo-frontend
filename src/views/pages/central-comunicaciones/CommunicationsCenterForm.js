@@ -1,5 +1,4 @@
 /* eslint-disable no-unused-vars */
-
 import React, { useEffect, useState } from 'react';
 // material-ui
 import { searchPlaces, getPlaceInfo } from 'api/google-maps/googleMapsApi';
@@ -31,17 +30,14 @@ import {
     Modal,
     Box
 } from '@mui/material';
-
 // assets
 import CloseIcon from '@mui/icons-material/Close';
 import CancelIcon from '@mui/icons-material/Cancel';
 import SaveIcon from '@mui/icons-material/Save';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
-
 // Formik
 import { Form, useFormik } from 'formik';
 import * as Yup from 'yup';
-
 // Fechas
 import { DatePicker, TimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -49,12 +45,8 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/es';
 import axios from 'axios'; // para autocompletar dni
 import { loadFromLocalStorage } from 'utils/localStorage';
-
 // APIs
 import { getTiposComunicacionForAutocomplete, getTiposIncidenciaForAutocomplete, getZonasForAutocomplete } from 'api/multi-table/multiTableApi';
-import { getPersonasForAutocomplete } from 'api/personas/personasApi';
-import { getVehiculosForAutocomplete } from 'api/vehiculos/vehiculosApi';
-
 const maxWidth = 'md'; // xs, sm, md, lg, xl
 const fullWidth = true;
 const Transition = React.forwardRef((props, ref) => <Slide direction="up" ref={ref} {...props} />);
@@ -64,29 +56,14 @@ const validationSchema = Yup.object({
     fecha: Yup.date().required('La fecha es obligatoria'),
     hora_llamada: Yup.date().required('La hora de llamada es obligatoria'),
 });
-
-// const validationSchema = Yup.object({
-//     fecha: Yup.object().nullable().required('Fecha es requerida'),
-//     zona_incidencia_id: Yup.number('Zona no es válido').required('Zona es requerida'),
-//     tipo_apoyo_incidencia_id: Yup.number('Tipo Incidencia no es válido').nullable(),
-//     operador_id: Yup.number('Operador no es válido').nullable(),
-//     personal_serenazgo_id: Yup.number('Activo Fijo no es válido').nullable(),
-//     vehiculo_id: Yup.number('Área no es válido').nullable(),
-//     supervisor_id: Yup.number('Supervisor no es válido').nullable(),
-// });
-
-// ==============================|| FixedAssetMovementAdd Component ||============================== //
 const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }) => {
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
     const userLocalStorage = loadFromLocalStorage('user');
-
     // Agrega un estado para controlar la carga de datos
     const [loading, setLoading] = useState(true);
-
     // Fechas
     const locale = dayjs.locale('es');
-
     // Combos
     const [tiposComunicacion, setTiposComunicacion] = useState([]);
     const [zonasIncidencia, setZonasIncidencia] = useState([]);
@@ -103,6 +80,7 @@ const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }
     const [openMapModal, setOpenMapModal] = useState(false);
     const [isLoaded, setIsLoaded] = useState(false);
     const [direccion, setDireccion] = useState('');
+    let turnoInicial;
 
     useEffect(() => {
         loader.load().then(() => {
@@ -165,7 +143,7 @@ const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }
 
     const isOptionEqualToValue = (option, value) => {
         return option && value && option.id === value.id;
-    };    
+    };
 
     // integracion google maps
 
@@ -199,7 +177,6 @@ const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }
         const lat = placeInfo.geometry.location.lat();
         const lng = placeInfo.geometry.location.lng();
         console.log(`Latitude: ${lat}, Longitude: ${lng}`);
-
         // Supongamos que zonasIncidencia está definida en algún lugar de tu código
         const selectedZone = zonasIncidencia.find((zone) => {
             const isInside = isInsideZone({ lat, lng }, zone);
@@ -217,8 +194,6 @@ const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }
             formik.setFieldValue('zona_incidencia_id', null);
         }
     };
-
-
     const isInsideZone = (coordinates, zone) => {
         const { lat, lng } = coordinates;
         const { latitud1, latitud2, longitud1, longitud2 } = zone;
@@ -232,14 +207,10 @@ const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }
         console.log(`¿Está dentro de la zona? ${isInside}`);
         return isInside;
     };
-
-
     // fin integracion google maps
-
     const convertToBoolean = (value) => {
         return value === 1 || value === '1' || value === true;
     };
-
     const formik = useFormik({
         initialValues: {},
         validationSchema,
@@ -282,9 +253,24 @@ const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }
         }
     });
 
+    const determinarTurno = (hora) => {
+        const horas = hora.hour();
+        if (horas >= 7 && horas < 12) return 'DÍA';
+        if (horas >= 12 && horas < 19) return 'TARDE';
+        return 'NOCHE';
+    };
+
     useEffect(() => {
         if (open) {
             loadAutocompletes();
+            let horaInicial;
+            turnoInicial;
+            if (initialValues.hora_llamada) {
+                horaInicial = dayjs(initialValues.hora_llamada, 'HH:mm:ss');
+            } else {
+                horaInicial = dayjs();
+            }
+            turnoInicial = determinarTurno(horaInicial);
 
             formik.setValues({
                 id: initialValues.id || null,
@@ -292,7 +278,7 @@ const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }
                 hora_llamada: initialValues.hora_llamada ? dayjs(initialValues.hora_llamada, 'HH:mm:ss').toDate() : dayjs(),
                 tipo_comunicacion_id: initialValues.tipo_comunicacion_id || '',
                 tipo_comunicacion: initialValues.tipo_comunicacion || {},
-                turno: initialValues.turno ?? 'TARDE',
+                turno: initialValues.turno ?? turnoInicial,
                 descripcion_llamada: initialValues.descripcion_llamada || '',
                 direccion_cc: initialValues.direccion_cc || '',
                 zona_incidencia_id: initialValues.zona_incidencia_id || '',
@@ -401,12 +387,15 @@ const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }
                             </Grid>
 
                             <Grid item xs={12} sm={6} md={3}>
-                                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={locale}>
+
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
                                     <TimePicker
                                         label="Hora"
-                                        value={formik.values.hora_llamada}
+                                        value={formik.values.hora_llamada || null}
                                         onChange={(newValue) => {
                                             formik.setFieldValue('hora_llamada', newValue);
+                                            const nuevoTurno = determinarTurno(newValue);
+                                            formik.setFieldValue('turno', nuevoTurno);
                                         }}
                                         renderInput={(params) => (
                                             <TextField
@@ -416,8 +405,37 @@ const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }
                                                 variant="standard"
                                             />
                                         )}
+                                        ampm={true} // Activamos la opción AM/PM
+                                        minutesStep={1}
                                     />
                                 </LocalizationProvider>
+
+                            </Grid>
+
+                            <Grid item xs={12} sm={6} md={6}>
+
+                                <FormControl fullWidth variant="standard">
+                                    <InputLabel id="turno-select-label">Turno</InputLabel>
+                                    <Select
+                                        labelId="turno-select-label"
+                                        id="turno-select"
+                                        value={formik.values.turno || 'TARDE'}
+                                        label="Turno"
+                                        disabled={true}
+                                        onChange={(event) => {
+                                            const selectedValue = event.target.value ?? '';
+                                            const isValidValue = ['DÍA', 'TARDE', 'NOCHE'].includes(selectedValue);
+                                            if (isValidValue) {
+                                                formik.setFieldValue('turno', selectedValue);
+                                            }
+                                        }}
+                                    >
+                                        <MenuItem value={"DÍA"}>DÍA</MenuItem>
+                                        <MenuItem value={"TARDE"}>TARDE</MenuItem>
+                                        <MenuItem value={"NOCHE"}>NOCHE</MenuItem>
+                                    </Select>
+                                </FormControl>
+
                             </Grid>
 
                             <Grid item xs={12} sm={6} md={6}>
@@ -446,32 +464,6 @@ const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }
                                         />
                                     )}
                                 />
-                            </Grid>
-
-                            <Grid item xs={12} sm={6} md={3}>
-                                <FormControl fullWidth variant="standard">
-                                    <InputLabel id="turno-select-label">Turno</InputLabel>
-                                    <Select
-                                        labelId="turno-select-label"
-                                        id="turno-select"
-                                        value={formik.values.turno || 'TARDE'}
-                                        label="Turno"
-                                        // error={formik.touched.turno && Boolean(formik.errors.turno)}
-                                        // helperText={formik.touched.turno && formik.errors.turno}
-                                        onChange={(event) => {
-                                            const selectedValue = event.target.value ?? '';
-                                            const isValidValue = ['DÍA', 'TARDE', 'NOCHE'].includes(selectedValue);
-
-                                            if (isValidValue) {
-                                                formik.setFieldValue('turno', selectedValue);
-                                            }
-                                        }}
-                                    >
-                                        <MenuItem value={"DÍA"}>DÍA</MenuItem>
-                                        <MenuItem value={"TARDE"}>TARDE</MenuItem>
-                                        <MenuItem value={"NOCHE"}>NOCHE</MenuItem>
-                                    </Select>
-                                </FormControl>
                             </Grid>
 
                             <Grid item xs={12} sm={6} md={9}>

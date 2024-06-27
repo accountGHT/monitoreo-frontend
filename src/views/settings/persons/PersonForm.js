@@ -75,6 +75,7 @@ const PersonForm = ({ open, handleClose, onSubmit, initialValues }) => {
         correo: values.correo,
         fecha_nacimiento: dayjs(values.fecha_nacimiento).format('YYYY-MM-DD'),
         genero: values.genero,
+        tipo: values.tipo,
       }
       const resp = await onSubmit(payload, resetForm);
       if (resp.success) {
@@ -101,7 +102,8 @@ const PersonForm = ({ open, handleClose, onSubmit, initialValues }) => {
         placa: initialValues.placa || '',
         correo: initialValues.correo || '',
         fecha_nacimiento: initialValues.fecha || dayjs(),
-        genero: initialValues.genero ?? 'MASCULINO',
+        genero: initialValues.genero || 'MASCULINO',
+        tipo: initialValues.tipo || 1,
       });
       setLoading(false);
     }
@@ -185,12 +187,16 @@ const PersonForm = ({ open, handleClose, onSubmit, initialValues }) => {
                   id="dni"
                   name="dni"
                   label="DNI"
-                  // type="number"
                   value={formik.values.dni}
                   onChange={formik.handleChange}
                   variant="standard"
                   error={formik.touched.dni && Boolean(formik.errors.dni)}
                   helperText={formik.touched.dni && formik.errors.dni}
+                  InputProps={{
+                    inputProps: {
+                      maxLength: 8,
+                    },
+                  }}
                 />
               </Grid>
 
@@ -253,6 +259,27 @@ const PersonForm = ({ open, handleClose, onSubmit, initialValues }) => {
                   >
                     <MenuItem value={"MASCULINO"}>MASCULINO</MenuItem>
                     <MenuItem value={"FEMENINO"}>FEMENINO</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={3}>
+                <FormControl fullWidth variant="standard">
+                  <InputLabel id="tipo-select-label">Tipo</InputLabel>
+                  <Select
+                    labelId="tipo-select-label"
+                    id="tipo-select"
+                    value={formik.values.tipo || 1}
+                    label="Tipo"
+                    onChange={(event) => {
+                      formik.setFieldValue('tipo', event.target.value);
+                    }}
+                  >
+                    <MenuItem value={1}>Operador</MenuItem>
+                    <MenuItem value={2}>Serenazgo</MenuItem>
+                    <MenuItem value={3}>Supervisor</MenuItem>
+                    {/*<MenuItem value={4}>Administrador</MenuItem>*/}
+                    {/*<MenuItem value={5}>Conductor</MenuItem>*/}
                   </Select>
                 </FormControl>
               </Grid>

@@ -12,11 +12,13 @@ import {
     Grid,
     IconButton,
     InputAdornment,
+    Select,
     Slide,
     Switch,
     TextField,
     Toolbar,
     Typography,
+    MenuItem
 } from '@mui/material';
 
 // assets
@@ -43,6 +45,7 @@ const validationSchema = Yup.object().shape({
     esta_operativo: Yup.boolean(),
     descripcion: Yup.string(),
     estado: Yup.boolean(),
+    tipo: Yup.number(),
 });
 
 const VehicleForm = ({ open, handleClose, onSubmit, initialValues }) => {
@@ -70,6 +73,7 @@ const VehicleForm = ({ open, handleClose, onSubmit, initialValues }) => {
                 esta_operativo: values.esta_operativo,
                 descripcion: values.descripcion,
                 estado: values.estado,
+                tipo: values.tipo,
             }
             const resp = await onSubmit(valuesAsParams, resetForm);
             if (resp.success) {
@@ -100,6 +104,7 @@ const VehicleForm = ({ open, handleClose, onSubmit, initialValues }) => {
                 esta_operativo: (initialValues.esta_operativo === 1 ? true : false) || true,
                 descripcion: initialValues.descripcion || '',
                 estado: (initialValues.estado === 1 ? true : false) || true,
+                tipo: initialValues.tipo || 1,
             });
             setLoading(false);
         } else {
@@ -268,6 +273,24 @@ const VehicleForm = ({ open, handleClose, onSubmit, initialValues }) => {
                                     color="primary"
                                 />
                                 <label htmlFor="estado">Estado</label>
+                            </Grid>
+
+                            <Grid item xs={12} sm={6} md={3}>
+                                <Select
+                                    fullWidth
+                                    id="tipo"
+                                    name="tipo"
+                                    label="Tipo"
+                                    variant="standard"
+                                    value={formik.values.tipo}
+                                    onChange={formik.handleChange}
+                                    error={formik.touched.tipo && Boolean(formik.errors.tipo)}
+                                    helperText={formik.touched.tipo && formik.errors.tipo}
+                                >
+                                    <MenuItem value={1}>AUTO</MenuItem>
+                                    <MenuItem value={2}>MOTO</MenuItem>
+                                    <MenuItem value={3}>CAMIONETA</MenuItem>
+                                </Select>
                             </Grid>
                         </Grid>
                         <DialogActions sx={{ pt: 5 }}>

@@ -28,11 +28,11 @@ const Persons = () => {
 
     const [loading, setLoading] = useState(true);
     // const [page, setPage] = useState(1);
-    const [perPage, setPerPage] = useState(10);
+    const [perPage, setPerPage] = useState(5);
     // const [totalPages, setTotalPages] = useState(1);
    
     const fetchData = async () => {
-        setPerPage(10);
+        setPerPage(5);
         try {
             let params = `?per_page=${perPage}`;
             const resp = await getPersonas(params);

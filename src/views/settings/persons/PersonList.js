@@ -16,12 +16,13 @@ const columnsWithoutActions = [
   { field: 'correo', headerName: 'Correo', flex: 2, minWidth: 150, maxWidth: 300 },
   { field: 'fecha_nacimiento', headerName: 'Fecha Nac.', flex: 1, minWidth: 150, maxWidth: 300 },
   { field: 'genero', headerName: 'genero', flex: 0.5, minWidth: 100, maxWidth: 120 },
+  { field: 'tipo_desc', headerName: 'Tipo', flex: 0.5, minWidth: 100, maxWidth: 120 },
 ];
 
 const columnsWithActions = [
   ...columnsWithoutActions,
   {
-    field: 'actions', headerName: 'Acciones',  flex: 0.5, minWidth: 120, maxWidth: 150,
+    field: 'actions', headerName: 'Acciones', flex: 0.5, minWidth: 120, maxWidth: 150,
     renderCell: (params) => (
       <>
         <IconButton color="primary" aria-label="Editar" onClick={() => params.row.onEdit(params.row.id)}>

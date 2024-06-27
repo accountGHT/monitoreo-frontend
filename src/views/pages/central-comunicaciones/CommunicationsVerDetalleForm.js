@@ -18,10 +18,13 @@ import {
     Toolbar,
     Box
 } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
+import FileOpen from '@mui/icons-material';
 import CloseIcon from '@mui/icons-material/Close';
 import CancelIcon from '@mui/icons-material/Cancel';
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
+import { jsPDF } from 'jspdf';
 import { loadFromLocalStorage } from 'utils/localStorage';
 
 const maxWidth = 'md';
@@ -32,16 +35,15 @@ const gridSpacing = 3;
 const CommunicationsVerForm = ({ open, handleClose, initialValues }) => {
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true); // Comenzamos con loading en true
 
     useEffect(() => {
-        if (open) {
+        if (initialValues) {
+            // Si initialValues ya están presentes, setLoading a false
             setLoading(false);
         }
-        return () => {
-            setLoading(true);
-        };
-    }, [open]);
+    }, [initialValues]);
+    // regresar a false 
 
     const renderSectionTitle = (title) => (
         <Grid item xs={12}>
@@ -51,6 +53,88 @@ const CommunicationsVerForm = ({ open, handleClose, initialValues }) => {
             <Divider />
         </Grid>
     );
+
+    const generatePDF = () => {
+        const doc = new jsPDF();
+        doc.setFontSize(16);
+        doc.text("VER DETALLE DE COMUNICACIÓN", 10, 10);
+
+        let y = 20;
+
+        const addText = (title, value) => {
+            doc.setFontSize(12);
+            doc.text(`${title}:`, 10, y);
+            doc.setFontSize(10);
+            doc.text(`${value}`, 110, y);
+            y += 10;
+        };
+
+        addText('Fecha de la llamada', dayjs(initialValues.fecha).format('DD/MM/YYYY'));
+        addText('Hora de la llamada', initialValues.hora_llamada);
+        addText('Tipo comunicación', initialValues.tipo_comunicacion?.nombre || '');
+        addText('Turno', initialValues.turno || 'TARDE');
+        addText('Zona incidencia', initialValues.zona_incidencia?.nombre || '');
+        addText('Descripción de la llamada', initialValues.descripcion_llamada);
+        addText('Dirección', initialValues.direccion_cc);
+        addText('Tipo Incidencia', initialValues.tipo_apoyo_incidencia?.nombre || '');
+        if (initialValues.tipo_delito) {
+            addText('Tipo de delito', initialValues.tipo_delito);
+        }
+        addText('Duplicado', initialValues.es_duplicado ? 'Sí' : 'No');
+        addText('Es victima mujer', initialValues.es_victima_mujer ? 'Sí' : 'No');
+        addText('Estado', initialValues.estado);
+
+        if (initialValues.fecha_hora_despachado) {
+            addText('Fecha y hora de despacho', dayjs(initialValues.fecha_hora_despachado).format('DD/MM/YYYY HH:mm'));
+        }
+        if (initialValues.comentario_despachado) {
+            addText('Comentario de despacho', initialValues.comentario_despachado);
+        }
+        if (Array.isArray(initialValues.central_distribucion_patrullajes)) {
+            initialValues.central_distribucion_patrullajes.forEach((patrullaje, index) => {
+                const distribucion = patrullaje.patrullaje_distribucion;
+
+                if (distribucion.vehiculo) {
+                    addText('Placa del Vehículo', distribucion.vehiculo.placa);
+                }
+                if (distribucion.conductor) {
+                    addText('Conductor', `${distribucion.conductor.nombres} ${distribucion.conductor.p_apellido} ${distribucion.conductor.s_apellido}`);
+                }
+                if (distribucion.acompañante) {
+                    addText('Acompañante 1', `${distribucion.acompañante.nombres} ${distribucion.acompañante.p_apellido} ${distribucion.acompañante.s_apellido}`);
+                }
+                if (distribucion.acompañante2) {
+                    addText('Acompañante 2', `${distribucion.acompañante2.nombres} ${distribucion.acompañante2.p_apellido} ${distribucion.acompañante2.s_apellido}`);
+                }
+                if (distribucion.acompañante3) {
+                    addText('Acompañante 3', `${distribucion.acompañante3.nombres} ${distribucion.acompañante3.p_apellido} ${distribucion.acompañante3.s_apellido}`);
+                }
+                if (distribucion.acompañante4) {
+                    addText('Acompañante 4', `${distribucion.acompañante4.nombres} ${distribucion.acompañante4.p_apellido} ${distribucion.acompañante4.s_apellido}`);
+                }
+            });
+        }
+
+        if (initialValues.fecha_hora_manual_atendido) {
+            addText('Fecha y hora de atención', initialValues.fecha_hora_manual_atendido);
+        }
+        if (initialValues.comentario_atendido) {
+            addText('Comentario de atención', initialValues.comentario_atendido);
+        }
+        if (initialValues.conflicto_mitigado) {
+            addText('Conflicto mitigado', initialValues.conflicto_mitigado ? 'Sí' : 'No');
+        }
+        if (Array.isArray(initialValues.central_distribucion_patrullajes) && initialValues.central_distribucion_patrullajes.length > 0) {
+            const supervisor = initialValues.central_distribucion_patrullajes[0]?.patrullaje_distribucion?.distribucion_personal?.supervisor;
+
+            if (supervisor) {
+                addText('Supervisor', `${supervisor.nombres || ''} ${supervisor.p_apellido || ''} ${supervisor.s_apellido || ''}`.trim());
+            }
+        }
+
+
+        doc.save('detalle_comunicacion.pdf');
+    };
 
     return (
         <Dialog
@@ -75,7 +159,9 @@ const CommunicationsVerForm = ({ open, handleClose, initialValues }) => {
             </AppBar>
             <DialogContent>
                 {loading ? (
-                    <p>Cargando...</p>
+                    <div style={{ textAlign: 'center' }}>
+                        <CircularProgress />
+                    </div>
                 ) : (
                     <Box sx={{ padding: 2 }}>
                         <Grid container spacing={gridSpacing}>
@@ -144,20 +230,62 @@ const CommunicationsVerForm = ({ open, handleClose, initialValues }) => {
                                     <Typography variant="body1">{initialValues.comentario_despachado}</Typography>
                                 </Grid>
                             )}
-                            {initialValues.vehiculo && (
-                                <Grid item xs={12} sm={6} md={3}>
-                                    <Typography variant="body2">Placa:</Typography>
-                                    <Typography variant="body1">{initialValues.vehiculo.placa}</Typography>
-                                </Grid>
-                            )}
-                            {initialValues.personal_serenazgo && (
-                                <Grid item xs={12} sm={6} md={3}>
-                                    <Typography variant="body2">Serenazgo:</Typography>
-                                    <Typography variant="body1">
-                                        {`${initialValues.personal_serenazgo.nombres || ''} ${initialValues.personal_serenazgo.p_apellido || ''} ${initialValues.personal_serenazgo.s_apellido || ''}`.trim()}
-                                    </Typography>
-                                </Grid>
-                            )}
+
+                            {Array.isArray(initialValues.central_distribucion_patrullajes) && initialValues.central_distribucion_patrullajes.map((patrullaje, index) => (
+                                <React.Fragment key={index}>
+                                    {patrullaje.patrullaje_distribucion.vehiculo && (
+                                        <Grid item xs={12} sm={6} md={3}>
+                                            <Typography variant="body2">Placa del Vehículo:</Typography>
+                                            <Typography variant="body1">{patrullaje.patrullaje_distribucion.vehiculo.placa}</Typography>
+                                        </Grid>
+                                    )}
+
+                                    {patrullaje.patrullaje_distribucion.conductor && (
+                                        <Grid item xs={12} sm={6} md={3}>
+                                            <Typography variant="body2">Conductor:</Typography>
+                                            <Typography variant="body1">
+                                                {patrullaje.patrullaje_distribucion.conductor.nombres} {patrullaje.patrullaje_distribucion.conductor.p_apellido} {patrullaje.patrullaje_distribucion.conductor.s_apellido}
+                                            </Typography>
+                                        </Grid>
+                                    )}
+
+                                    {patrullaje.patrullaje_distribucion.acompañante && (
+                                        <Grid item xs={12} sm={6} md={3}>
+                                            <Typography variant="body2">Acompañante 1:</Typography>
+                                            <Typography variant="body1">
+                                                {patrullaje.patrullaje_distribucion.acompañante.nombres} {patrullaje.patrullaje_distribucion.acompañante.p_apellido} {patrullaje.patrullaje_distribucion.acompañante.s_apellido}
+                                            </Typography>
+                                        </Grid>
+                                    )}
+
+                                    {patrullaje.patrullaje_distribucion.acompañante2 && (
+                                        <Grid item xs={12} sm={6} md={3}>
+                                            <Typography variant="body2">Acompañante 2:</Typography>
+                                            <Typography variant="body1">
+                                                {patrullaje.patrullaje_distribucion.acompañante2.nombres} {patrullaje.patrullaje_distribucion.acompañante2.p_apellido} {patrullaje.patrullaje_distribucion.acompañante2.s_apellido}
+                                            </Typography>
+                                        </Grid>
+                                    )}
+
+                                    {patrullaje.patrullaje_distribucion.acompañante3 && (
+                                        <Grid item xs={12} sm={6} md={3}>
+                                            <Typography variant="body2">Acompañante 3:</Typography>
+                                            <Typography variant="body1">
+                                                {patrullaje.patrullaje_distribucion.acompañante3.nombres} {patrullaje.patrullaje_distribucion.acompañante3.p_apellido} {patrullaje.patrullaje_distribucion.acompañante3.s_apellido}
+                                            </Typography>
+                                        </Grid>
+                                    )}
+
+                                    {patrullaje.patrullaje_distribucion.acompañante4 && (
+                                        <Grid item xs={12} sm={6} md={3}>
+                                            <Typography variant="body2">Acompañante 4:</Typography>
+                                            <Typography variant="body1">
+                                                {patrullaje.patrullaje_distribucion.acompañante4.nombres} {patrullaje.patrullaje_distribucion.acompañante4.p_apellido} {patrullaje.patrullaje_distribucion.acompañante4.s_apellido}
+                                            </Typography>
+                                        </Grid>
+                                    )}
+                                </React.Fragment>
+                            ))}
 
                             {renderSectionTitle('Etapa de Atención')}
                             {initialValues.fecha_hora_manual_atendido && (
@@ -172,29 +300,36 @@ const CommunicationsVerForm = ({ open, handleClose, initialValues }) => {
                                     <Typography variant="body1">{initialValues.comentario_atendido}</Typography>
                                 </Grid>
                             )}
-                            {initialValues.conflicto_mitigado && (
+                            {initialValues.conflicto_mitigado !== undefined && (
                                 <Grid item xs={12} sm={6} md={3}>
                                     <Typography variant="body2">Conflicto mitigado:</Typography>
-                                    <Typography variant="body1">{initialValues.conflicto_mitigado ? 'Sí' : 'No'}</Typography>
+                                    <Typography variant="body1">{initialValues.conflicto_mitigado === 0 ? 'No' : 'Si'}</Typography>
                                 </Grid>
                             )}
-                            {initialValues.supervisor && (
+                            {Array.isArray(initialValues.central_distribucion_patrullajes) && initialValues.central_distribucion_patrullajes.length > 0 && initialValues.central_distribucion_patrullajes[0].patrullaje_distribucion.distribucion_personal.supervisor && (
                                 <Grid item xs={12} sm={6} md={3}>
                                     <Typography variant="body2">Supervisor:</Typography>
                                     <Typography variant="body1">
-                                        {`${initialValues.supervisor.nombres || ''} ${initialValues.supervisor.p_apellido || ''} ${initialValues.supervisor.s_apellido || ''}`.trim()}
-                                    </Typography>                                </Grid>
+                                        {`${initialValues.central_distribucion_patrullajes[0].patrullaje_distribucion.distribucion_personal.supervisor.nombres || ''} ${initialValues.central_distribucion_patrullajes[0].patrullaje_distribucion.distribucion_personal.supervisor.p_apellido || ''} ${initialValues.central_distribucion_patrullajes[0].patrullaje_distribucion.distribucion_personal.supervisor.s_apellido || ''}`.trim()}
+                                    </Typography>
+                                </Grid>
                             )}
+
+
                         </Grid>
                     </Box>
                 )}
             </DialogContent>
             <Divider />
             <DialogActions>
+                <Button onClick={generatePDF} endIcon={<FileOpen />} variant="contained" color="primary">
+                    Descargar PDF
+                </Button>
                 <Button onClick={handleClose} endIcon={<CancelIcon />} variant="contained">
                     Cerrar
                 </Button>
             </DialogActions>
+
         </Dialog>
     );
 };

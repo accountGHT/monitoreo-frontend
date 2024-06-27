@@ -21,14 +21,12 @@ const CommunicationsCenterAttendForm = ({ open, handleClose, id, llenarDatos }) 
 
     const formik = useFormik({
         initialValues: {
-            supervisor_id: null,
             comentario_atendido: '',
             clasificador_id: null,
             fecha_hora_manual_atendido: dayjs(),
         },
 
         validationSchema: yup.object({
-            supervisor_id: yup.number().required('El supervisor es requerido'),
             clasificador_id: yup.number().required('El clasificador es requerido'),
             fecha_hora_manual_atendido: yup.date().required('La fecha y hora de atención es requerida'),
         }),
@@ -49,13 +47,13 @@ const CommunicationsCenterAttendForm = ({ open, handleClose, id, llenarDatos }) 
                     // Realiza cualquier otra acción necesaria después de la atención exitosa
                 } else {
                     console.log(response.message);
-                    toast.error('Ocurrió un error al atender la incidencia: '+response.message);
+                    toast.error('Ocurrió un error al atender la incidencia: ' + response.message);
                     // Maneja el caso de error en la atención
                 }
             } catch (error) {
                 console.log(error);
                 // Maneja el caso de error en la solicitud
-                    toast.error('Error al atender la incidencia. Por favor, inténtalo de nuevo.', { autoClose: 5000 })
+                toast.error('Error al atender la incidencia. Por favor, inténtalo de nuevo.', { autoClose: 5000 })
             }
         },
     });
@@ -90,6 +88,7 @@ const CommunicationsCenterAttendForm = ({ open, handleClose, id, llenarDatos }) 
             <DialogContent>
                 <form onSubmit={formik.handleSubmit}>
                     <Grid container spacing={2}>
+                        {/*
                         <Grid item xs={12} sm={6} md={6}>
                             <Autocomplete
                                 disablePortal
@@ -114,6 +113,7 @@ const CommunicationsCenterAttendForm = ({ open, handleClose, id, llenarDatos }) 
                                 )}
                             />
                         </Grid>
+                        */}
                         <Grid item xs={12} sm={6} md={6}>
                             <Autocomplete
                                 disablePortal
@@ -162,7 +162,7 @@ const CommunicationsCenterAttendForm = ({ open, handleClose, id, llenarDatos }) 
                         <Grid item xs={12}>
                             <TextField
                                 id="comentario_atendido"
-                                label="Comentario de Atención"
+                                label="Comentario de Atención (Opcional)"
                                 multiline
                                 maxRows={4}
                                 fullWidth
