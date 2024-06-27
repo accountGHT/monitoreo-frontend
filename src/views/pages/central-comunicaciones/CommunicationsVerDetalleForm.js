@@ -19,7 +19,7 @@ import {
     Box
 } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
-import FileOpen from '@mui/icons-material';
+import FileCopy from '@mui/icons-material/FileCopy';
 import CloseIcon from '@mui/icons-material/Close';
 import CancelIcon from '@mui/icons-material/Cancel';
 import dayjs from 'dayjs';
@@ -322,7 +322,7 @@ const CommunicationsVerForm = ({ open, handleClose, initialValues }) => {
             </DialogContent>
             <Divider />
             <DialogActions>
-                <Button onClick={generatePDF} endIcon={<FileOpen />} variant="contained" color="primary">
+                <Button onClick={generatePDF} endIcon={<FileCopy />} variant="contained" color="primary">
                     Descargar PDF
                 </Button>
                 <Button onClick={handleClose} endIcon={<CancelIcon />} variant="contained">
