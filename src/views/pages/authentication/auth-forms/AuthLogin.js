@@ -1,6 +1,5 @@
-import { useState } from 'react';
-
-// material-ui
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
 import {
   Box,
@@ -15,33 +14,26 @@ import {
   InputLabel,
   OutlinedInput,
   Stack,
-  Typography
+  Typography,
+  Alert
 } from '@mui/material';
-
-// third party
 import * as Yup from 'yup';
 import { Formik } from 'formik';
-
-// project imports
-import useScriptRef from 'hooks/useScriptRef';
-import AnimateButton from 'ui-component/extended/AnimateButton';
-
-// assets
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import useScriptRef from 'hooks/useScriptRef';
+import AnimateButton from 'ui-component/extended/AnimateButton';
 import { login } from 'api/auth/authApi';
 import { saveToLocalStorage } from 'utils/localStorage';
-import { useNavigate } from 'react-router-dom';
-
-// ============================|| FIREBASE - LOGIN ||============================ //
 
 const AuthLogin = ({ ...others }) => {
   const theme = useTheme();
   const scriptedRef = useScriptRef();
-  const [checked, setChecked] = useState(true);
   const navigate = useNavigate();
-
+  const [checked, setChecked] = useState(true);
+  const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };
@@ -51,8 +43,8 @@ const AuthLogin = ({ ...others }) => {
   };
 
   const afterLogin = (token, user) => {
-    saveToLocalStorage("token", token);
-    saveToLocalStorage("user", user);
+    saveToLocalStorage('token', token);
+    saveToLocalStorage('user', user);
     navigate('/dashboard/default');
     window.location.reload();
   };
@@ -78,22 +70,27 @@ const AuthLogin = ({ ...others }) => {
           password: Yup.string().max(255).required('La contraseña es obligatoria')
         })}
         onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
-
-          const response = await login({ email: values.email, password: values.password, name: 'Browser' });
-          if (response.message === "success") {
-            if (scriptedRef.current) {
-              setStatus({ success: true });
-              setSubmitting(false);
-              afterLogin(response.token, response.user);
+          try {
+            const response = await login({ email: values.email, password: values.password, name: 'Browser' });
+            if (response.message === 'success') {
+              if (scriptedRef.current) {
+                setStatus({ success: true });
+                setSubmitting(false);
+                afterLogin(response.token, response.user);
+              }
+            } else {
+              throw new Error(response.message);
             }
-          } else {
+          } catch (error) {
+            setError(error.response.data.message);
+            console.log(error);
+            console.log(error.message);
             if (scriptedRef.current) {
               setStatus({ success: false });
-              setErrors({ submit: response.message });
+              setErrors({ submit: error.message });
               setSubmitting(false);
             }
           }
-
         }}
       >
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
@@ -159,12 +156,11 @@ const AuthLogin = ({ ...others }) => {
                 ¿Olvidaste tu contraseña?
               </Typography>
             </Stack>
-            {errors.submit && (
-              <Box sx={{ mt: 3 }}>
-                <FormHelperText error>{errors.submit}</FormHelperText>
-              </Box>
+            {error && (
+              <Grid item xs={12}>
+                <Alert severity="error">{error}</Alert>
+              </Grid>
             )}
-
             <Box sx={{ mt: 2 }}>
               <AnimateButton>
                 <Button disableElevation disabled={isSubmitting} fullWidth size="large" type="submit" variant="contained" color="primary">

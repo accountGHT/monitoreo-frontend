@@ -76,6 +76,7 @@ const PersonForm = ({ open, handleClose, onSubmit, initialValues }) => {
         fecha_nacimiento: dayjs(values.fecha_nacimiento).format('YYYY-MM-DD'),
         genero: values.genero,
         tipo: values.tipo,
+        clave: values.clave,
       }
       const resp = await onSubmit(payload, resetForm);
       if (resp.success) {
@@ -104,6 +105,7 @@ const PersonForm = ({ open, handleClose, onSubmit, initialValues }) => {
         fecha_nacimiento: initialValues.fecha || dayjs(),
         genero: initialValues.genero || 'MASCULINO',
         tipo: initialValues.tipo || 1,
+        clave: initialValues.clave || '',
       });
       setLoading(false);
     }
@@ -237,6 +239,21 @@ const PersonForm = ({ open, handleClose, onSubmit, initialValues }) => {
                   variant="standard"
                   error={formik.touched.correo && Boolean(formik.errors.correo)}
                   helperText={formik.touched.correo && formik.errors.correo}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={3}>
+                <TextField
+                  fullWidth
+                  id="clave"
+                  name="clave"
+                  label="Clave"
+                  type="password"
+                  value={formik.values.clave}
+                  onChange={formik.handleChange}
+                  variant="standard"
+                  error={formik.touched.clave && Boolean(formik.errors.clave)}
+                  helperText={formik.touched.clave && formik.errors.clave}
                 />
               </Grid>
 
