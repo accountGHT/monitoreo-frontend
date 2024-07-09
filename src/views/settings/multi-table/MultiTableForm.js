@@ -69,6 +69,10 @@ const MultiTableForm = ({ tablaActual, open, handleClose, onSubmit, initialValue
                     longitud1: values.longitud1 || null,
                     latitud2: values.latitud2 || null,
                     longitud2: values.longitud2 || null,
+                    latitud3: values.latitud3 || null,
+                    longitud3: values.longitud3 || null,
+                    latitud4: values.latitud4 || null,
+                    longitud4: values.longitud4 || null,
                 },
                 ...(esTipoIncidencia && {
                     es_violento: values.es_violento ? 1 : 0,
@@ -111,6 +115,10 @@ const MultiTableForm = ({ tablaActual, open, handleClose, onSubmit, initialValue
                     longitud1: initialValues.longitud1 ?? '',
                     latitud2: initialValues.latitud2 ?? '',
                     longitud2: initialValues.longitud2 ?? '',
+                    latitud3: initialValues.latitud3 ?? '',
+                    longitud3: initialValues.longitud3 ?? '',
+                    latitud4: initialValues.latitud4 ?? '',
+                    longitud4: initialValues.longitud4 ?? '',
                     es_violento: (initialValues.es_violento === 1 ? true : false) || true,
                     es_transito: (initialValues.es_transito === 1 ? true : false) || true,
                     institucion_id: initialValues.institucion_id || null,
@@ -305,10 +313,63 @@ const MultiTableForm = ({ tablaActual, open, handleClose, onSubmit, initialValue
                                                 helperText={formik.touched.longitud2 && formik.errors.longitud2}
                                             />
                                         </Grid>
+                                        <Grid item xs={12} sm={6} md={4}>
+                                            <TextField
+                                                fullWidth
+                                                id="latitud3"
+                                                name="latitud3"
+                                                label="Latitud 3"
+                                                value={formik.values.latitud3}
+                                                onChange={formik.handleChange}
+                                                variant="standard"
+                                                error={formik.touched.latitud3 && Boolean(formik.errors.latitud3)}
+                                                helperText={formik.touched.latitud3 && formik.errors.latitud3}
+                                            />
+                                        </Grid>
+
+                                        <Grid item xs={12} sm={6} md={4}>
+                                            <TextField
+                                                fullWidth
+                                                id="longitud3"
+                                                name="longitud3"
+                                                label="Longitud 3"
+                                                value={formik.values.longitud3}
+                                                onChange={formik.handleChange}
+                                                variant="standard"
+                                                error={formik.touched.longitud3 && Boolean(formik.errors.longitud3)}
+                                                helperText={formik.touched.longitud3 && formik.errors.longitud3}
+                                            />
+                                        </Grid>
+
+                                        <Grid item xs={12} sm={6} md={4}>
+                                            <TextField
+                                                fullWidth
+                                                id="latitud4"
+                                                name="latitud4"
+                                                label="Latitud 4"
+                                                value={formik.values.latitud4}
+                                                onChange={formik.handleChange}
+                                                variant="standard"
+                                                error={formik.touched.latitud4 && Boolean(formik.errors.latitud4)}
+                                                helperText={formik.touched.latitud4 && formik.errors.latitud4}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} sm={6} md={4}>
+                                            <TextField
+                                                fullWidth
+                                                id="longitud4"
+                                                name="longitud4"
+                                                label="Longitud 4"
+                                                value={formik.values.longitud4}
+                                                onChange={formik.handleChange}
+                                                variant="standard"
+                                                error={formik.touched.longitud4 && Boolean(formik.errors.longitud4)}
+                                                helperText={formik.touched.longitud4 && formik.errors.longitud4}
+                                            />
+                                        </Grid>
                                     </>
                                 )}
                                 {esTipoIncidencia && (
-
                                     <>
                                         <Grid item xs={12} sm={6} md={3}>
                                             <Autocomplete
@@ -417,7 +478,7 @@ const MultiTableForm = ({ tablaActual, open, handleClose, onSubmit, initialValue
                             </DialogActions>
                         </form>
                     </DialogContent>
-                </Dialog>
+                </Dialog >
             )}
         </>
     );

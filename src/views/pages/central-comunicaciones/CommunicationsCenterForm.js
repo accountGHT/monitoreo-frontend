@@ -196,17 +196,20 @@ const CommunicationsCenterForm = ({ open, handleClose, onSubmit, initialValues }
     };
     const isInsideZone = (coordinates, zone) => {
         const { lat, lng } = coordinates;
-        const { latitud1, latitud2, longitud1, longitud2 } = zone;
+        const { latitud1, latitud2, latitud3, latitud4, longitud1, longitud2, longitud3, longitud4 } = zone;
         console.log(`Verificando si las coordenadas (${lat}, ${lng}) están dentro de la zona:`);
-        console.log(`Latitud debe estar entre ${latitud1} y ${latitud2}`);
-        console.log(`Longitud debe estar entre ${longitud1} y ${longitud2}`);
+        console.log(`Latitud debe estar entre ${Math.min(latitud1, latitud2, latitud3, latitud4)} y ${Math.max(latitud1, latitud2, latitud3, latitud4)}`);
+        console.log(`Longitud debe estar entre ${Math.min(longitud1, longitud2, longitud3, longitud4)} y ${Math.max(longitud1, longitud2, longitud3, longitud4)}`);
+
         const isInside = (
-            lat >= latitud1 && lat <= latitud2 &&
-            lng >= longitud1 && lng <= longitud2
+            lat >= Math.min(latitud1, latitud2, latitud3, latitud4) && lat <= Math.max(latitud1, latitud2, latitud3, latitud4) &&
+            lng >= Math.min(longitud1, longitud2, longitud3, longitud4) && lng <= Math.max(longitud1, longitud2, longitud3, longitud4)
         );
+
         console.log(`¿Está dentro de la zona? ${isInside}`);
         return isInside;
     };
+
     // fin integracion google maps
     const convertToBoolean = (value) => {
         return value === 1 || value === '1' || value === true;
